@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy this to .claude/settings.json in your research project to enable framework hooks. Add or remove hook entries as you adopt more conventions.",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/check-insights.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

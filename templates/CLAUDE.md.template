@@ -1,0 +1,63 @@
+# <PROJECT NAME> — CLAUDE.md
+
+<!--
+Replace this template's content with project-specific context. Keep CLAUDE.md
+SHORT — long protocols belong in .claude/conventions/<name>.md (read on demand)
+not here (loaded every session).
+
+Recommended top-level sections:
+  - Project Overview (3-5 lines: what this project is, who it's for, current focus)
+  - Key Frameworks (the analytical lenses you'll keep returning to)
+  - Codebase Structure (one-glance directory tree)
+  - Data Sources (where data lives + how to access)
+  - Visualization / Naming Conventions (project-specific)
+  - Convention pointers (one short section per .claude/conventions/ file)
+
+The convention pointers should be ~4 lines each — name + when-to-apply +
+"see .claude/conventions/<name>.md for protocol".
+-->
+
+## Project Overview
+
+<2-3 sentences on what this research project is about, who the counterpart is, and what the current phase of work is.>
+
+## Key Frameworks
+
+<List the 1-3 analytical lenses you'll repeatedly invoke. e.g. "Growth
+Diagnostics", "Economic Complexity", "McMillan-Rodrik decomposition".>
+
+## Codebase Structure
+
+```
+project_root/
+├── data/                  # local datasets (large files gitignored)
+├── notebooks/             # numbered analytical notebooks
+├── output/                # charts (PNG), metadata (JSON), reports (MD/CSV)
+├── insights/              # evidence-based findings doc + INDEX (project-level)
+├── methods/               # methodology notes
+├── plan/                  # multi-phase implementation plans (gitignored)
+├── scripts/               # build scripts behind notebooks
+├── .claude/
+│   ├── conventions/       # full convention protocols (read on demand)
+│   ├── hooks/             # Stop-hook nudges
+│   └── settings.json      # project-shared Claude Code settings
+└── CLAUDE.md              # this file
+```
+
+## Data Sources
+
+<List the primary datasets, how to access them (env vars, API keys, paths),
+and any important quirks. Brief — full data ledgers go in methods/.>
+
+## Visualization Conventions
+
+<Project-specific color rules, chart-naming conventions, etc.>
+
+## Insights Logging
+
+After any substantive data analysis: write `insights/NN_<slug>.md` and update
+`insights/INDEX.md`. Full protocol: `.claude/conventions/insights-logging.md`
+(read on demand). A Stop hook nudges if artifacts were produced without an
+insights doc.
+
+<!-- Add one similar pointer block per additional convention you adopt. -->
