@@ -106,10 +106,20 @@ identification strategy, sample restriction): file once at
 Why-rejected / Key-assumptions / What-would-invalidate. Full protocol:
 `.claude/conventions/decision-records.md` (read on demand).
 
+## Source Registry
+
+Tracked-source watchlist in `sources/registry.yaml` plus dedup ledger
+`sources/seen.jsonl`. Use `/scan-sources` to refresh entries due for
+re-scrape; `/scan-sources --slug=<slug>` for one source;
+`/scan-sources --category=<cat>` to filter; `--force` to bypass the
+freq window. Scraped content lands in `raw/sources/<slug>/...md` and
+requires explicit `/wiki-ingest` for wiki promotion. Full protocol:
+`.claude/conventions/source-registry.md` (read on demand).
+
 <!--
 Add one similar pointer block per additional convention you adopt. The
-super-claudio-research framework will install more over time
-(source-registry in Phase 7). Each ships with its own pointer template;
-copy the relevant block in here and trim to project specifics.
+super-claudio-research framework will install more over time. Each
+convention ships with its own pointer template; copy the relevant
+block in here and trim to project specifics.
 -->
 

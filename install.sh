@@ -70,12 +70,13 @@ else
   echo "  ~ .claude/settings.json (exists — merge new hook entries manually if needed)"
 fi
 
-# --- 3. Project-level scaffolding (insights/, wiki/, raw/, deliverables/) --
-mkdir -p insights wiki raw deliverables
+# --- 3. Project-level scaffolding (insights/, wiki/, raw/, deliverables/, sources/) --
+mkdir -p insights wiki raw deliverables sources
 copy_if_absent "$SUPER_CLAUDIO/templates/insights/INDEX.md" insights/INDEX.md
 mirror_dir "$SUPER_CLAUDIO/templates/wiki"         wiki
 mirror_dir "$SUPER_CLAUDIO/templates/raw"          raw
 mirror_dir "$SUPER_CLAUDIO/templates/deliverables" deliverables
+mirror_dir "$SUPER_CLAUDIO/templates/sources"      sources
 
 # --- 4. manifest.jsonl (empty seed — append-only audit log) ----------------
 if [[ ! -f manifest.jsonl ]]; then
@@ -83,6 +84,14 @@ if [[ ! -f manifest.jsonl ]]; then
   echo "  + manifest.jsonl (empty seed)"
 else
   echo "  ~ manifest.jsonl (exists, leaving as-is)"
+fi
+
+# --- 4b. sources/seen.jsonl (empty seed — append-only dedup log) -----------
+if [[ ! -f sources/seen.jsonl ]]; then
+  : > sources/seen.jsonl
+  echo "  + sources/seen.jsonl (empty seed)"
+else
+  echo "  ~ sources/seen.jsonl (exists, leaving as-is)"
 fi
 
 # --- 5. CLAUDE.md (only if absent — never overwrite) -----------------------

@@ -34,11 +34,26 @@ evidence, it goes here.
 
 ## Subtree convention
 
-Loose files at `raw/` root are fine for one-off papers and ad-hoc
-acquisitions. Continuous-scrape sources will be organized under
-`raw/sources/<slug>/YYYY-MM-DD_<title-slug>.md` once the source-registry
-machinery ships (Phase 7 of framework v1). Until then, just use the date
-prefix at the root.
+Two layouts coexist under `raw/`:
+
+- **Loose files at the root** — `raw/YYYY-MM-DD_<slug>.<ext>`. Use for
+  one-off acquisitions: a paper a colleague forwarded, a dataset
+  codebook, an ad-hoc scrape from the `web-scraping` skill, a meeting
+  transcript. No registry entry, no recurring fetch.
+
+- **Continuous-scrape subtrees** — `raw/sources/<slug>/YYYY-MM-DD_<title-slug>.md`.
+  Use for sources tracked in `sources/registry.yaml` and fetched by
+  `/scan-sources`. The skill creates the per-slug directory on first
+  fetch; one file per fetched item; YAML frontmatter carries `url`,
+  `source_slug`, `category`, `scraped_at`, `content_sha256`, `title`.
+
+The `raw/sources/<slug>/` layout is reserved for `/scan-sources`
+output. Don't drop loose files into a slug directory; if a one-off
+acquisition relates to a tracked source, put it at the `raw/` root and
+note the relationship in the wiki page.
+
+See `.claude/conventions/source-registry.md` for the registry protocol
+and `templates/sources/README.md` for how to register a new source.
 
 ## Ingest into the wiki
 
