@@ -8,6 +8,7 @@
 # Idempotent: safe to re-run; existing files are preserved.
 
 set -euo pipefail
+shopt -s nullglob
 
 SUPER_CLAUDIO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${1:-$PWD}"
@@ -20,79 +21,107 @@ fi
 cd "$TARGET"
 echo "Installing super-claudio-research into: $TARGET"
 
-# 1. Conventions + hooks
-mkdir -p .claude/conventions .claude/hooks
-for f in "$SUPER_CLAUDIO"/.claude/conventions/*.md; do
-  name=$(basename "$f")
-  if [[ -f ".claude/conventions/$name" ]]; then
-    echo "  ~ .claude/conventions/$name (exists, skipping)"
+# --- helpers ---------------------------------------------------------------
+
+# Copy a file or directory if the destination doesn't already exist. Skips
+# .gitkeep placeholders (those exist only to commit empty dirs in the
+# framework repo and shouldn't propagate to target projects).
+copy_if_absent() {
+  local src="$1" dst="$2"
+  local name
+  name=$(basename "$src")
+  [[ "$name" == ".gitkeep" ]] && return 0
+  if [[ -e "$dst" ]]; then
+    echo "  ~ $dst (exists, skipping)"
   else
-    cp "$f" ".claude/conventions/$name"
-    echo "  + .claude/conventions/$name"
+    cp -R "$src" "$dst"
+    echo "  + $dst"
   fi
-done
-for f in "$SUPER_CLAUDIO"/.claude/hooks/*.sh; do
-  name=$(basename "$f")
-  if [[ -f ".claude/hooks/$name" ]]; then
-    echo "  ~ .claude/hooks/$name (exists, skipping)"
-  else
-    cp "$f" ".claude/hooks/$name"
-    chmod +x ".claude/hooks/$name"
-    echo "  + .claude/hooks/$name"
-  fi
+}
+
+# Mirror the contents of $1 into $2 one level deep, idempotent.
+mirror_dir() {
+  local src_dir="$1" dst_dir="$2"
+  [[ -d "$src_dir" ]] || return 0
+  mkdir -p "$dst_dir"
+  for entry in "$src_dir"/* "$src_dir"/.[!.]*; do
+    [[ -e "$entry" ]] || continue
+    copy_if_absent "$entry" "$dst_dir/$(basename "$entry")"
+  done
+}
+
+# --- 1. Conventions, hooks, skills, agents (under .claude/) ----------------
+mkdir -p .claude/conventions .claude/hooks .claude/skills .claude/agents
+mirror_dir "$SUPER_CLAUDIO/.claude/conventions" .claude/conventions
+mirror_dir "$SUPER_CLAUDIO/.claude/hooks"       .claude/hooks
+mirror_dir "$SUPER_CLAUDIO/.claude/skills"      .claude/skills
+mirror_dir "$SUPER_CLAUDIO/.claude/agents"      .claude/agents
+
+# Hooks must be executable.
+for f in .claude/hooks/*.sh; do
+  [[ -f "$f" ]] && chmod +x "$f"
 done
 
-# 2. settings.json (only if absent — user customizations preserved)
+# --- 2. settings.json (only if absent — user customizations preserved) -----
 if [[ ! -f .claude/settings.json ]]; then
   cp "$SUPER_CLAUDIO/.claude/settings.template.json" .claude/settings.json
   echo "  + .claude/settings.json (from template)"
 else
-  echo "  ~ .claude/settings.json (exists — merge hooks manually if needed)"
+  echo "  ~ .claude/settings.json (exists — merge new hook entries manually if needed)"
 fi
 
-# 3. insights/INDEX.md
-mkdir -p insights
-if [[ ! -f insights/INDEX.md ]]; then
-  cp "$SUPER_CLAUDIO/templates/insights/INDEX.md" insights/INDEX.md
-  echo "  + insights/INDEX.md"
+# --- 3. Project-level scaffolding (insights/, wiki/, raw/, deliverables/) --
+mkdir -p insights wiki raw deliverables
+copy_if_absent "$SUPER_CLAUDIO/templates/insights/INDEX.md" insights/INDEX.md
+mirror_dir "$SUPER_CLAUDIO/templates/wiki"         wiki
+mirror_dir "$SUPER_CLAUDIO/templates/raw"          raw
+mirror_dir "$SUPER_CLAUDIO/templates/deliverables" deliverables
+
+# --- 4. manifest.jsonl (empty seed — append-only audit log) ----------------
+if [[ ! -f manifest.jsonl ]]; then
+  : > manifest.jsonl
+  echo "  + manifest.jsonl (empty seed)"
 else
-  echo "  ~ insights/INDEX.md (exists, skipping)"
+  echo "  ~ manifest.jsonl (exists, leaving as-is)"
 fi
 
-# 4. CLAUDE.md (only if absent — never overwrite)
+# --- 5. CLAUDE.md (only if absent — never overwrite) -----------------------
 if [[ ! -f CLAUDE.md ]]; then
   cp "$SUPER_CLAUDIO/templates/CLAUDE.md.template" CLAUDE.md
   echo "  + CLAUDE.md (from template — edit it for your project)"
 else
-  echo "  ~ CLAUDE.md (exists — add the Insights Logging pointer manually if missing)"
+  echo "  ~ CLAUDE.md (exists — add new convention pointer blocks manually if missing)"
 fi
 
-# 5. .gitignore — append framework block if not already present
-if [[ -f .gitignore ]] && ! grep -q "super-claudio-research framework" .gitignore; then
-  cat >> .gitignore <<'GITIGNORE'
+# --- 6. .gitignore — share framework scaffolding, hide local state --------
+GITIGNORE_BLOCK=$(cat <<'GITIGNORE'
+# super-claudio-research framework — share scaffolding, hide local state
+.claude/*
+!.claude/conventions/
+!.claude/conventions/**
+!.claude/hooks/
+!.claude/hooks/**
+!.claude/skills/
+!.claude/skills/**
+!.claude/agents/
+!.claude/agents/**
+!.claude/settings.json
 
-# super-claudio-research framework — share conventions/hooks/settings, hide local state
-.claude/*
-!.claude/conventions/
-!.claude/conventions/**
-!.claude/hooks/
-!.claude/hooks/**
-!.claude/settings.json
+# Framework working state — local to each researcher's machine
+plan/
+brainstorms/
+.scc/
 GITIGNORE
+)
+
+if [[ -f .gitignore ]] && grep -q "super-claudio-research framework" .gitignore; then
+  echo "  ~ .gitignore (framework block already present — review manually if upgrading from an older install)"
+elif [[ -f .gitignore ]]; then
+  printf '\n%s\n' "$GITIGNORE_BLOCK" >> .gitignore
   echo "  + .gitignore (appended framework block)"
-elif [[ ! -f .gitignore ]]; then
-  cat > .gitignore <<'GITIGNORE'
-# super-claudio-research framework — share conventions/hooks/settings, hide local state
-.claude/*
-!.claude/conventions/
-!.claude/conventions/**
-!.claude/hooks/
-!.claude/hooks/**
-!.claude/settings.json
-GITIGNORE
-  echo "  + .gitignore (created with framework block)"
 else
-  echo "  ~ .gitignore (framework block already present)"
+  printf '%s\n' "$GITIGNORE_BLOCK" > .gitignore
+  echo "  + .gitignore (created with framework block)"
 fi
 
 echo

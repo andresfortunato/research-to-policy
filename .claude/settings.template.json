@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this to .claude/settings.json in your research project to enable framework hooks. Add or remove hook entries as you adopt more conventions.",
+  "_comment": "Copy this to .claude/settings.json in your research project to enable framework hooks. Skills installed under .claude/skills/<name>/SKILL.md are auto-discovered by Claude Code. Subagents under .claude/agents/<name>.md are auto-discovered too. Add or remove hook entries as you adopt more conventions; later framework phases add PostToolUse (manifest) and PreCompact (handoff snapshot) entries.",
   "hooks": {
     "Stop": [
       {

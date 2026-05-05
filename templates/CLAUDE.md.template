@@ -33,13 +33,20 @@ project_root/
 ├── data/                  # local datasets (large files gitignored)
 ├── notebooks/             # numbered analytical notebooks
 ├── output/                # charts (PNG), metadata (JSON), reports (MD/CSV)
+├── raw/                   # immutable source materials (papers, downloads, scrapes)
+├── wiki/                  # LLM-owned distilled knowledge — index.md, log.md, pages
 ├── insights/              # evidence-based findings doc + INDEX (project-level)
 ├── methods/               # methodology notes
+├── deliverables/          # external memos, briefings, decks (per-profile templates)
 ├── plan/                  # multi-phase implementation plans (gitignored)
+├── brainstorms/           # decision-rationale write-ups feeding plans (gitignored)
 ├── scripts/               # build scripts behind notebooks
+├── manifest.jsonl         # append-only log of every analytical run (reproducibility ledger)
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)
-│   ├── hooks/             # Stop-hook nudges
+│   ├── hooks/             # Stop / PostToolUse / PreCompact nudges
+│   ├── skills/            # invokable Anthropic-format skills (slash commands)
+│   ├── agents/            # subagents (e.g. forked review fan-out)
 │   └── settings.json      # project-shared Claude Code settings
 └── CLAUDE.md              # this file
 ```
@@ -60,4 +67,11 @@ After any substantive data analysis: write `insights/NN_<slug>.md` and update
 (read on demand). A Stop hook nudges if artifacts were produced without an
 insights doc.
 
-<!-- Add one similar pointer block per additional convention you adopt. -->
+<!--
+Add one similar pointer block per additional convention you adopt. The
+super-claudio-research framework will install several others over time
+(handoff-format, manifest-logging, plan-structure, decision-records,
+source-registry, wiki schema). Each ships with its own pointer template;
+copy the relevant block in here and trim to project specifics.
+-->
+

@@ -19,6 +19,8 @@ The default Claude Code experience is built for software engineering. Research p
 │   └── insights-logging.md          ← evidence-based findings doc protocol
 ├── hooks/
 │   └── check-insights.sh            ← Stop-hook nudge (silent unless tripped)
+├── skills/                          ← invokable Anthropic-format skills (populated by v1)
+├── agents/                          ← subagents for forked review fan-out (populated by v1)
 └── settings.template.json           ← copy to your project's .claude/settings.json
 
 docs/
@@ -27,7 +29,10 @@ docs/
 
 templates/
 ├── CLAUDE.md.template               ← short CLAUDE.md scaffold (pointer-style)
-└── insights/INDEX.md                ← empty INDEX seed
+├── insights/INDEX.md                ← empty INDEX seed
+├── wiki/                            ← Karpathy three-layer wiki seeds (populated by v1)
+├── raw/                             ← immutable-sources convention (populated by v1)
+└── deliverables/                    ← memo / briefing / report profiles (populated by v1)
 ```
 
 ## Quickstart — install into an existing research project
@@ -77,22 +82,32 @@ See `.claude/conventions/insights-logging.md` for the protocol and `docs/insight
 
 ## Roadmap
 
-The framework is intentionally minimal. Future conventions to add (in order of likely value for research workflows):
+The framework is built incrementally. The current scoped release is **v1**, designed for the May 2026 Córdoba/Cambodia kickoff workshop and the two pilots' close-out periods (end-Aug and end-Sept 2026). See `plan/plan-v1-framework/plan.md` for the full sequenced build.
 
-- **`handoff-format`** — standardized session-end handoff for multi-phase plans
-  (status table, what didn't work, surprises, what's next).
-- **`evidence-ledger`** — a project-level table of formal claims, the chart/CSV
-  that supports each, and whether the claim has been challenged.
-- **`chart-registry`** — `save_fig(findings={...})` pattern so every chart ships
-  with metadata Claude can read without re-opening the PNG.
-- **`reproducibility-check`** — a Stop hook that flags new analysis without a
-  re-runnable script in `scripts/`.
-- **`citation-discipline`** — every quantitative claim must reference a
-  source (paper, dataset, internal doc).
-- **`plan-structure`** — multi-phase plan format aligned to the SCC plugin's
-  `plan/plan-<name>/` directory layout.
+### v1 — being built now
 
-Each addition follows the same pattern: one convention file in `.claude/conventions/`, optionally one hook script in `.claude/hooks/`, one section in `docs/`. See `docs/extending.md`.
+- **`handoff-format`** — multi-time-scale handoff (within-session, researcher↔researcher, project→follow-up-years-later).
+- **`manifest-logging`** — JSONL audit log of every analytical run (script, inputs, outputs+SHAs, env hash, git sha). Silent PostToolUse hook. Subsumes the older `reproducibility-check` idea.
+- **`plan-structure`** — research-adapted version of scc's `plan/plan-<name>/` layout, with domain-shaped verification (sign-of-coefficients, magnitude sanity) replacing code-shaped tests.
+- **`decision-records`** — policy-research analog of pre-registration: Decision / Alternatives / Why-rejected / Key-assumptions / What-would-invalidate.
+- **`source-registry`** — project-level YAML watchlist + `/scan-sources` skill for targeted continuous scraping (delegates fetching to the existing `web-scraping` skill, dedupes by content hash, lands content in `raw/sources/<slug>/`).
+- **Wiki layer** (Karpathy three-layer) — `raw/` immutable + `wiki/` LLM-owned + schema in CLAUDE.md, with `/wiki-ingest` and `/wiki-lint` skills enforcing page-type budgets.
+- **`/verify`** skill — per-artifact, user-invoked, ≤2k tokens. Sign / magnitude / missingness / source-citation checks against domain rules.
+- **`/deliverable-review`** skill — forked parallel review (≤12k tokens) with policy-research lenses (data validity, identification, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility).
+- **`/research-cleanup`** skill — orphan scripts, intermediate CSVs, unused charts. Produces a proposal; researcher signs off; never auto-deletes.
+- **Initial deliverable profiles** — `country-diagnostic-memo`, `ministerial-briefing`, `internal-research-memo`. Each has a length target, register, audience, success criteria, and recommended `/deliverable-review` lenses.
+
+### v1.1 and beyond
+
+- **`evidence-ledger`** — a project-level table of formal claims, the chart/CSV that supports each, and whether the claim has been challenged.
+- **`chart-registry`** — `save_fig(findings={...})` pattern so every chart ships with metadata Claude can read without re-opening the PNG.
+- **`citation-discipline`** — every quantitative claim must reference a source (paper, dataset, internal doc).
+- **LaTeX/Beamer add-on** — borrowed from Pedro/Hugo Sant'Anna's templates; useful when the deliverable register shifts toward academic outputs.
+- **WIP-limited multi-project dashboard** (Hugo's vault-manager pattern) — for researchers juggling multiple country engagements.
+- **Stata first-class support** — alongside R and Python.
+- **Mode-registry / cross-skill advisor** (Imbad pattern) — once skill count exceeds ~8 and "which entry point?" becomes the bottleneck.
+
+Each addition follows the same pattern: one convention file in `.claude/conventions/`, optionally one hook script in `.claude/hooks/`, one section in `docs/`, optionally a skill in `.claude/skills/`. See `docs/extending.md`.
 
 ## Why "super-claudio"
 
