@@ -11,6 +11,8 @@ The default Claude Code experience is built for software engineering. Research p
 3. **Composable, not monolithic.** Each convention is one file in `conventions/` and (optionally) one script in `hooks/`. Adopt only what your project needs.
 4. **Project-shared, not user-personal.** Everything in `.claude/conventions/`, `.claude/hooks/`, and `.claude/settings.json` is committed to the research repo so collaborators (human or AI) get the same scaffolding. User-personal config stays in `.claude/settings.local.json` (gitignored).
 
+The full eight-principle constitution (silent-by-default, conditional-not-always-fire, composable, project-shared, short CLAUDE.md, markdown-first, stakes-graded verification, open-source-from-day-one) is in `docs/audience-and-philosophy.md`. Read that before proposing a new convention or hook.
+
 ## What's in here
 
 ```
@@ -20,16 +22,22 @@ The default Claude Code experience is built for software engineering. Research p
 │   ├── manifest-logging.md          ← JSONL audit log of every analytical Bash run
 │   ├── handoff-format.md            ← multi-time-scale session-end handoff protocol
 │   ├── plan-structure.md            ← plan/plan-<slug>/ layout for multi-session work
-│   └── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
+│   ├── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
+│   └── source-registry.md           ← project-level watchlist + scrape protocol
 ├── hooks/
 │   ├── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
 │   ├── log-manifest.sh              ← PostToolUse/Bash, silent JSONL append per analytical run
 │   ├── pre-compact.sh               ← PreCompact, snapshots active plan handoff before compaction
 │   └── post-compact-restore.sh     ← SessionStart matcher=compact, surfaces snapshot on resume
 ├── skills/
+│   ├── verify/                      ← per-artifact sanity check (≤2k tokens)
+│   ├── deliverable-review/          ← forked parallel seven-lens review (≤12k tokens)
 │   ├── wiki-ingest/                 ← raw/ → wiki/ distillation
-│   └── wiki-lint/                   ← orphans, contradictions, stale, page-budget violations
-├── agents/                          ← subagents (populated by Phase 4)
+│   ├── wiki-lint/                   ← orphans, contradictions, stale, page-budget violations
+│   ├── research-cleanup/            ← orphans + intermediates + unused charts proposal
+│   └── scan-sources/                ← registry-driven targeted scraping
+├── agents/
+│   └── manifest-checker.md          ← subagent invoked by /verify for manifest cross-check
 └── settings.template.json           ← copy to your project's .claude/settings.json
 
 docs/
@@ -38,17 +46,24 @@ docs/
 ├── handoff-mechanism.md             ← multi-time-scale handoff design rationale
 ├── plan-structure-mechanism.md      ← scc adaptation for research, layout rationale
 ├── wiki-architecture.md             ← Karpathy three-layer, page budgets, ingest/query/lint
+├── verification-architecture.md     ← three-tier verification (hook / verify / review) rationale
+├── source-registry-mechanism.md     ← registry format, dedup, freq logic, fail-modes
+├── audience-and-philosophy.md       ← design constitution for users + contributors
 └── extending.md                     ← how to add new conventions/hooks
 
 templates/
 ├── CLAUDE.md.template               ← short CLAUDE.md scaffold with all v1 pointer blocks
 ├── insights/INDEX.md                ← empty INDEX seed
 ├── wiki/                            ← SCHEMA.md + README.md + index.md + log.md (Karpathy seeds)
-├── raw/README.md                    ← immutable-sources convention
+├── raw/README.md                    ← immutable-sources convention (incl. raw/sources/<slug>/)
+├── sources/                         ← registry.yaml + README.md + seen.jsonl (registry seeds)
 ├── handoff.md                       ← session-end handoff template
 ├── decision-record.md               ← decision-record fillable template
 ├── manifest.jsonl                   ← empty seed (target-project audit log)
-└── deliverables/                    ← memo / briefing / report profiles (populated by Phase 6)
+└── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
+    ├── country-diagnostic-memo/     ← 4–7k words, technical-peer audience
+    ├── ministerial-briefing/        ← ≤1.2k words / 2pp hard cap, executive audience
+    └── internal-research-memo/      ← 5–12k words, working-through-a-question
 ```
 
 **Hard dependency:** `jq` is required by `log-manifest.sh` (the manifest hook). Install via `brew install jq` or your package manager. Hook fails silent if `jq` is missing — no log row written, no error either.
@@ -101,30 +116,43 @@ Two skills (`/wiki-ingest`, `/wiki-lint`) plus the schema doc that lives in targ
 
 See `docs/wiki-architecture.md`. Schema travels with target projects in `wiki/SCHEMA.md`.
 
+### `source-registry` + `/scan-sources`
+
+Project-level YAML watchlist (`sources/registry.yaml`) of news / company / policy / infra / investment URLs to track continuously, plus the `/scan-sources` skill that re-scrapes entries due for re-fetch. Fields per entry: `slug`, `url`, `category`, `freq` (`daily` / `weekly` / `monthly` / `adhoc`), `last_scraped`, `scrape_method`, `content_selector`, `notes`. Dedup is content-hash via `sources/seen.jsonl`. Fresh content lands in `raw/sources/<slug>/YYYY-MM-DD_<title-slug>.md` and requires explicit `/wiki-ingest` to become wiki-promoted (so the researcher controls what becomes load-bearing). Fetching delegates to the existing `web-scraping` skill (rate limits, robots.txt, identifiable User-Agent inherited). `/scan-sources` is always explicit — never auto-fires on a clock. Flags: `--slug=<slug>` (single source), `--category=<cat>` (filtered), `--force` (bypass freq window).
+
+See `.claude/conventions/source-registry.md` and `docs/source-registry-mechanism.md`. Registry seed: `templates/sources/registry.yaml`.
+
+### `/verify` — per-artifact sanity check
+
+User-invoked, ≤2k tokens. Pick one artifact — a regression result, a chart, or a paragraph — and run 3–5 domain-shaped checks: sign-of-coefficients, magnitude plausibility, missingness handling, source citation present, manifest reproducibility (does `manifest.jsonl` show the script that produced this output?). Three artifact-type check menus; the skill picks per invocation, biased toward cheap checks. Run before publishing or handing off — not as a routine background pass.
+
+See `.claude/skills/verify/SKILL.md` and `docs/verification-architecture.md`. Subagent: `.claude/agents/manifest-checker.md`.
+
+### `/deliverable-review` — forked parallel seven-lens review
+
+User-invoked, ≤12k tokens total. Spawns one subagent per lens (data validity, identification/reasoning, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility), each in a separate context (~1.5k tokens each); a synthesizer reconciles their structured reports into a single audit. Run only on advanced deliverable drafts (last-mile, not exploratory). Lens weighting per deliverable type comes from `templates/deliverables/<profile>/PROFILE.md`.
+
+See `.claude/skills/deliverable-review/SKILL.md` and `docs/verification-architecture.md`.
+
+### `/research-cleanup` — orphan + intermediate audit
+
+User-invoked. Audits the project for accumulated cruft: orphan scripts older than 30 days, intermediate CSVs older than `data/raw/`'s most-recent-change watermark, charts not referenced by any insight or deliverable, notebook cells marked as scratch. Produces a markdown proposal at `cleanup-proposal.md`; the researcher reviews and acts manually. **Never deletes, moves, or modifies anything itself.** Run before milestones (close-out, hand-off, open-sourcing).
+
+See `.claude/skills/research-cleanup/SKILL.md`.
+
+### Deliverable profiles
+
+Three profiles ship in v1 — each is a `PROFILE.md` (length target, register, audience, success criteria, recommended `/deliverable-review` lens weights) plus a `template.md` (skeleton). Use the profile that matches the audience; copy the template into `deliverables/<your-deliverable>/` to start.
+
+- **`country-diagnostic-memo`** — 4–7k words / 10–18 pages of body + ≤500-word executive summary; technical-peer audience; flagship analytic deliverable. Heavy weight on data validity + identification + robustness lenses.
+- **`ministerial-briefing`** — 500–1.2k words / 2-page hard cap; executive audience ("read in the back of a car between meetings"). Heavy weight on framing + audience-fit + political-economy realism.
+- **`internal-research-memo`** — 5–12k words; working through a question, not landing a polished conclusion. Permissive length; even-weighted lenses.
+
+See `templates/deliverables/<profile>/PROFILE.md` for each.
+
 ## Roadmap
 
-The framework is built incrementally. The current scoped release is **v1**, designed for the May 2026 Córdoba/Cambodia kickoff workshop and the two pilots' close-out periods (end-Aug and end-Sept 2026). See `plan/plan-v1-framework/plan.md` for the full sequenced build.
-
-### v1 — build progress
-
-| Phase | Title | Status |
-|---|---|---|
-| 1 | Foundation: directory layout, settings, install.sh | ✅ shipped |
-| 2 | Wiki layer (Karpathy three-layer) — `/wiki-ingest`, `/wiki-lint`, schema, page-type budgets | ✅ shipped |
-| 3 | Manifest + reproducibility hook — silent PostToolUse JSONL log | ✅ shipped |
-| 4 | `/verify` + `/deliverable-review` skills | next |
-| 5 | Handoff / plan-structure / decision-records conventions + PreCompact/SessionStart hooks | ✅ shipped |
-| 6 | `/research-cleanup` skill + initial deliverable profiles | next |
-| 7 | Source registry + `/scan-sources` skill | next |
-| 8 | Documentation polish + workshop materials | blocked |
-
-### v1 — still to come (Phases 4, 6, 7)
-
-- **`/verify`** skill — per-artifact, user-invoked, ≤2k tokens. Sign / magnitude / missingness / source-citation checks against domain rules. Reads `manifest.jsonl` to scope what was produced.
-- **`/deliverable-review`** skill — forked parallel review (≤12k tokens) with policy-research lenses (data validity, identification, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility).
-- **`/research-cleanup`** skill — orphan scripts, intermediate CSVs, unused charts. Produces a proposal; researcher signs off; never auto-deletes.
-- **Initial deliverable profiles** — `country-diagnostic-memo`, `ministerial-briefing`, `internal-research-memo`. Each has a length target, register, audience, success criteria, and recommended `/deliverable-review` lenses.
-- **`source-registry`** convention + **`/scan-sources`** skill — project-level YAML watchlist for targeted continuous scraping (delegates fetching to the existing `web-scraping` skill, dedupes by content hash, lands content in `raw/sources/<slug>/` for explicit `/wiki-ingest` later).
+v1 is the current scoped release, designed for the May 2026 Córdoba/Cambodia kickoff workshop and the two pilots' close-out periods (end-Aug and end-Sept 2026). All eight build phases shipped — every convention, hook, skill, and template listed above is installed and verified. See `plan/plan-v1-framework/plan.md` (in the framework repo) for the build history.
 
 ### v1.1 and beyond
 
