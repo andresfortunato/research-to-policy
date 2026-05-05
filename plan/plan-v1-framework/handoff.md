@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phases 1, 2, 3, 4, 5, 6, 7 complete; only Phase 8 (docs/README polish + workshop materials) remains
 **Date:** 2026-05-05
-**Last commit on plan branch:** _to be set after this session's commit_
+**Last commit on plan branch:** `1042f9f` — "Phases 4/6/7: verify+review skills, cleanup+profiles, source registry" (pushed to origin/main)
 
 ## Phase status
 
@@ -84,7 +84,8 @@ Nothing this session — the second three-way parallel run confirmed the protoco
 - Phase 2/3/5 handoff: 43526ec
 - README polish: 1a92005
 - Prior handoff refresh: b731b59
-- Phase 4/6/7 work + this handoff: _to be filled in after commit_
+- Phase 4/6/7 work: 1042f9f
+- This handoff refresh: _to be filled in after the handoff-only commit_
 
 ## Known minor items (not blocking next session)
 - `.DS_Store` is still untracked in the framework repo; Phase 8 should add a one-line framework-repo `.gitignore` (or use `git update-index --skip-worktree`).
