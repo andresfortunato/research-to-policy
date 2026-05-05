@@ -67,11 +67,49 @@ After any substantive data analysis: write `insights/NN_<slug>.md` and update
 (read on demand). A Stop hook nudges if artifacts were produced without an
 insights doc.
 
+## Wiki
+
+Distilled, queryable project knowledge in `wiki/`, built from immutable
+sources in `raw/`. Schema and rules: `wiki/SCHEMA.md`. Use `/wiki-ingest
+<raw/path>` to add a source; `/wiki-lint` to audit. Claude owns `wiki/`;
+researchers may correct factual errors. See `wiki/README.md` for orientation.
+
+## Manifest Logging
+
+Every analytical Bash run (Rscript, python, stata) is silently logged as
+one JSONL row in `manifest.jsonl` at the project root by a PostToolUse
+hook. Format spec + audit ritual: `.claude/conventions/manifest-logging.md`
+(read on demand). Never edit `manifest.jsonl` by hand — append-only.
+
+## Handoff Format
+
+End of any working session that touched a `plan/plan-<name>/`: rewrite
+that plan's `handoff.md` in place. Multi-time-scale (within-session,
+researcher↔researcher, year-later). Full protocol:
+`.claude/conventions/handoff-format.md` (read on demand). A PreCompact
+hook snapshots the active handoff before context loss; a SessionStart
+hook restores it on resume.
+
+## Plan Structure
+
+Multi-session work lives at `plan/plan-<slug>/{plan.md, handoff.md, log.md}`.
+Verification is domain-shaped (sign-of-coefficients, magnitude sanity,
+breakpoint alignment), not code-shaped. Full protocol:
+`.claude/conventions/plan-structure.md` (read on demand). Cross-link
+methodology calls to `decisions/`.
+
+## Decision Records
+
+Methodology calls you'd defend in peer review (deflator choice,
+identification strategy, sample restriction): file once at
+`decisions/YYYY-MM-DD_<slug>.md`. Format: Decision / Alternatives /
+Why-rejected / Key-assumptions / What-would-invalidate. Full protocol:
+`.claude/conventions/decision-records.md` (read on demand).
+
 <!--
 Add one similar pointer block per additional convention you adopt. The
-super-claudio-research framework will install several others over time
-(handoff-format, manifest-logging, plan-structure, decision-records,
-source-registry, wiki schema). Each ships with its own pointer template;
+super-claudio-research framework will install more over time
+(source-registry in Phase 7). Each ships with its own pointer template;
 copy the relevant block in here and trim to project specifics.
 -->
 

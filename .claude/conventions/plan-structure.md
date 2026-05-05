@@ -1,0 +1,117 @@
+# Plan Structure — Protocol
+
+**Trigger**: Any multi-session piece of work — a new analytical phase, a
+deliverable build-out, a methodological migration. Anything you'd want a
+teammate or 2028-you to be able to resume from cold.
+
+## Where plans live
+
+- One directory per plan: `plan/plan-<short-slug>/` at project root.
+- Slugs are short and decision-bearing: `plan-cambodia-fdi-decomposition`,
+  not `plan-january-work`.
+- The directory is gitignored in target projects (researcher-local) by
+  default; commit it explicitly when collaboration requires it.
+
+## Required files
+
+```
+plan/plan-<slug>/
+├── plan.md          # the contract: goal, constraints, decisions, manifest, phases
+├── handoff.md       # current session state (see handoff-format)
+├── log.md           # direction changes, scope shifts, decision pivots
+├── phases/          # optional: per-phase notes when a phase splits across sessions
+│   └── phase-N.md
+└── output/          # parallel-agent scratch; gitignored or cleaned at plan-close
+```
+
+`plan.md` and `handoff.md` are mandatory. `log.md` is mandatory once the
+plan has had at least one direction change. `phases/` and `output/` are
+created on demand.
+
+## `plan.md` required structure
+
+```markdown
+# Plan: <slug>
+
+## Goal
+<2-5 sentences. The intended outcome, in researcher language. Reference
+the brainstorm that fed into this plan if one exists.>
+
+## Constraints
+- <hard rules — methodological, infrastructural, audience>
+- <things that are NOT being changed>
+
+## Decisions Made
+<Decisions consumed from brainstorm or earlier sessions. These are settled.
+Do not re-debate during execution. Cross-link to decisions/YYYY-MM-DD_*.md
+files for any methodology call worth defending in peer review.>
+
+## File Manifest
+<Tree of files this plan adds (✚) / modifies (✎) / leaves alone (·).
+Concrete enough that a parallel agent can pick a phase and know exactly
+which files are theirs.>
+
+## Phases
+### Phase 1 — <title>
+**Intent.** <2-4 sentences>
+**Modifies/Adds.** <bullet list of paths>
+**Verification.** <domain-shaped checks — see below>
+
+### Phase 2 — …
+
+## Phase Order + Dependencies
+<Which phases block which. Which can run in parallel.>
+
+## Open Items Deferred
+<Decisions explicitly pushed to a later plan.>
+```
+
+## Verification: domain-shaped, not code-shaped
+
+scc's planning skill verifies phases with code-shaped checks ("the test
+passes", "the type-check is green"). Research adapts this. Phase
+verification in `plan.md` should be **domain-shaped**:
+
+- **Sign of coefficients matches theory** ("FDI elasticity > 0 in
+  diversification specs; flips sign with the manufacturing dummy as
+  expected").
+- **Magnitude sanity** ("aggregate matches the World Bank headline within
+  rounding").
+- **Breakpoint alignment** ("the structural break lands within ±1 year of
+  the privatization reform date").
+- **Source citation present** ("every claim in the memo references either
+  an `insights/NN_*.md` doc or a `wiki/` page").
+- **Reproducibility** ("script in `manifest.jsonl`; rerunning produces the
+  same `output_sha256`").
+
+Code-style checks (linters, type-checkers) belong in pre-commit hooks, not
+in `plan.md`'s verification section.
+
+## Methodology decisions
+
+For any methodology call you would want defended in a peer review — choice of
+deflator, identification strategy, sample restriction, deflation base year —
+file a `decisions/YYYY-MM-DD_<slug>.md` per the `decision-records`
+convention and reference it from `plan.md`'s **Decisions Made** section.
+Don't inline the rationale in `plan.md` — the decision file is auditable on
+its own and survives plan close-out.
+
+## Discipline rules
+
+- **Plans are written before execution**, not retrofitted. Brainstorm →
+  plan → execute is the cadence; planning during execution produces drift.
+- **`log.md` records direction changes**, not minor edits. Tweaking a phase
+  title is just an edit; adding/rejecting a phase is a log entry.
+- **One commit ships the plan + the brainstorm it consumed.** Decision
+  genealogy survives plan close-out.
+- **`output/` is scratch.** Parallel agents may stage intermediate files
+  there; gitignore or clean on plan close. Do not let it become a shadow
+  `insights/`.
+- **Closing a plan** means setting `handoff.md` Status to
+  `CLOSED — YYYY-MM-DD` and committing. The directory stays as record.
+
+## Why scc-style at project root
+
+`plan/plan-<slug>/` at project root is discoverable in one `ls` and matches
+the planning skill's expectations. The nested `quality_reports/plans/`
+alternative was rejected. See `docs/plan-structure-mechanism.md`.
