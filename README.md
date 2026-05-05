@@ -19,14 +19,14 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 .claude/
 ├── conventions/
 │   ├── insights-logging.md          ← evidence-based findings doc protocol
-│   ├── manifest-logging.md          ← JSONL audit log of every analytical Bash run
+│   ├── script-header.md             ← every analytical script's header block (Inputs/Outputs/Seed/Env)
+│   ├── analytical-commit-format.md  ← Run:/Out: lines in commit messages for analytical changes
 │   ├── handoff-format.md            ← multi-time-scale session-end handoff protocol
 │   ├── plan-structure.md            ← plan/plan-<slug>/ layout for multi-session work
 │   ├── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
 │   └── source-registry.md           ← project-level watchlist + scrape protocol
 ├── hooks/
-│   ├── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
-│   └── log-manifest.sh              ← PostToolUse/Bash, silent JSONL append per analytical run
+│   └── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
 ├── skills/
 │   ├── verify/                      ← per-artifact sanity check (≤2k tokens)
 │   ├── deliverable-review/          ← forked parallel seven-lens review (≤12k tokens)
@@ -34,17 +34,14 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── wiki-lint/                   ← orphans, contradictions, stale, page-budget violations
 │   ├── research-cleanup/            ← orphans + intermediates + unused charts proposal
 │   └── scan-sources/                ← registry-driven targeted scraping
-├── agents/
-│   └── manifest-checker.md          ← subagent invoked by /verify for manifest cross-check
 └── settings.template.json           ← copy to your project's .claude/settings.json
 
 docs/
 ├── insights-mechanism.md            ← design rationale + tradeoffs
-├── manifest-mechanism.md            ← why JSONL, field-by-field, tradeoffs, extension points
 ├── handoff-mechanism.md             ← multi-time-scale handoff design rationale
 ├── plan-structure-mechanism.md      ← scc adaptation for research, layout rationale
 ├── wiki-architecture.md             ← Karpathy three-layer, page budgets, ingest/query/lint
-├── verification-architecture.md     ← three-tier verification (hook / verify / review) rationale
+├── verification-architecture.md     ← /verify + /deliverable-review design rationale
 ├── source-registry-mechanism.md     ← registry format, dedup, freq logic, fail-modes
 ├── audience-and-philosophy.md       ← design constitution for users + contributors
 └── extending.md                     ← how to add new conventions/hooks
@@ -57,14 +54,13 @@ templates/
 ├── sources/                         ← registry.yaml + README.md + seen.jsonl (registry seeds)
 ├── handoff.md                       ← session-end handoff template
 ├── decision-record.md               ← decision-record fillable template
-├── manifest.jsonl                   ← empty seed (target-project audit log)
 └── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
     ├── country-diagnostic-memo/     ← 4–7k words, technical-peer audience
     ├── ministerial-briefing/        ← ≤1.2k words / 2pp hard cap, executive audience
     └── internal-research-memo/      ← 5–12k words, working-through-a-question
 ```
 
-**Hard dependency:** `jq` is required by `log-manifest.sh` (the manifest hook). Install via `brew install jq` or your package manager. Hook fails silent if `jq` is missing — no log row written, no error either.
+The framework has no hard external dependencies. Hooks are pure bash + standard Unix tools.
 
 ## Quickstart — install into an existing research project
 
@@ -74,7 +70,7 @@ cd /path/to/your/research-project
 bash $HOME/GitHub/super-claudio-research/install.sh .
 ```
 
-`install.sh` is idempotent — safe to re-run as the framework grows. It mirrors `.claude/{conventions,hooks,skills,agents}/` and the `templates/` seeds (insights, wiki, raw, deliverables) into your project, seeds an empty `manifest.jsonl`, copies `settings.template.json` to `.claude/settings.json` (only if absent — your customizations are preserved), and appends a framework block to `.gitignore` that shares the framework scaffolding while hiding local working state (`plan/`, `brainstorms/`, `.scc/`).
+`install.sh` is idempotent — safe to re-run as the framework grows. It mirrors `.claude/{conventions,hooks,skills}/` and the `templates/` seeds (insights, wiki, raw, sources, deliverables) into your project, seeds an empty `sources/seen.jsonl`, copies `settings.template.json` to `.claude/settings.json` (only if absent — your customizations are preserved), and appends a framework block to `.gitignore` that shares the framework scaffolding while hiding local working state (`plan/`, `brainstorms/`, `.scc/`).
 
 ## Conventions installed
 
@@ -84,11 +80,11 @@ After substantive data analysis, write `insights/NN_<slug>.md` (3–8 evidence-b
 
 See `.claude/conventions/insights-logging.md` and `docs/insights-mechanism.md`.
 
-### `manifest-logging`
+### `script-header` + `analytical-commit-format`
 
-Every analytical Bash run (`Rscript`, `python`, `python -m`, `stata`) is silently logged as one JSON line in `manifest.jsonl` at the project root. Schema: `timestamp / script / language / inputs / outputs / output_sha256 / seed / env_hash / git_sha / phase`. The PostToolUse hook is silent on non-analytical commands (`ls`, `git`, `cat`, …) and never writes to stdout. Audit ritual uses `jq` queries to reproduce a specific output.
+Reproducibility audit without an automatic log. Every analytical script (R / Python / Stata) starts with a fixed-shape header — Script / Inputs / Outputs / Seed / Env. Every commit that produces or modifies analytical artifacts under `output/`, `insights/`, or `deliverables/<name>/charts/` includes `Run:` and `Out:` lines in the message. Together: `git log -- output/06c.png` resolves to a commit, the commit message names the script, the script's header documents inputs/seed/env. No JSONL log, no `jq` dependency, no PostToolUse hook — git carries the trail.
 
-See `.claude/conventions/manifest-logging.md` and `docs/manifest-mechanism.md`.
+See `.claude/conventions/script-header.md` and `.claude/conventions/analytical-commit-format.md`.
 
 ### `handoff-format`
 
@@ -122,9 +118,9 @@ See `.claude/conventions/source-registry.md` and `docs/source-registry-mechanism
 
 ### `/verify` — per-artifact sanity check
 
-User-invoked, ≤2k tokens. Pick one artifact — a regression result, a chart, or a paragraph — and run 3–5 domain-shaped checks: sign-of-coefficients, magnitude plausibility, missingness handling, source citation present, manifest reproducibility (does `manifest.jsonl` show the script that produced this output?). Three artifact-type check menus; the skill picks per invocation, biased toward cheap checks. Run before publishing or handing off — not as a routine background pass.
+User-invoked, ≤2k tokens. Pick one artifact — a regression result, a chart, or a paragraph — and run 3–5 domain-shaped checks: sign-of-coefficients, magnitude plausibility, missingness handling, source citation present, provenance (does `git log` resolve the artifact to a script with a valid header?). Three artifact-type check menus; the skill picks per invocation, biased toward cheap checks. Run before publishing or handing off — not as a routine background pass.
 
-See `.claude/skills/verify/SKILL.md` and `docs/verification-architecture.md`. Subagent: `.claude/agents/manifest-checker.md`.
+See `.claude/skills/verify/SKILL.md` and `docs/verification-architecture.md`.
 
 ### `/deliverable-review` — forked parallel seven-lens review
 

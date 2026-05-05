@@ -81,8 +81,9 @@ verification in `plan.md` should be **domain-shaped**:
   the privatization reform date").
 - **Source citation present** ("every claim in the memo references either
   an `insights/NN_*.md` doc or a `wiki/` page").
-- **Reproducibility** ("script in `manifest.jsonl`; rerunning produces the
-  same `output_sha256`").
+- **Reproducibility** ("script has a valid header; commit message has
+  `Run:`/`Out:` lines per the analytical-commit-format convention;
+  rerunning produces the same artifact hash").
 
 Code-style checks (linters, type-checkers) belong in pre-commit hooks, not
 in `plan.md`'s verification section.

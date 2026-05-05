@@ -1,7 +1,7 @@
 ---
 name: verify
-description: Per-artifact verification of one regression result, one chart, or one paragraph against domain rules — sign-of-coefficients, magnitudes, missingness, source citation, manifest reproducibility. Use when the user says "/verify <path>", "verify this regression", "check this chart against the manifest", "sanity-check this paragraph", or otherwise asks to inspect a single artifact for plausibility before publishing it. User-invoked only; never auto-fires. Budget ≤2k tokens.
-allowed-tools: Read, Bash, Glob, Grep, Task
+description: Per-artifact verification of one regression result, one chart, or one paragraph against domain rules — sign-of-coefficients, magnitudes, missingness, source citation, git+header provenance. Use when the user says "/verify <path>", "verify this regression", "sanity-check this paragraph", or otherwise asks to inspect a single artifact for plausibility before publishing it. User-invoked only; never auto-fires. Budget ≤2k tokens.
+allowed-tools: Read, Bash, Glob, Grep
 ---
 
 # verify
@@ -20,7 +20,7 @@ The user types one of:
 
 - `/verify <path>` — point at one file (`output/06c_fdi_at_entry.png`,
   `output/regression_latest.json`, `deliverables/draft.md`, a single CSV row).
-- "Verify this regression result against the manifest."
+- "Verify this regression result."
 - "Sanity-check this paragraph — does the number match what's in `output/`?"
 - "Does this chart's underlying data match the latest run?"
 
@@ -33,14 +33,15 @@ The user types one of:
   auto-fire on file writes.
 - The check would require re-running the analysis end-to-end. That's
   a reproduction job, not verification — point the user at the audit
-  ritual in `.claude/conventions/manifest-logging.md`.
+  ritual in `.claude/conventions/script-header.md` (the "Why this works"
+  section).
 
 ## Preconditions
 
-- `manifest.jsonl` exists at the project root (Phase 3 hook populates it).
-  If absent, warn the user that reproducibility checks will be skipped,
-  then proceed with domain-only checks.
 - The target artifact path is readable. If absent, stop and tell the user.
+- The repo is a git repo. The provenance check uses `git log` to resolve
+  artifacts to commits to scripts. If not a git repo, skip provenance and
+  proceed with domain-only checks.
 
 ## The check menu
 
@@ -59,28 +60,32 @@ every check — the budget is ≤2k tokens. Choose by artifact:
    and the share of dropped rows. Flag if N is unusually small for the
    panel structure, or if missingness > 25%.
 4. **Standard-error sanity.** Are SEs clustered when the data structure
-   demands it (panel, repeated-cross-section, hierarchical)? Look at the
-   script that produced the result via `jq` on `manifest.jsonl`.
-5. **Manifest reproducibility.** Find the `manifest.jsonl` row whose
-   `outputs` includes this artifact. Confirm `output_sha256` matches
-   `sha256sum <artifact>`. Mismatch means the artifact has been edited
-   since it was produced — flag loudly.
+   demands it (panel, repeated-cross-section, hierarchical)? Find the
+   producing script via `git log -- <artifact>` → commit message `Run:`
+   line, then read the script.
+5. **Provenance.** Run `git log -- <artifact>` to find the commit that
+   last produced it. Read the commit message — it should have a `Run:`
+   line per the analytical-commit-format convention. Read the named
+   script's header — it should list this artifact under `Outputs:`.
+   Mismatch (no header, header doesn't mention the artifact, or commit
+   has no `Run:` line) is a flag.
 
 ### B. Chart (`*.png`, `*.pdf`, `*.svg`)
 
 1. **Axis-and-label sanity.** Read the chart's source script (look up via
-   manifest) and confirm units, axis ranges, and legend match what the
-   chart's surrounding caption claims.
-2. **Underlying data freshness.** Find the manifest row that produced
-   this chart. Find the row that produced the *input CSV*. If the input
-   CSV has a more recent run than the chart, the chart may be stale.
+   `git log` → commit message `Run:` line) and confirm units, axis
+   ranges, and legend match what the chart's surrounding caption claims.
+2. **Underlying data freshness.** Read the source script's header to
+   find its `Inputs:`. Run `git log -- <input>` and `git log -- <chart>`.
+   If an input has a more recent commit than the chart, the chart may
+   be stale.
 3. **Series count and ordering.** Cross-check the number of series and
    their ordering against the source script — extra/dropped series
    silently happen when joins are revised.
 4. **Source citation.** Does the deliverable referencing this chart
    actually cite a source line? Grep for the chart filename in
    `deliverables/`, `insights/`, and confirm a citation is nearby.
-5. **Manifest reproducibility.** Same as A.5.
+5. **Provenance.** Same as A.5.
 
 ### C. Paragraph (a span inside a markdown deliverable)
 
@@ -96,8 +101,9 @@ every check — the budget is ≤2k tokens. Choose by artifact:
    file in `raw/`. Flag uncited claims.
 4. **Tense and scope honesty.** A paragraph claiming "we find that X
    causes Y" when the underlying analysis is correlational is the
-   most expensive class of error. Read the script's identification
-   strategy via the manifest's `script` field; flag mismatches.
+   most expensive class of error. Find the producing script via
+   `git log` on the cited output, read its identification strategy,
+   flag mismatches.
 5. **Insight cross-check.** If the paragraph references a finding,
    confirm the corresponding `insights/NN_*.md` exists and the numbers
    match.
@@ -108,12 +114,11 @@ every check — the budget is ≤2k tokens. Choose by artifact:
    relevant menu (A, B, or C). If ambiguous (e.g. a `.json` that's
    not a regression), ask the user once.
 2. **Pick 3–5 checks** from the menu. Bias toward the cheapest checks
-   first (sign, magnitude, manifest hash); only run script-reading
-   checks if budget allows.
-3. **For manifest-dependent checks**, delegate to the `manifest-checker`
-   subagent via the Task tool. It reads `manifest.jsonl`, finds the row
-   matching the artifact, and reports back the relevant fields. This
-   keeps the manifest-parsing logic out of `/verify`'s context.
+   first (sign, magnitude, provenance via `git log`); only run
+   script-reading checks if budget allows.
+3. **For provenance**, run `git log --max-count=1 -- <artifact>`,
+   parse the commit message for `Run:`, then read the named script's
+   header. Inline — no subagent.
 4. **Run the checks.** Each check produces a `pass` / `flag` / `skip`
    verdict with one sentence of evidence.
 5. **Emit the report** (format below). Stop. The user decides what to act on.
@@ -128,12 +133,12 @@ report is useful as a record:
 # /verify <artifact-path> — YYYY-MM-DD
 
 **Artifact type**: regression | chart | paragraph
-**Manifest row found**: yes (run YYYY-MM-DD HH:MM:SS) | no
+**Provenance**: git log → commit `<sha>` → script `<path>` (header valid) | no commit found | no header
 
 ## Checks run
 - [PASS] Sign sanity — all 4 coefficients match stated priors.
 - [FLAG] Magnitude plausibility — coefficient on `log_fdi_gdp` is 14.2; typical range is 0.1–2.0.
-- [PASS] Manifest reproducibility — output_sha256 matches.
+- [PASS] Provenance — git log resolves to scripts/06c.R, header lists this artifact under Outputs.
 - [SKIP] Standard-error clustering — script source not readable.
 
 ## Flags requiring researcher attention
@@ -151,10 +156,10 @@ all three sections.
 
 ## Rules
 
-- **Read-only.** Never edit the artifact. Never modify `manifest.jsonl`.
+- **Read-only.** Never edit the artifact.
 - **No re-running.** If a check would require re-executing the analysis,
   skip it and note that re-running is a separate step (point the user
-  at the audit ritual in `.claude/conventions/manifest-logging.md`).
+  at the audit ritual in `.claude/conventions/script-header.md`).
 - **Three to five checks. Stop there.** A long verify report dilutes
   signal; a short one with a real flag is the goal.
 - **Prefer flags over passes.** False positives are cheap (researcher
@@ -171,10 +176,10 @@ User: /verify outputs/regression_latest.json
 Skill will:
 1. Identify artifact as regression result (.json under outputs/).
 2. Pick five checks from menu A: sign sanity, magnitude plausibility,
-   N + missingness, SE clustering, manifest reproducibility.
-3. Spawn `manifest-checker` subagent via Task to find the manifest row
-   for `outputs/regression_latest.json`.
-4. Confirm `output_sha256` matches `sha256sum outputs/regression_latest.json`.
+   N + missingness, SE clustering, provenance.
+3. Run `git log --max-count=1 -- outputs/regression_latest.json` →
+   most recent commit → parse `Run:` line → script path.
+4. Read the script header; confirm this artifact is in `Outputs:`.
 5. Read the regression JSON; check coefficient signs against the
    adjacent `insights/NN_*.md` claim, check magnitudes, read N.
 6. Print the markdown report. Total cost ≈1.2k tokens.
@@ -195,12 +200,12 @@ Skill will:
 
 ## Cross-references
 
-- `.claude/conventions/manifest-logging.md` — schema verify reads against.
+- `.claude/conventions/script-header.md` — script header schema verify reads against.
+- `.claude/conventions/analytical-commit-format.md` — commit-message format verify parses.
 - `.claude/conventions/insights-logging.md` — paragraph checks may
   cross-reference insight docs.
-- `.claude/agents/manifest-checker.md` — subagent for manifest queries.
-- `docs/verification-architecture.md` — how /verify fits with the manifest
-  hook, the insights Stop hook, and `/deliverable-review`.
+- `docs/verification-architecture.md` — how /verify fits with the
+  insights Stop hook and `/deliverable-review`.
 
 ## What this skill does NOT do
 

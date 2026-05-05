@@ -9,9 +9,10 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 Targeted, polite, deduped scraping of the URLs listed in
 `sources/registry.yaml`. Reads the registry, decides which entries are
 due, hands fetching off to the `web-scraping` skill, dedupes by content
-sha256, lands fresh content in `raw/sources/<slug>/`, updates
-`last_scraped` in the registry, and writes one row per run to
-`manifest.jsonl`.
+sha256, lands fresh content in `raw/sources/<slug>/`, and updates
+`last_scraped` in the registry. Audit trail is git history of the
+registry + the per-fetch frontmatter on each `raw/sources/*` file —
+no separate run log.
 
 ## Preconditions
 
@@ -19,8 +20,6 @@ sha256, lands fresh content in `raw/sources/<slug>/`, updates
   and tell the user to seed it from `templates/sources/registry.yaml`.
 - `sources/seen.jsonl` exists (seeded empty by `install.sh`). If absent,
   create it as an empty file before the first fetch.
-- `manifest.jsonl` exists at the project root (Phase 3 manifest hook
-  ledger). Append, don't replace.
 - The `web-scraping` skill is installed and discoverable. Without it,
   this skill cannot fetch.
 
@@ -81,8 +80,7 @@ For each due entry, in order:
    - Log the failure to stderr (visible to the user).
    - **Still update `last_scraped`** (so we don't hammer a broken URL
      every invocation; the freq window applies even to failures).
-   - Append a `manifest.jsonl` row with `outputs: null` and a `notes`
-     field flagging the error.
+   - Surface the error in the per-run report (step 7) so the user sees it.
    - Continue to the next entry; do not abort the run.
 
 ### 4. Compute content hash and dedup
@@ -93,8 +91,7 @@ For each due entry, in order:
   `slug` and `content_sha256`, the content is a duplicate:
   - Skip writing a new file under `raw/sources/<slug>/`.
   - Still update `last_scraped` in the registry (we did fetch).
-  - Still append a `manifest.jsonl` row, with `outputs: null` and
-    `notes: "duplicate; skipped write"`.
+  - Note the duplicate in the per-run report (step 7).
   - Do not append to `seen.jsonl` (the existing row already represents this content).
 
 ### 5. Write fresh content
@@ -134,37 +131,7 @@ Use a YAML round-trip library (Python `ruamel.yaml`) when available,
 or careful in-place edit otherwise — preserving comments and ordering
 matters because the registry is human-curated.
 
-### 7. Append a manifest.jsonl row per entry
-
-Conform to Phase 3's manifest schema:
-
-```json
-{
-  "timestamp": "2026-05-05T14:32:11Z",
-  "script": "scan-sources",
-  "language": null,
-  "inputs": ["<entry url>"],
-  "outputs": ["raw/sources/<slug>/<filename>.md"],
-  "output_sha256": "<content_sha256>",
-  "seed": null,
-  "env_hash": null,
-  "git_sha": "<HEAD>",
-  "phase": "<active plan phase or null>",
-  "notes": null
-}
-```
-
-For duplicate or failed fetches, set `outputs: null`, `output_sha256: null`,
-and put the reason in `notes` (`"duplicate; skipped write"` or
-`"fetch failed: 503 Service Unavailable"`).
-
-`script: scan-sources` is the marker that distinguishes these rows
-from analytical-run rows in downstream `jq` queries. The manifest
-row is appended directly by the skill (not by the manifest hook —
-the hook is bash and fires on `Bash` tool calls; the skill's writes
-to the registry, etc., are not those).
-
-### 8. Report
+### 7. Report
 
 Print a structured summary to the user:
 
@@ -182,7 +149,6 @@ Files written: 2
   + raw/sources/investment-news-cambodia/2026-05-05_new-port-deal.md
   + raw/sources/portinfra-tracker/2026-05-05_sihanoukville-throughput-q1.md
 
-Manifest rows appended: 4
 Registry updated: last_scraped fields for 4 entries
 ```
 
@@ -234,8 +200,7 @@ Skill will:
 4. For each: compute content sha256, check `sources/seen.jsonl`, write
    fresh file or skip as duplicate.
 5. Update `last_scraped` for all 3 entries.
-6. Append 3 rows to `manifest.jsonl` (script: `scan-sources`).
-7. Report: 2 fresh + 1 duplicate + 0 failures.
+6. Report: 2 fresh + 1 duplicate + 0 failures.
 
 ## What this skill does NOT do
 

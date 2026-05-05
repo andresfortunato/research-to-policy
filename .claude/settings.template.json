@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this to .claude/settings.json in your research project to enable framework hooks. Skills installed under .claude/skills/<name>/SKILL.md are auto-discovered by Claude Code. Subagents under .claude/agents/<name>.md are auto-discovered too. Stop nudges when analysis evidence appears without an insights doc. PostToolUse silently logs analytical Bash runs to manifest.jsonl.",
+  "_comment": "Copy this to .claude/settings.json in your research project to enable framework hooks. Skills installed under .claude/skills/<name>/SKILL.md are auto-discovered by Claude Code. Stop nudges when analysis evidence appears without an insights doc.",
   "hooks": {
     "Stop": [
       {
@@ -8,17 +8,6 @@
           {
             "type": "command",
             "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/check-insights.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/log-manifest.sh"
           }
         ]
       }

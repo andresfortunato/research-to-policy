@@ -76,13 +76,14 @@ is written.
 
 ## How to query past scrapes
 
-`sources/seen.jsonl` is the audit log:
+`sources/seen.jsonl` is the dedup ledger of successful fresh content. With
+`jq` installed:
 
 ```bash
-# All fetches for one source
+# All distinct content sha256s captured for one source
 jq 'select(.slug == "investment-news-cambodia")' sources/seen.jsonl
 
-# All fetches in the last 30 days
+# All fresh content captured in the last 30 days
 jq --arg cutoff "$(date -u -v-30d +%Y-%m-%dT%H:%M:%SZ)" \
    'select(.scraped_at > $cutoff)' sources/seen.jsonl
 
@@ -90,14 +91,17 @@ jq --arg cutoff "$(date -u -v-30d +%Y-%m-%dT%H:%M:%SZ)" \
 jq -r 'select(.slug == "policy-news-example") | .url' sources/seen.jsonl | sort -u
 ```
 
-For runs (including failures and duplicates), query `manifest.jsonl`:
+For run history (including failures and duplicates), use git instead:
 
 ```bash
-# All /scan-sources runs
-jq 'select(.script == "scan-sources")' manifest.jsonl
+# When did we last update last_scraped for this entry?
+git log -p -- sources/registry.yaml | grep -B1 'investment-news-cambodia'
 
-# Failed scrapes
-jq 'select(.script == "scan-sources" and .outputs == null)' manifest.jsonl
+# Every fresh-content commit
+git log -- raw/sources/
+
+# Per-run failures: scan the per-run reports in your shell history,
+# or grep recent commits for "scan-sources" mentions.
 ```
 
 ## What this directory is NOT

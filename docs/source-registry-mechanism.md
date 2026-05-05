@@ -45,9 +45,8 @@ wins because:
 
 ## Why JSONL for the dedup log
 
-`sources/seen.jsonl` mirrors `manifest.jsonl` (Phase 3) deliberately.
-Same reasoning as there: append-only, greppable, parseable from
-Python/R/jq, survives merge conflicts. One row per successful fetch.
+`sources/seen.jsonl` is JSON Lines: append-only, greppable, parseable
+from Python/R, survives merge conflicts. One row per successful fetch.
 The dedup key is `(slug, content_sha256)`; the `url` is informational
 (URLs change; content does not).
 
@@ -83,9 +82,10 @@ The invokable workflow. Reads the registry, applies filters
 (`--slug`, `--category`, `--force`), checks freq for each entry,
 delegates fetching to the existing `web-scraping` skill, computes the
 content hash, dedupes against `seen.jsonl`, writes new content to
-`raw/sources/<slug>/`, updates `last_scraped` in the registry,
-appends a `manifest.jsonl` row per entry. Reports a structured
-summary.
+`raw/sources/<slug>/`, updates `last_scraped` in the registry. Reports
+a structured per-run summary. The audit trail is git history of the
+registry plus the per-fetch frontmatter on each `raw/sources/*` file —
+no separate run log.
 
 ### 3. The templates (`templates/sources/{registry.yaml,README.md}`)
 
@@ -101,20 +101,24 @@ Tells Claude the registry exists, points at the convention file for
 the schema, and notes that scrapes land in `raw/sources/<slug>/` and
 require `/wiki-ingest` for wiki promotion.
 
-### 5. The integration with Phase 3's manifest
+### 5. Audit trail (git, not a separate log)
 
-Every `/scan-sources` run appends one row per processed entry to
-`manifest.jsonl` with `script: scan-sources`. This unifies the
-reproducibility ledger across analytical runs and ingestion runs —
-a single `jq 'select(.script == "scan-sources")'` query yields the
-full scrape history, regardless of which researcher ran what.
+Every `/scan-sources` invocation that produces fresh content lands files
+under `raw/sources/<slug>/` (with full frontmatter: url, scraped_at,
+content_sha256, title) and bumps `last_scraped` in the registry. Both
+are committed normally. To reconstruct what was fetched when:
 
-The skill writes the row directly (the manifest hook is bash and
-fires only on `Bash` tool calls; the skill's HTTP fetches are not
-those). The row's schema conforms to Phase 3's spec, with a `notes`
-extension field for duplicate/failure markers. Conformance is by
-convention, not by hook — the skill is responsible for writing
-well-formed rows.
+```bash
+git log -- sources/registry.yaml          # registry edits, including last_scraped bumps
+git log -- raw/sources/                   # every fresh-content commit
+```
+
+Failures and duplicates show up in the per-run report (stderr / chat
+output) but are not persisted to a separate log. Rationale: the
+registry's `last_scraped` already changes on failure (so we don't
+re-hammer); a persistent failure log was overkill for the typical use
+case. If a source breaks chronically, the researcher will notice in the
+per-run reports and either retire the entry or fix the `scrape_method`.
 
 ## Freq logic — why these four buckets
 
@@ -150,15 +154,9 @@ moved; the index URL got a query parameter). Content is the truth.
 When a duplicate is detected:
 - No new file is written under `raw/sources/<slug>/`.
 - `last_scraped` in the registry IS updated (we did fetch).
-- `manifest.jsonl` IS appended with `outputs: null` and
-  `notes: "duplicate; skipped write"` — so the audit log records that
-  we tried.
+- The duplicate is reported in the per-run output.
 - `seen.jsonl` is NOT appended (the prior row already represents this
   content).
-
-This is asymmetric on purpose. Failures and duplicates both deserve
-manifest rows (you fetched, something happened); only successes
-deserve seen-log rows (those rows are what dedup checks against).
 
 ## Why-not-cron-everything (rationale repeated for the skeptics)
 
@@ -223,9 +221,12 @@ structure. It's worth it.
   researcher curates.
 - **`last_scraped` updates even on failure.** A 503 from a flaky
   source still bumps the timestamp. This prevents hammering a
-  broken URL but also means the researcher must check
-  `manifest.jsonl` for failures, not just the registry. The summary
-  report calls failures out, mitigating this in the common case.
+  broken URL but also means a chronically-broken source isn't
+  obvious from the registry alone — the researcher must read the
+  per-run reports. The summary mitigates this in the common case;
+  for systematic monitoring, scan `git log -- sources/registry.yaml`
+  for entries whose `last_scraped` keeps advancing without matching
+  commits under `raw/sources/<slug>/`.
 - **No locking on parallel runs.** Two `/scan-sources` invocations
   in parallel could race on `seen.jsonl` and `registry.yaml` writes.
   The skill is invoked by humans, not daemons; this is not expected
@@ -264,7 +265,9 @@ diagnostic, a chart showing the timing of port-throughput
 deceleration was undermined when a counterpart pointed out that the
 underlying tracker had been re-scraped six times across the
 engagement, with no record of which pull supported the chart. The
-manifest-mechanism (Phase 3) covers the analytical-run side; the
-source-registry covers the ingestion side. Together they answer
-"where did this number come from" all the way back to the URL and
-the date.
+source-registry pairs with the `script-header` and
+`analytical-commit-format` conventions on the analytical side: the
+registry + `raw/sources/*` frontmatter answers "where did this
+content come from"; the script header + commit `Run:`/`Out:` lines
+answer "which pull, by which script, produced this chart." Together
+they trace a number all the way back to a URL and a date.

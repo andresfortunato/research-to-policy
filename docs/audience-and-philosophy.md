@@ -14,7 +14,7 @@ The framework targets applied development-research teams: country-diagnostic, se
 It assumes:
 
 - **Multi-session, multi-week plans** — not one-shot scripts. A typical engagement runs 3–9 months and crosses dozens of Claude sessions.
-- **Mixed languages** — R and Python first-class; Stata and others tolerated. The framework is markdown-first and language-neutral in the core; language specifics surface only inside individual scripts and in the manifest's `language` field.
+- **Mixed languages** — R and Python first-class; Stata and others tolerated. The framework is markdown-first and language-neutral in the core; language specifics live inside individual scripts (called out in the script-header `Env:` line).
 - **Evidence accumulation matters more than feature velocity.** The deliverable is a defensible argument, not a shipped product. What was *learned* (and what's *unsettled*) needs to survive across sessions, researchers, and years.
 - **Open-source-from-day-one.** No engagement-specific content lives in committed framework files. Pilot teams (Córdoba, Cambodia) are the first users, but the framework is published for anyone doing similar work.
 
@@ -26,7 +26,7 @@ It does *not* target: software engineering teams (Claude Code's defaults already
 
 Every hook script must be silent unless the condition it checks for actually trips. A hook that fires on every Stop, every PostToolUse — even with friendly text — degrades into noise within days. Researchers stop reading it; Claude stops adapting to it.
 
-Concretely: `check-insights.sh` returns nothing if no analytical artifacts are uncommitted. `log-manifest.sh` writes to `manifest.jsonl` if (and only if) the Bash command matches the analytical-language regex; never writes to stdout.
+Concretely: `check-insights.sh` returns nothing if no analytical artifacts are uncommitted. The hook is the only one shipping in v1 — earlier drafts had a PostToolUse manifest hook and PreCompact/SessionStart hooks; all were removed because the install footprint exceeded their value.
 
 If you can't make a hook silent-by-default, it probably belongs as a user-invoked skill (`/verify`, `/wiki-lint`, `/scan-sources`, `/research-cleanup`) instead.
 
@@ -48,7 +48,7 @@ When proposing a new convention, ask: can this be one file in `.claude/conventio
 
 Everything in `.claude/conventions/`, `.claude/hooks/`, `.claude/skills/`, `.claude/agents/`, and `.claude/settings.json` is committed to the research repo so every collaborator (human or AI, on any machine) gets the same scaffolding. User-personal customization stays in `.claude/settings.local.json` (gitignored).
 
-This is the inverse of the Claude Code default, where most config lives in `~/.claude/`. The research repo is the unit of collaboration, so the harness moves with the repo. Reproducibility is the same argument as for `manifest.jsonl`: future-you, your handoff partner, and the auditor years later all need to see the same thing.
+This is the inverse of the Claude Code default, where most config lives in `~/.claude/`. The research repo is the unit of collaboration, so the harness moves with the repo. Same argument as for the script-header convention: future-you, your handoff partner, and the auditor years later all need to see the same thing.
 
 ### 5. Short CLAUDE.md, with pointers
 
@@ -62,7 +62,7 @@ The seven pointer blocks shipped in v1: Insights Logging, Wiki, Manifest Logging
 
 The framework's substrate is markdown — convention docs, wiki pages, insights, handoffs, decision records, deliverable templates. Claude reads markdown natively, researchers can edit markdown in any tool (VS Code, Obsidian, plain text), and markdown survives format migrations.
 
-Language-specific concerns (R vs. Python vs. Stata) live inside scripts and surface in the `language` field of `manifest.jsonl`. The hooks themselves are pure bash + standard Unix tools (the only external dependency is `jq`, used by `log-manifest.sh`). Adding a new analytical language means adding a regex branch to `log-manifest.sh`, not rewriting the framework.
+Language-specific concerns (R vs. Python vs. Stata) live inside scripts and surface in the script-header `Env:` line. The single hook (`check-insights.sh`) is pure bash + standard Unix tools — no external dependencies. Adding a new analytical language is mostly a script-header convention update; no framework rewrite needed.
 
 LaTeX/Beamer add-ons are deferred to v1.1+ (Pedro / Hugo Sant'Anna patterns), and only as opt-in extensions — never as the default deliverable substrate.
 
@@ -70,11 +70,13 @@ LaTeX/Beamer add-ons are deferred to v1.1+ (Pedro / Hugo Sant'Anna patterns), an
 
 Verification is tiered by cost and by who triggers it:
 
-- **Manifest hook (≤200 tokens, automatic, silent).** Every analytical run logs one row. The only non-negotiable hook.
-- **`/verify` (≤2k tokens, user-invoked).** Per-artifact: one regression, one chart, one paragraph. Sign-of-coefficients, magnitudes, missingness, source citation. Run when you're about to publish or hand off.
+- **Provenance substrate (zero install cost, researcher discipline).** `script-header` and `analytical-commit-format` conventions turn `git log` into the audit trail. No hook, no separate log; `git log -- output/<file>` resolves to a commit, the message names the script, the script's header documents the run.
+- **`/verify` (≤2k tokens, user-invoked).** Per-artifact: one regression, one chart, one paragraph. Sign-of-coefficients, magnitudes, missingness, source citation, provenance. Run when you're about to publish or hand off.
 - **`/deliverable-review` (≤12k tokens, user-invoked, forked parallel).** Seven lenses (data validity, identification/reasoning, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility), each in a separate sub-context. Run only on advanced deliverable drafts — last-mile, not exploratory.
 
 There is deliberately no always-fire review. Always-fire reviews train Claude (and researchers) to discount review output as background noise. Reserve the heavy machinery for moments where it matters.
+
+Why no automatic per-run audit log: an earlier draft shipped a `manifest.jsonl` PostToolUse hook with timestamp / script / inputs / outputs / output_sha256 / seed / env_hash / git_sha. Removed in favor of the conventions above because git + a script header gives ~80% of the value at zero install cost; the 20% delta (auto-discipline, env_hash without a lockfile, seedless-run surfacing) didn't pay for the JSONL substrate, the `jq` dependency, and the hook itself.
 
 ### 8. Open-source from day one
 
@@ -94,7 +96,7 @@ Before proposing a new convention, hook, skill, or template, run it past the con
 | Project-shared | Is anything in here user-personal that should be in `settings.local.json`? |
 | Short CLAUDE.md | Does the pointer block stay ≤4 lines? Does the protocol stay ≤120 lines? |
 | Markdown-first | Does it work without a specific language toolchain? |
-| Stakes-graded | Does it fit the cost tier (≤200 / ≤2k / ≤12k tokens)? Or invent a new one with reason? |
+| Stakes-graded | Does it fit the cost tier (zero / ≤2k / ≤12k tokens)? Or invent a new one with reason? |
 | Open-source | Is anything here engagement-specific? |
 
 If a proposal fails one of these and the failure is intentional, the constitution gets revised first — explicitly, in this document — before the addition lands. That's the only way the framework stays small over time.
@@ -107,7 +109,7 @@ A few things deliberately omitted in v1, with the reasoning:
 - **No project-management dashboard.** WIP-limits, multi-engagement views, and Hugo-style vault managers are deferred — useful for researchers juggling 3+ countries, premature for the pilot.
 - **No agent-of-agents.** Forked parallel review (`/deliverable-review`) spawns subagents in fixed shape; there is no general-purpose agent orchestrator. The framework is composable building blocks, not a workflow engine.
 - **No always-on quality gates.** No CI for "did you run `/verify`?" or "did you update the wiki?" — those would invite mechanical compliance. The discipline lives in the user-invoked skills and the silent-conditional hooks.
-- **No LLM-managed source-of-truth code.** `manifest.jsonl` is append-only and never rewritten by Claude. `wiki/` is LLM-owned but `raw/` is immutable; the source-registry is YAML edited by humans (Claude only updates `last_scraped`). Trust boundaries are explicit.
+- **No LLM-managed source-of-truth code.** `wiki/` is LLM-owned but `raw/` is immutable; the source-registry is YAML edited by humans (Claude only updates `last_scraped`). Script headers are written by humans (or by Claude, but always inspectable in the script). Trust boundaries are explicit.
 
 ## Cross-references
 

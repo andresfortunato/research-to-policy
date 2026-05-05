@@ -6,34 +6,37 @@ Research deliverables fail in different ways at different stakes, and a
 single verification mechanism can't catch all of them without becoming
 either too noisy (false-positive fatigue) or too lax (silent misses on
 high-stakes work). The framework's answer is **stakes-graded
-verification**: four layers, each cheap-by-budget at its own scale,
+verification**: three layers, each cheap-by-budget at its own scale,
 each fired by a different trigger, each with a non-overlapping job.
 
-The four layers, ordered by cost:
+The three layers, ordered by cost:
 
 | Layer                    | Trigger          | Cost budget | Cadence                              |
 |--------------------------|------------------|-------------|--------------------------------------|
 | Insights-logging Stop hook | Automatic, end-of-turn | ~100 tok/turn | Every turn that touches `output/0*` |
-| Manifest-logging hook    | Automatic, PostToolUse | ≤200 tok/run | Every analytical Bash run            |
 | `/verify`                | User-invoked     | ≤2k tokens  | Per-artifact, before publishing      |
 | `/deliverable-review`    | User-invoked     | ≤12k tokens | Per advanced draft, before sending   |
 
-The first two are **automatic** and **silent-by-default** (they only
-emit output when something is wrong or when something needs to be
-recorded). The latter two are **user-invoked** — verification at this
-cost is a deliberate act, not an ambient one.
+The first is **automatic** and **silent-by-default** (it only emits when
+something is wrong). The latter two are **user-invoked** — verification
+at this cost is a deliberate act, not an ambient one.
 
-## Why four layers, not one
+Underneath all three sits the **provenance substrate**: the
+`script-header` and `analytical-commit-format` conventions. These aren't
+verification layers themselves — they're the audit trail that `/verify`
+reads against. `git log -- output/<file>` resolves to a commit whose
+message names the producing script; the script's header documents
+inputs, seed, and env. No automatic log, no `jq` dependency.
+
+## Why three layers, not one
 
 A single always-fire verification hook would face an impossible tradeoff:
 broad enough to catch real defects (and produce noise on every turn),
-or narrow enough to be quiet (and miss most real defects). The four
+or narrow enough to be quiet (and miss most real defects). The three
 layers each take a different cut at the verification problem:
 
 - **Insights Stop hook** catches *missing distillation*. You ran the
   analysis but didn't write down what you learned.
-- **Manifest hook** catches *missing reproducibility metadata*. You
-  ran the analysis but didn't record the inputs, env, or git sha.
 - **`/verify`** catches *artifact-level defects*. The regression's
   signs flipped, the chart's axis is wrong, the paragraph cites a
   number that doesn't exist.
@@ -45,7 +48,43 @@ layers each take a different cut at the verification problem:
 Each is necessary; none subsumes another. Trying to fold any pair
 together compromises both.
 
-## Layer 1: Insights-logging Stop hook (Phase 1)
+## Provenance substrate (conventions, not a layer)
+
+**Covered in `.claude/conventions/script-header.md` and
+`.claude/conventions/analytical-commit-format.md`.**
+
+Every analytical script starts with a fixed-shape header:
+
+```
+# Script:   scripts/06c_fdi_at_entry.R
+# Inputs:   data/clean/wdi.csv
+# Outputs:  output/06c_fdi_at_entry.png, output/06c_fdi_at_entry.csv
+# Seed:     42
+# Env:      R 4.3.1, tidyverse 2.0.0
+```
+
+Every commit that produces analytical artifacts includes `Run:` and
+`Out:` lines:
+
+```
+Add FDI-at-entry chart for Phase 3 diagnostic
+
+Run: scripts/06c_fdi_at_entry.R
+Out: output/06c_fdi_at_entry.png, output/06c_fdi_at_entry.csv
+```
+
+Together these turn `git log` into the audit trail. Given a chart,
+`git log -- <path>` finds the commit, the message names the script,
+the script's header documents the run.
+
+This replaces an earlier `manifest.jsonl` automatic-log mechanism. The
+trade-off: the manifest captured per-run metadata automatically (no
+researcher discipline needed) but cost a hook + a `jq` dependency + a
+JSONL substrate. Conventions cost zero install and rely on git, which
+the project already uses. The discipline is on the researcher; `/verify`
+flags missing headers when it can't trace an artifact.
+
+## Layer 1: Insights-logging Stop hook
 
 **Existing — covered in `docs/insights-mechanism.md`.**
 
@@ -61,40 +100,22 @@ Job: surface the *did you write down what you learned?* prompt at
 exactly the moment the discipline applies. Doesn't enforce quality;
 nudges existence.
 
-## Layer 2: Manifest-logging hook (Phase 3)
+## Layer 2: `/verify`
 
-**Covered in `docs/manifest-mechanism.md` and
-`.claude/conventions/manifest-logging.md`.**
-
-A bash PostToolUse hook (`log-manifest.sh`) that fires on every
-analytical Bash command (`Rscript`, `R`, `python`, `python3`, `stata*`)
-and appends one JSON line to `manifest.jsonl` with: timestamp, script
-path, language, inputs/outputs, output sha256, seed (if extractable),
-env hash, git sha, phase.
-
-Cost: ≤200 tokens per analytical run, silent on success.
-
-Job: record *what ran, with what env, producing what hash*. Does not
-verify anything by itself — it builds the ledger that `/verify` reads
-against. Without this layer, `/verify`'s reproducibility checks have
-nothing to check against.
-
-## Layer 3: `/verify` (Phase 4)
-
-**This phase. See `.claude/skills/verify/SKILL.md`.**
+**See `.claude/skills/verify/SKILL.md`.**
 
 A user-invoked skill that runs three to five domain checks against a
-single named artifact (regression result, chart, paragraph). Reads
-against `manifest.jsonl` for reproducibility context via the
-`manifest-checker` subagent.
+single named artifact (regression result, chart, paragraph). Provenance
+checks use `git log` + commit message + script header — inline, no
+subagent.
 
 Cost: ≤2k tokens per invocation.
 
 The check menus (regression / chart / paragraph) are deliberately
 narrow — sign of coefficients, magnitude plausibility, missingness,
-source citation, manifest-hash match. The skill picks 3–5 checks per
-invocation, biased toward cheap checks, and emits a structured
-markdown report.
+source citation, provenance (git → commit → script → header). The skill
+picks 3–5 checks per invocation, biased toward cheap checks, and emits
+a structured markdown report.
 
 Why user-invoked, not automatic:
 1. The check menu requires judgment about which lens applies (no
@@ -107,14 +128,9 @@ Why user-invoked, not automatic:
    means the cost is paid only when a researcher actually wants the
    check.
 
-The `manifest-checker` subagent is split out so manifest-parsing logic
-stays out of the parent context. The parent passes an artifact path,
-the subagent returns a compact JSON block with the matching row,
-hash check, and script path. The parent decides what to flag.
+## Layer 3: `/deliverable-review`
 
-## Layer 4: `/deliverable-review` (Phase 4)
-
-**This phase. See `.claude/skills/deliverable-review/SKILL.md`.**
+**See `.claude/skills/deliverable-review/SKILL.md`.**
 
 A forked parallel review for advanced deliverable drafts. Spawns one
 subagent per lens (data validity, identification/reasoning, robustness,
@@ -153,23 +169,25 @@ Why advanced-drafts-only:
   executive summary, sections marked TBD, numbers marked `[CHECK]`)
   and points the user at `/verify` for partial checks.
 
-## How the four layers compose
+## How the three layers compose
 
 Picture a researcher's day:
 
-1. **Mid-analysis** — `Rscript scripts/06c.R` runs. The manifest hook
-   silently appends one row to `manifest.jsonl`. No chat output.
+1. **Mid-analysis** — `Rscript scripts/06c.R` runs. The chart appears
+   in `output/`. No automatic log; the researcher commits when done with
+   the change, including `Run:` and `Out:` lines per the
+   `analytical-commit-format` convention.
 2. **End-of-turn** — Claude's reply ends. The insights Stop hook fires;
    sees `output/06c_fdi_at_entry.png` is uncommitted but no
    `insights/0*.md` is staged. Emits a one-shot reminder. Claude writes
    `insights/03_fdi_entry_threshold.md`. Both files committed together.
 3. **Before publishing the chart externally** — the researcher types
    `/verify output/06c_fdi_at_entry.png`. The skill picks four
-   chart-menu checks (axis sanity, manifest hash, source citation,
-   data freshness), spawns `manifest-checker` to confirm the chart
-   matches its manifest row, returns a report in ≤2k tokens. One flag:
-   the chart's underlying CSV was regenerated yesterday but the chart
-   hasn't been re-rendered. Researcher re-runs the chart script.
+   chart-menu checks (axis sanity, provenance, source citation,
+   data freshness), runs `git log` to trace the chart to its script,
+   reads the script's header, returns a report in ≤2k tokens. One flag:
+   the chart's underlying CSV has a more recent commit than the chart
+   itself. Researcher re-runs the chart script.
 4. **Before sending the deliverable** — the researcher types
    `/deliverable-review deliverables/cordoba-diagnostic.md`. The
    skill reads the country-diagnostic-memo profile, spawns 7 lenses
@@ -181,16 +199,13 @@ Picture a researcher's day:
 
 Each layer fires when its trigger condition is met. None fires
 redundantly. The total cost across a day of analysis is dominated by
-the (rare) deliverable-review invocations, with the always-on hooks
-contributing tens to low hundreds of tokens each.
+the (rare) deliverable-review invocations, with the always-on hook
+contributing tens to low hundreds of tokens.
 
 ## Why these specific budgets
 
 The cost budgets aren't arbitrary; they're sized to the cognitive job:
 
-- **200 tokens** for the manifest hook is "log a structured record
-  with no commentary" — anything more means the hook is doing
-  judgment work that belongs elsewhere.
 - **2k tokens** for `/verify` is "three-to-five focused checks plus a
   structured report" — anything more means the skill is sliding
   toward review territory and should be using `/deliverable-review`.
@@ -210,29 +225,39 @@ artifact-level (use `/verify`) or it's deliverable-level (use
 - **No automatic deliverable review.** Forked-parallel on every save
   would cost ~12k tokens × dozens of saves per day = obvious
   budget collapse. Always user-invoked.
+- **No automatic per-run audit log.** Earlier drafts shipped a
+  `manifest.jsonl` PostToolUse hook. Removed: the bookkeeping value
+  didn't pay for the install footprint when git + script-header +
+  commit-format conventions cover the same audit needs at zero cost.
 - **No correctness proof.** Verification surfaces flags; researchers
   resolve them. False negatives are possible at every layer.
 - **No replacement for human review.** The peer-Lab-plausibility lens
   approximates a senior peer; it doesn't replace one. The political-
   economy-realism lens approximates a senior policy advisor; it
   doesn't replace one. These are first-pass filters.
-- **No version control.** Verification reads the current file; it
-  doesn't track verification history across versions. If you want
-  that, commit the verify report alongside the artifact.
-- **No quality enforcement at write time.** Hooks don't block on
-  quality; skills don't refuse to run on weak analysis. The framework
-  surfaces; the researcher decides.
+- **No version control of verify reports.** Verification reads the
+  current file; it doesn't track verification history across versions.
+  If you want that, commit the verify report alongside the artifact.
+- **No quality enforcement at write time.** The Stop hook doesn't block
+  on quality; skills don't refuse to run on weak analysis. The
+  framework surfaces; the researcher decides.
 
 ## Tradeoffs accepted
 
 - **User-invoked is opt-in.** A researcher who never types `/verify`
-  gets only the two automatic layers. Trade: predictable cost vs
+  gets only the insights Stop hook. Trade: predictable cost vs
   opt-in coverage. Accepted because mandatory verification at high
   cost (always-fire `/deliverable-review`) is far worse.
 - **The check menus in `/verify` are not exhaustive.** They catch
   the most common failure modes (sign, magnitude, missingness,
-  citation, hash). A subtle defect outside the menu won't be caught
-  by `/verify` and will need `/deliverable-review` or human review.
+  citation, provenance). A subtle defect outside the menu won't be
+  caught by `/verify` and will need `/deliverable-review` or human
+  review.
+- **Provenance depends on researcher discipline.** Without script
+  headers and `Run:`/`Out:` commit lines, `/verify` can still run
+  domain checks but its provenance check returns "no header" or "no
+  Run: line in the producing commit" — surfacing the missing
+  discipline rather than silently passing.
 - **The seven lenses are policy-research-flavored.** A different
   research domain (e.g., clinical trials) would weight different
   lenses. The framework ships with the policy-research seven; the
@@ -240,9 +265,6 @@ artifact-level (use `/verify`) or it's deliverable-level (use
 - **Forked-parallel costs 7×.** Worth it for the independence
   property; not worth it on a mid-composition draft (hence the
   advanced-drafts-only rule).
-- **The `manifest-checker` subagent is one extra hop.** Adds latency
-  but keeps `/verify`'s parent context inside its 2k budget. Worth
-  it for the discipline.
 
 ## Extension points
 
@@ -258,24 +280,27 @@ artifact-level (use `/verify`) or it's deliverable-level (use
   with very small effect sizes might tolerate weaker SEs. Edit the
   thresholds inline in the SKILL.md, or factor them into a separate
   project-config file referenced from the skill.
-- **Subagent for `/deliverable-review` data-validity lens.** That
-  lens already does manifest checks; it could call `manifest-checker`
-  for each numeric claim. Not in v1 — kept the lens self-contained
-  for simplicity. The seam is there.
+- **A `check-script-headers.sh` Stop hook backstop.** Not in v1, but
+  the seam is there: a hook that fires when a freshly-staged
+  `scripts/*.{R,py,do}` lacks the required header. Would automate
+  the discipline that today depends on the researcher remembering.
+  Add only if observed gaps in pilot use.
 
 ## Provenance
 
-The four-layer structure adapts patterns from three sources:
+The three-layer structure adapts patterns from two sources:
 - **Conditional Stop hook** — the existing `insights-logging` pattern,
   preserved unchanged.
-- **PostToolUse manifest hook** — Phase 3's adaptation of
-  reproducibility-ledger patterns from data-engineering practice.
 - **Forked parallel review** — Pedro Cossio's seven-pass deliverable
   review, refitted to policy-research lenses (substituting
   political-economy-realism and peer-Lab-plausibility for code-shaped
   passes that don't apply to memos).
 
-Adopted in this framework because policy-research deliverables fail
-in failure-mode-shaped ways that no single layer can catch, and
-budget-graded verification is the way to keep coverage broad without
-making cost ruinous.
+The provenance substrate (`script-header` + `analytical-commit-format`)
+is native to this framework — chosen over an automatic JSONL log because
+git already gives ~80% of the audit value at zero install cost.
+
+Adopted in this framework because policy-research deliverables fail in
+failure-mode-shaped ways that no single layer can catch, and budget-
+graded verification is the way to keep coverage broad without making
+cost ruinous.

@@ -61,7 +61,7 @@ expected outcome. This is the evidence that "done" is really done.>
 A handoff has to serve three readers at once. Tune the content, not the format.
 
 - **Within-session (Stop hook fires; you'll resume in 10 minutes).**
-  Terse. "Phase 3 mid-flight, log-manifest.sh hook drafted, smoke-test pending."
+  Terse. "Phase 3 mid-flight, source-registry skill drafted, smoke-test pending."
   The verification log can be empty if nothing's been verified yet.
 - **Researcher↔researcher (your branch lands on a teammate's machine).**
   Add the reading order, the file footprint, and any surprises. Assume

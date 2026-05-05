@@ -42,8 +42,8 @@ Static audit of a research project's working tree. Identifies likely-deletable a
 A script is an orphan candidate if **all** hold:
 - Lives in `scripts/`, `src/`, `code/`, `analysis/`, or project root with extension `.R`, `.py`, `.do`, `.sh`, `.jl`.
 - Last modified >30 days ago (use `find -mtime +30` or equivalent `stat`).
-- Not referenced by any other tracked file in the repo: `grep -r` its filename across `scripts/`, `notebooks/`, `insights/`, `deliverables/`, `plan/`, `wiki/`, `Makefile`, `*.yml`, `*.yaml`, `manifest.jsonl`. Zero non-self hits → orphan candidate.
-- Optional strengthener: not present as the `script` field in any `manifest.jsonl` row (if `manifest.jsonl` exists). A script that was last run before manifest logging existed will lack manifest rows; treat manifest absence as suggestive but not dispositive.
+- Not referenced by any other tracked file in the repo: `grep -r` its filename across `scripts/`, `notebooks/`, `insights/`, `deliverables/`, `plan/`, `wiki/`, `Makefile`, `*.yml`, `*.yaml`. Zero non-self hits → orphan candidate.
+- Optional strengthener: `git log --grep="Run: <script>"` returns no commits in the last 30 days. Per the analytical-commit-format convention, every analytical run is recorded in a commit message; absence of recent `Run:` commits is suggestive (but not dispositive — the convention may not have been adopted from day one).
 
 Each finding records: path, last-modified date, age in days, what was searched (so the researcher can verify the negative).
 
@@ -96,7 +96,7 @@ finished, delete this file (or leave it as an audit log — your call).
 
 ## 1. Orphan scripts (>30 days, no inbound references)
 
-- `scripts/old_exploration.R` — modified 2026-01-04 (121 days ago); searched scripts/, notebooks/, insights/, deliverables/, plan/, wiki/, Makefile, *.yml — zero hits. Not present in manifest.jsonl. **Likely safe to delete.**
+- `scripts/old_exploration.R` — modified 2026-01-04 (121 days ago); searched scripts/, notebooks/, insights/, deliverables/, plan/, wiki/, Makefile, *.yml — zero hits. No recent `Run:` commits. **Likely safe to delete.**
 - `scripts/munge_v2.py` — modified 2026-02-15 (79 days); zero hits in tracked files; one hit in `.gitignore` (excluded output dir). **Probably safe; double-check the v3 superseded it.**
 
 (If zero findings: write `(none)` under this header.)

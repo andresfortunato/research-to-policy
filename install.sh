@@ -50,12 +50,11 @@ mirror_dir() {
   done
 }
 
-# --- 1. Conventions, hooks, skills, agents (under .claude/) ----------------
-mkdir -p .claude/conventions .claude/hooks .claude/skills .claude/agents
+# --- 1. Conventions, hooks, skills (under .claude/) ------------------------
+mkdir -p .claude/conventions .claude/hooks .claude/skills
 mirror_dir "$SUPER_CLAUDIO/.claude/conventions" .claude/conventions
 mirror_dir "$SUPER_CLAUDIO/.claude/hooks"       .claude/hooks
 mirror_dir "$SUPER_CLAUDIO/.claude/skills"      .claude/skills
-mirror_dir "$SUPER_CLAUDIO/.claude/agents"      .claude/agents
 
 # Hooks must be executable.
 for f in .claude/hooks/*.sh; do
@@ -78,15 +77,7 @@ mirror_dir "$SUPER_CLAUDIO/templates/raw"          raw
 mirror_dir "$SUPER_CLAUDIO/templates/deliverables" deliverables
 mirror_dir "$SUPER_CLAUDIO/templates/sources"      sources
 
-# --- 4. manifest.jsonl (empty seed — append-only audit log) ----------------
-if [[ ! -f manifest.jsonl ]]; then
-  : > manifest.jsonl
-  echo "  + manifest.jsonl (empty seed)"
-else
-  echo "  ~ manifest.jsonl (exists, leaving as-is)"
-fi
-
-# --- 4b. sources/seen.jsonl (empty seed — append-only dedup log) -----------
+# --- 4. sources/seen.jsonl (empty seed — append-only dedup log) ------------
 if [[ ! -f sources/seen.jsonl ]]; then
   : > sources/seen.jsonl
   echo "  + sources/seen.jsonl (empty seed)"
@@ -112,8 +103,6 @@ GITIGNORE_BLOCK=$(cat <<'GITIGNORE'
 !.claude/hooks/**
 !.claude/skills/
 !.claude/skills/**
-!.claude/agents/
-!.claude/agents/**
 !.claude/settings.json
 
 # Framework working state — local to each researcher's machine

@@ -41,12 +41,10 @@ project_root/
 ├── plan/                  # multi-phase implementation plans (gitignored)
 ├── brainstorms/           # decision-rationale write-ups feeding plans (gitignored)
 ├── scripts/               # build scripts behind notebooks
-├── manifest.jsonl         # append-only log of every analytical run (reproducibility ledger)
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)
-│   ├── hooks/             # Stop / PostToolUse nudges
+│   ├── hooks/             # Stop nudges (silent unless tripped)
 │   ├── skills/            # invokable Anthropic-format skills (slash commands)
-│   ├── agents/            # subagents (e.g. forked review fan-out)
 │   └── settings.json      # project-shared Claude Code settings
 └── CLAUDE.md              # this file
 ```
@@ -74,12 +72,20 @@ sources in `raw/`. Schema and rules: `wiki/SCHEMA.md`. Use `/wiki-ingest
 <raw/path>` to add a source; `/wiki-lint` to audit. Claude owns `wiki/`;
 researchers may correct factual errors. See `wiki/README.md` for orientation.
 
-## Manifest Logging
+## Script Headers
 
-Every analytical Bash run (Rscript, python, stata) is silently logged as
-one JSONL row in `manifest.jsonl` at the project root by a PostToolUse
-hook. Format spec + audit ritual: `.claude/conventions/manifest-logging.md`
-(read on demand). Never edit `manifest.jsonl` by hand — append-only.
+Every analytical script (R / Python / Stata) starts with a fixed-shape
+header comment listing Inputs / Outputs / Seed / Env. Format and examples:
+`.claude/conventions/script-header.md` (read on demand). The header is
+how `/verify` and future-you trace what produced any given output.
+
+## Analytical Commit Format
+
+Commits that produce or modify analytical artifacts under `output/`,
+`insights/`, or `deliverables/<name>/charts/` include `Run:` and `Out:`
+lines in the message so `git log -- output/<file>` resolves to a script.
+Full protocol: `.claude/conventions/analytical-commit-format.md`
+(read on demand).
 
 ## Handoff Format
 
