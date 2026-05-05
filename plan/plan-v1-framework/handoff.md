@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phases 1, 2, 3, 5 complete
 **Date:** 2026-05-05
-**Last commit on plan branch:** `df4e53a` — "Phases 2/3/5: wiki layer, manifest hook, project-discipline conventions"
+**Last commit on plan branch:** `1a92005` — "README: reflect Phases 1/2/3/5 shipped, fix typo, simplify Quickstart" (pushed to origin/main)
 
 ## Phase status
 
@@ -55,7 +55,7 @@ Three-way parallel is feasible again, same protocol as this session: agents emit
 - **Phase 5 shipped both `pre-compact.sh` and `post-compact-restore.sh`.** The plan flagged the latter as deferrable, but Claude Code's docs (verified via WebFetch) document `SessionStart` matcher `compact` as the post-compact resume event. So both shipped. The `_comment` in settings.template.json now references both.
 - **Phase 5 `post-compact-restore.sh` has a 24-hour staleness check** on the snapshot it surfaces — judgment call by the agent, not in the plan. Avoids injecting last-week's plan state as "current" if you compact and resume days later.
 - **Phase 2 agent picked some thresholds that weren't in the plan**: synthesis page creation requires ≥3 sources (encoded in SCHEMA.md and wiki-ingest); `wiki-lint` stale threshold is 90 days from `last_condensed`. Both reasonable; revisit only if they prove wrong in pilot use.
-- **A user-driven README.md edit was in progress** when this session started — uncommitted modification + an "init" commit at f4c4a08 the user made earlier today. Left untouched; the user is mid-edit and that's not framework-build work.
+- **A user-driven README.md edit was in progress** when this session started — uncommitted modification + an "init" commit at f4c4a08 the user made earlier today. Resolved at end of session: user requested README be brought up to date, so commit 1a92005 fixed the typo ("econominics" → "economics"), updated the directory tree to reflect Phases 1/2/3/5 actually shipped, replaced the inline-bash Quickstart with a single `install.sh` invocation, added a `jq` dependency note, added per-convention sections, and turned the Roadmap into a phase-status table.
 - **A scripts/test.R file** was left at the framework repo root by Phase 3's smoke test (the agent created it under the current working dir instead of /tmp). Cleaned up before commit. Worth reminding any future agent to confine smoke-test scratch to /tmp.
 
 ## What didn't work
@@ -72,8 +72,16 @@ Three-way parallel is feasible again, same protocol as this session: agents emit
 - `echo '{"tool_input":{"command":"ls -la"}}' | bash .claude/hooks/log-manifest.sh` — zero rows appended; zero stdout.
 - `bash .claude/hooks/pre-compact.sh` with no active plan — silent; no `.scc/snapshots/` created.
 - `bash .claude/hooks/check-insights.sh` (Phase 1) — still fires correctly when analysis evidence is staged without insights doc.
-- `git log --oneline -3` — `df4e53a` (this session), `f4c4a08` (user's "init" — see Surprises), `f8a99cb` (Phase 1 commit-hash record).
+- `git log --oneline -4` — `1a92005` (README polish), `43526ec` (this handoff), `df4e53a` (Phases 2/3/5 work), `f4c4a08` (user's "init" — see Surprises).
+- `git push` succeeded: `f8a99cb..1a92005  main -> main`.
 
 ## Hash trail
 - Phase 1: b9dc29b
-- Phase 2/3/5: df4e53a (this commit)
+- Phase 2/3/5 work: df4e53a
+- Handoff: 43526ec
+- README polish: 1a92005
+
+## Known minor items (not blocking next session)
+- `.DS_Store` is untracked in the framework repo (no framework-repo `.gitignore` exists — install.sh's gitignore block is for *target* projects). Either add a one-line framework-repo `.gitignore` or `git update-index --skip-worktree`.
+- Phase 7 will need to update `templates/raw/README.md` to add the `raw/sources/<slug>/` subtree convention (currently the README mentions it as forecast).
+- Phase 8 README polish should add a Conventions/skills entry for `/verify`, `/deliverable-review`, `/research-cleanup`, deliverable profiles, and `/scan-sources` once shipped, plus move the Roadmap items into Conventions installed.
