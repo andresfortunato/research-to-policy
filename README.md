@@ -26,9 +26,7 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   └── source-registry.md           ← project-level watchlist + scrape protocol
 ├── hooks/
 │   ├── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
-│   ├── log-manifest.sh              ← PostToolUse/Bash, silent JSONL append per analytical run
-│   ├── pre-compact.sh               ← PreCompact, snapshots active plan handoff before compaction
-│   └── post-compact-restore.sh     ← SessionStart matcher=compact, surfaces snapshot on resume
+│   └── log-manifest.sh              ← PostToolUse/Bash, silent JSONL append per analytical run
 ├── skills/
 │   ├── verify/                      ← per-artifact sanity check (≤2k tokens)
 │   ├── deliverable-review/          ← forked parallel seven-lens review (≤12k tokens)
@@ -94,7 +92,7 @@ See `.claude/conventions/manifest-logging.md` and `docs/manifest-mechanism.md`.
 
 ### `handoff-format`
 
-End of any working session that touched a `plan/plan-<name>/`: rewrite that plan's `handoff.md` in place. Multi-time-scale: within-session (compact-resume), researcher↔researcher (branch handoff), project→follow-up-years-later. The `pre-compact.sh` hook snapshots the active handoff before context loss; `post-compact-restore.sh` (SessionStart matcher `compact`) surfaces it on resume.
+End of any working session that touched a `plan/plan-<name>/`: rewrite that plan's `handoff.md` in place. Multi-time-scale: within-session, researcher↔researcher (branch handoff), project→follow-up-years-later.
 
 See `.claude/conventions/handoff-format.md` and `docs/handoff-mechanism.md`. Template: `templates/handoff.md`.
 

@@ -77,9 +77,7 @@ the original tactical state, without redesigning the file.
   meaningful "didn't work." Auto-generated handoffs collapse into commit-log
   paraphrase.
 - **It is not enforced by a Stop hook.** Researchers commit when they commit;
-  pressuring a handoff at every turn-end produces noise. The PreCompact hook
-  (Phase 5) does snapshot the active plan's state before context loss, but
-  that snapshot is for cold-resume, not a handoff replacement.
+  pressuring a handoff at every turn-end produces noise.
 
 ## Tradeoffs accepted
 
@@ -105,7 +103,9 @@ the original tactical state, without redesigning the file.
 - **Per-deliverable handoff.** When `deliverables/<name>/` work spans
   multiple sessions but is too small to warrant its own plan, drop a
   `handoff.md` inside the deliverable directory. Same format.
-- **Hook integration.** The PreCompact hook (`pre-compact.sh`) reads the
-  active plan's handoff before compaction and snapshots the top of it; the
-  SessionStart-on-compact hook surfaces the snapshot on resume. Both are
-  silent when no active plan exists.
+- **No hook integration.** Earlier drafts wired a PreCompact / SessionStart-on-compact
+  pair to snapshot and surface the active plan's handoff across context loss.
+  Removed: the conditional discipline didn't pay for the install footprint, and
+  cold-resume from a freshly-rewritten `handoff.md` works without it. Cold-resume
+  protocol now: open the relevant `plan/plan-<name>/handoff.md` directly at session
+  start.

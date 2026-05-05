@@ -24,9 +24,9 @@ It does *not* target: software engineering teams (Claude Code's defaults already
 
 ### 1. Silent-by-default hooks
 
-Every hook script must be silent unless the condition it checks for actually trips. A hook that fires on every Stop, every PostToolUse, every PreCompact — even with friendly text — degrades into noise within days. Researchers stop reading it; Claude stops adapting to it.
+Every hook script must be silent unless the condition it checks for actually trips. A hook that fires on every Stop, every PostToolUse — even with friendly text — degrades into noise within days. Researchers stop reading it; Claude stops adapting to it.
 
-Concretely: `check-insights.sh` returns nothing if no analytical artifacts are uncommitted. `log-manifest.sh` writes to `manifest.jsonl` if (and only if) the Bash command matches the analytical-language regex; never writes to stdout. `pre-compact.sh` writes a snapshot file silently; only `post-compact-restore.sh` surfaces text, and only if a snapshot exists.
+Concretely: `check-insights.sh` returns nothing if no analytical artifacts are uncommitted. `log-manifest.sh` writes to `manifest.jsonl` if (and only if) the Bash command matches the analytical-language regex; never writes to stdout.
 
 If you can't make a hook silent-by-default, it probably belongs as a user-invoked skill (`/verify`, `/wiki-lint`, `/scan-sources`, `/research-cleanup`) instead.
 

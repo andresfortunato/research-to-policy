@@ -69,8 +69,6 @@ the plan directory, not at project root, because:
 
 - A project may have multiple active plans (rare but allowed).
 - Closing a plan keeps its handoff in place as a historical artifact.
-- The PreCompact hook can locate the relevant handoff by globbing
-  `plan/plan-*/handoff.md` rather than a fixed path.
 
 The `phases/phase-N.md` split is reserved for phases that themselves span
 multiple sessions and accumulate enough state that a single-line entry in

@@ -44,7 +44,7 @@ project_root/
 ├── manifest.jsonl         # append-only log of every analytical run (reproducibility ledger)
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)
-│   ├── hooks/             # Stop / PostToolUse / PreCompact nudges
+│   ├── hooks/             # Stop / PostToolUse nudges
 │   ├── skills/            # invokable Anthropic-format skills (slash commands)
 │   ├── agents/            # subagents (e.g. forked review fan-out)
 │   └── settings.json      # project-shared Claude Code settings
@@ -86,9 +86,7 @@ hook. Format spec + audit ritual: `.claude/conventions/manifest-logging.md`
 End of any working session that touched a `plan/plan-<name>/`: rewrite
 that plan's `handoff.md` in place. Multi-time-scale (within-session,
 researcher↔researcher, year-later). Full protocol:
-`.claude/conventions/handoff-format.md` (read on demand). A PreCompact
-hook snapshots the active handoff before context loss; a SessionStart
-hook restores it on resume.
+`.claude/conventions/handoff-format.md` (read on demand).
 
 ## Plan Structure
 
