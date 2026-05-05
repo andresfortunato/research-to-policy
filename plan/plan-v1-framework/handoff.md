@@ -87,7 +87,7 @@ Future framework work (post-archive):
 - Phase 8 hash fill-in: 61362a9
 - Pre/post-compact hooks removed: 490f66f
 - **manifest.jsonl replaced by conventions: bcae991**
-- This handoff refresh: <to be filled in after commit>
+- This handoff refresh: f26ff27
 
 ## Known minor items
 - The seven-lens names from `/deliverable-review` are referenced in the deliverable profile lens-weighting tables. If lens names ever change, the profiles need to update too.
