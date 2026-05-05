@@ -85,7 +85,7 @@ Nothing this session — the second three-way parallel run confirmed the protoco
 - README polish: 1a92005
 - Prior handoff refresh: b731b59
 - Phase 4/6/7 work: 1042f9f
-- This handoff refresh: _to be filled in after the handoff-only commit_
+- This handoff refresh: a518d2b
 
 ## Known minor items (not blocking next session)
 - `.DS_Store` is still untracked in the framework repo; Phase 8 should add a one-line framework-repo `.gitignore` (or use `git update-index --skip-worktree`).
