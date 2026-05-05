@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phase 1 complete
 **Date:** 2026-05-05
-**Last commit on plan branch:** (will be set by the Phase 1 commit immediately after this handoff)
+**Last commit on plan branch:** `b9dc29b` — "Phase 1: foundation directory layout, install.sh, settings template"
 
 ## Phase status
 
