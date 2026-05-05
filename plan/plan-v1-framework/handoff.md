@@ -1,57 +1,79 @@
 # Handoff: plan-v1-framework
 
-**Status:** ACTIVE — Phase 1 complete
+**Status:** ACTIVE — Phases 1, 2, 3, 5 complete
 **Date:** 2026-05-05
-**Last commit on plan branch:** `b9dc29b` — "Phase 1: foundation directory layout, install.sh, settings template"
+**Last commit on plan branch:** `df4e53a` — "Phases 2/3/5: wiki layer, manifest hook, project-discipline conventions"
 
 ## Phase status
 
 | Phase | Title | Status | Notes |
 |---|---|---|---|
-| 1 | Foundation: directory layout, settings, install.sh | ✅ done | empty `.gitkeep` placeholders for `.claude/skills/`, `.claude/agents/`, `templates/{wiki,raw,deliverables}/`; install.sh now mirrors them, seeds `manifest.jsonl`, gitignores `plan/ brainstorms/ .scc/` in targets |
-| 2 | Wiki layer (Karpathy three-layer) | next | depends on Phase 1 only — parallelizable with Phase 3 |
-| 3 | Manifest + reproducibility hook | next | depends on Phase 1 only — parallelizable with Phase 2 |
-| 4 | `/verify` + `/deliverable-review` skills | blocked | needs 2 + 3 |
-| 5 | Handoff / plan-structure / decision-records conventions | next | depends on Phase 1 only |
-| 6 | Research-cleanup skill + deliverable profiles | blocked | needs 5 |
-| 7 | Source registry + `/scan-sources` skill | blocked | needs 2 + 3 |
+| 1 | Foundation: directory layout, settings, install.sh | ✅ done | b9dc29b |
+| 2 | Wiki layer (Karpathy three-layer) | ✅ done | df4e53a — wiki-ingest + wiki-lint skills, SCHEMA.md, page-type budgets enforced |
+| 3 | Manifest + reproducibility hook | ✅ done | df4e53a — silent PostToolUse hook (jq dependency), JSONL row schema |
+| 4 | `/verify` + `/deliverable-review` skills | next | unblocked (deps 2+3 done) — parallelizable with 6 and 7 |
+| 5 | Handoff / plan-structure / decision-records conventions | ✅ done | df4e53a — three conventions + PreCompact and SessionStart hooks |
+| 6 | Research-cleanup skill + deliverable profiles | next | unblocked (dep 5 done) — parallelizable with 4 and 7 |
+| 7 | Source registry + `/scan-sources` skill | next | unblocked (deps 2+3 done) — parallelizable with 4 and 6 |
 | 8 | Documentation, README, workshop materials | blocked | needs all |
 
 ## Where we are
 
-Phase 1 lays the structural bones. New top-level scaffolding directories exist (with `.gitkeep` markers in the framework repo, stripped during install). `install.sh` now handles the new layout idempotently:
+This session ran Phases 2, 3, and 5 in parallel via three subagents, then merged the integration files. Each agent wrote to non-overlapping file footprints (skills, conventions, hooks, docs, templates) and emitted CLAUDE.md pointer blocks + settings hook entries to `plan/plan-v1-framework/output/phase-N/` for the lead to splice. That worked cleanly.
 
-- Mirrors `.claude/{conventions,hooks,skills,agents}/` from framework into target
-- Mirrors `templates/{wiki,raw,deliverables}/` into target's `wiki/`, `raw/`, `deliverables/`
-- Seeds an empty `manifest.jsonl` at target root
-- `.gitignore` block now shares `.claude/{conventions,hooks,skills,agents}/` + `settings.json`, and ignores `plan/`, `brainstorms/`, `.scc/`
-- `.gitkeep` placeholders are filtered out at install time so they don't propagate
+After consolidation:
 
-`templates/CLAUDE.md.template` has the new directory tree but no convention-pointer blocks yet (those land per-phase in 2/3/5/7). `settings.template.json` is unchanged structurally — Phase 3 adds PostToolUse, Phase 5 adds PreCompact entries. README's Roadmap is rewritten into "v1 — being built now" / "v1.1 and beyond" sections that match the plan's 8 phases.
+- **`templates/CLAUDE.md.template`** has six pointer blocks (Insights Logging from Phase 1, plus Wiki / Manifest Logging / Handoff Format / Plan Structure / Decision Records added this session). The closing comment that listed deferred conventions was trimmed accordingly.
+- **`.claude/settings.template.json`** wires four hook events: Stop (Phase 1, insights), PostToolUse / Bash (Phase 3, manifest), PreCompact (Phase 5, snapshot), SessionStart matcher `compact` (Phase 5, restore). The leading `_comment` was rewritten to summarize all four.
+- **Six new conventions / two new skills / four new design docs / three new template files / four new hook scripts** all installed correctly via the unchanged `install.sh` (Phase 1's mirror_dir + chmod logic propagates new files automatically).
+
+Verification was thorough: fresh install lands every file with no `.gitkeep` leakage; `settings.json` parses as JSON with all four hook events; SKILL.md frontmatters parse as YAML; log-manifest.sh appends a valid JSON row on `Rscript scripts/t.R` and is silent on `ls`; pre-compact.sh is silent without an active plan; check-insights.sh (Phase 1) still fires correctly.
 
 ## What's next
 
-Two phases unblocked and parallelizable: Phase 2 (wiki layer) and Phase 3 (manifest hook). Either can run next; if a parallel agent team is desired they can run together since their file footprints don't overlap. Phase 5 (handoff/plan/decision conventions) is also unblocked from Phase 1 alone and parallelizes cleanly with 2 and 3 — three-way parallel is feasible.
+Three phases now unblocked and parallelizable: **Phase 4** (`/verify` + `/deliverable-review` skills, built via skill-creator), **Phase 6** (research-cleanup skill + three deliverable profiles), **Phase 7** (source registry + `/scan-sources` skill). File footprints are largely disjoint:
 
-Sequential reading order to start Phase 2 or 3:
-1. `plan/plan-v1-framework/plan.md` — phase summary lives there
-2. This handoff — for what's already in place
-3. The relevant source files (mostly new files, so just `templates/wiki/` for Phase 2 or `.claude/hooks/` for Phase 3)
+- Phase 4: `.claude/skills/{verify,deliverable-review}/`, `.claude/agents/manifest-checker.md`, `docs/verification-architecture.md`
+- Phase 6: `.claude/skills/research-cleanup/`, `templates/deliverables/{country-diagnostic-memo,ministerial-briefing,internal-research-memo}/`
+- Phase 7: `.claude/conventions/source-registry.md`, `.claude/skills/scan-sources/`, `templates/sources/`, `docs/source-registry-mechanism.md`, plus a `templates/CLAUDE.md.template` pointer block and an `install.sh` edit (seed `sources/` and `sources/seen.jsonl`)
+
+Integration touchpoints to coordinate when running parallel:
+- Phase 7 modifies `install.sh` (seed sources/) and `templates/CLAUDE.md.template` (add source-registry pointer). Phases 4 and 6 don't touch these.
+- Phase 7 also extends `templates/raw/README.md` to document the `raw/sources/<slug>/` subtree convention. Already noted in the README that this is forecast for Phase 7.
+
+Sequential reading order to start any of 4/6/7:
+1. `plan/plan-v1-framework/plan.md` — phase summary
+2. This handoff — what's already in place
+3. The relevant existing artifacts (e.g. for Phase 4: `.claude/conventions/manifest-logging.md` so `/verify` knows what schema it's reading; for Phase 7: `.claude/skills/wiki-ingest/SKILL.md` since `/scan-sources` lands content for later ingest)
+
+Three-way parallel is feasible again, same protocol as this session: agents emit CLAUDE.md pointer / install.sh edit / settings.json edit suggestions to `plan/plan-v1-framework/output/phase-N/`; lead consolidates.
 
 ## Surprises
 
-- **`.gitkeep` propagation is a real concern.** The first install pass would have copied `.gitkeep` files into target projects, leaving stray placeholders. `copy_if_absent` now filters them. Worth remembering when later phases add more empty scaffolding.
-- **`.gitignore` upgrade path is acknowledged but not automated.** Existing installs keep their old block; the install message tells them to review manually. If we ever add many more directories to share, we may want a real upgrade routine — for now the cost-to-benefit isn't there.
+- **Three-way parallel agent work landed cleanly with zero merge conflicts.** Each agent saw the others' files appearing on disk during their own install-test runs (since they all install into `/tmp/`-based fresh dirs but test against the live framework repo). No agent treated this as a contradiction or surprise; the file-footprint partition held. Worth remembering for Phases 4/6/7: the same pattern is reusable.
+- **Phase 3 hook has a hard `jq` dependency.** Documented in convention + design doc. Hook fails silent if `jq` is missing rather than erroring. Fine for now; Phase 8 README polish should mention `jq` in install prerequisites.
+- **Phase 5 shipped both `pre-compact.sh` and `post-compact-restore.sh`.** The plan flagged the latter as deferrable, but Claude Code's docs (verified via WebFetch) document `SessionStart` matcher `compact` as the post-compact resume event. So both shipped. The `_comment` in settings.template.json now references both.
+- **Phase 5 `post-compact-restore.sh` has a 24-hour staleness check** on the snapshot it surfaces — judgment call by the agent, not in the plan. Avoids injecting last-week's plan state as "current" if you compact and resume days later.
+- **Phase 2 agent picked some thresholds that weren't in the plan**: synthesis page creation requires ≥3 sources (encoded in SCHEMA.md and wiki-ingest); `wiki-lint` stale threshold is 90 days from `last_condensed`. Both reasonable; revisit only if they prove wrong in pilot use.
+- **A user-driven README.md edit was in progress** when this session started — uncommitted modification + an "init" commit at f4c4a08 the user made earlier today. Left untouched; the user is mid-edit and that's not framework-build work.
+- **A scripts/test.R file** was left at the framework repo root by Phase 3's smoke test (the agent created it under the current working dir instead of /tmp). Cleaned up before commit. Worth reminding any future agent to confine smoke-test scratch to /tmp.
 
 ## What didn't work
 
-(none yet — Phase 1 went smoothly)
+- Initial integration plan considered having parallel agents directly edit `templates/CLAUDE.md.template` and `.claude/settings.template.json`. Discarded in favor of scratch-file emission + lead-side merge. Cleaner; avoided three-way diff conflicts entirely.
 
 ## Verification log
 
-- `bash install.sh /tmp/test-research-project` (fresh) — produces target with new dirs (empty), seeded files (insights/INDEX.md, manifest.jsonl, CLAUDE.md, settings.json), .gitignore with framework block.
-- `bash install.sh /tmp/test-research-project` (re-run) — every file reports "exists, skipping"; no duplicates.
-- `python3 -c "import json; json.load(...)"` on settings.template.json and target settings.json — both valid.
-- `.gitkeep` files NOT present in target — filter works.
-- `check-insights.sh` — fires correctly when an analysis artifact is staged without an insights doc; emits the same JSON nudge as before.
-- `.gitignore` append behavior — pre-existing rules are preserved, framework block appended below them with a separating blank line; fresh-creation case has no leading blank line.
+- `bash install.sh /tmp/scc-research-integration-test` (fresh) — every Phase 2/3/5 file landed; no `.gitkeep` leakage.
+- `python3 -c "import json; json.load(open('.claude/settings.json'))"` — valid; hook events `['PostToolUse', 'PreCompact', 'SessionStart', 'Stop']` all present.
+- `head -10 .claude/skills/wiki-{ingest,lint}/SKILL.md | yaml.safe_load` — both frontmatters parse; `name` field correct.
+- `grep -E '^## (Insights Logging|Wiki|Manifest Logging|Handoff Format|Plan Structure|Decision Records)$' CLAUDE.md` — all six pointer blocks present in installed target.
+- `echo '{"tool_input":{"command":"Rscript scripts/t.R"}}' | bash .claude/hooks/log-manifest.sh` — appends one JSONL row to `manifest.jsonl` with `language:"R"`, `seed:42` (extracted from script), real `env_hash`, real `git_sha`.
+- `echo '{"tool_input":{"command":"ls -la"}}' | bash .claude/hooks/log-manifest.sh` — zero rows appended; zero stdout.
+- `bash .claude/hooks/pre-compact.sh` with no active plan — silent; no `.scc/snapshots/` created.
+- `bash .claude/hooks/check-insights.sh` (Phase 1) — still fires correctly when analysis evidence is staged without insights doc.
+- `git log --oneline -3` — `df4e53a` (this session), `f4c4a08` (user's "init" — see Surprises), `f8a99cb` (Phase 1 commit-hash record).
+
+## Hash trail
+- Phase 1: b9dc29b
+- Phase 2/3/5: df4e53a (this commit)
