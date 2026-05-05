@@ -2,7 +2,7 @@
 
 **Status:** ✅ COMPLETE — all 8 phases shipped. Ready for archival.
 **Date:** 2026-05-05
-**Last commit on plan branch:** to be filled in after this session's commit
+**Last commit on plan branch:** `d6eaf4b` — "Phase 8: README rewrite + design constitution + framework .gitignore"
 
 ## Phase status
 
@@ -68,7 +68,7 @@ Nothing this session — Phase 8 is small enough that no approach got abandoned.
 - Phase 4/6/7 work: 1042f9f
 - Phase 4/6/7 handoff refresh: a518d2b
 - Handoff hash trail fill-in: c912903
-- **Phase 8 work: <to be filled in after commit>**
+- **Phase 8 work: d6eaf4b**
 
 ## Known minor items (not blocking — list closed by Phase 8)
 
