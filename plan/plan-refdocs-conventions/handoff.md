@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phase 2 complete; Phase 3 next
 **Date:** 2026-05-06
-**Last commit on plan branch:** *(this commit, fill in)* — "Phase 2: templates + CLAUDE.md pointer blocks"
+**Last commit on plan branch:** `0f18ff0` — "Phase 2: data_sources/methods templates + CLAUDE.md pointer blocks"
 
 ## Phase status
 
@@ -156,4 +156,5 @@ collision (Data Sources stub vs pointer block) resolved cleanly.
 - Phase 1 work: `65b37e9`
 - Handoff refresh after Phase 1: `c6d9d9e`
 - Hash-trail fill-in for Phase 1: `fcfbc1d`
-- Phase 2 work + handoff refresh: *(this commit, fill in)*
+- Phase 2 work + handoff refresh: `0f18ff0`
+- Hash-trail fill-in for Phase 2: (this commit)
