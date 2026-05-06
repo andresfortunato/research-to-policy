@@ -1,153 +1,131 @@
 # Handoff: refdocs-conventions
 
-**Status:** ACTIVE — Phase 2 complete; Phase 3 next
+**Status:** ✅ COMPLETE — all 3 phases shipped. Ready for archival.
 **Date:** 2026-05-06
-**Last commit on plan branch:** `0f18ff0` — "Phase 2: data_sources/methods templates + CLAUDE.md pointer blocks"
+**Last commit on plan branch:** `baefabc` — "Phase 3: install.sh + README for data_sources/methods"
 
 ## Phase status
 
 | Phase | Title | Status | Notes |
 |---|---|---|---|
 | 1 | Conventions + design rationale | ✅ done | 65b37e9. Two convention files, two mechanism docs, Principle 9 added to audience-and-philosophy.md. |
-| 2 | Templates + CLAUDE.md pointer blocks | ✅ done | This commit. Five seed files + edits to CLAUDE.md.template + audience-and-philosophy.md. |
-| 3 | Installer + framework-level docs | ⏭ next | Two `mirror_dir` calls in `install.sh`; two README "Conventions installed" entries. Verify against fresh dir + `~/cambodia-growth/`. |
+| 2 | Templates + CLAUDE.md pointer blocks | ✅ done | 0f18ff0. Five seed files + edits to CLAUDE.md.template + audience-and-philosophy.md. |
+| 3 | Installer + framework-level docs | ✅ done | baefabc. install.sh mkdir + two mirror_dir calls; README.md two convention entries + tree refresh. |
 
 ## Where we are
 
-Phase 2 shipped five new template files plus edits to two
-existing files. The new templates are:
+Phase 3 was a small, mechanical phase: two file edits.
 
-- `templates/data_sources/README.md` (14 lines) — one-liner +
-  pointer to convention + mention of EXAMPLE doc
-- `templates/data_sources/INDEX.md` (70 lines) — empty quick-nav
-  table seed + adding-a-source recipe (quotes the convention's
-  bullets), with a "(none yet)" helper-functions table
-- `templates/data_sources/EXAMPLE_world_bank_api.md` (172 lines)
-  — generic worked example with the six required sections
-  (Status, Headline anchor, Endpoints, Query shape, Parsing,
-  Pitfalls). Anchor is `NY.GDP.PCAP.CD / VNM / 2022 ≈ 4,164`,
-  captioned as illustrative. The `> This is a template / worked
-  example.` blockquote at the top makes the placeholder status
-  unambiguous.
-- `templates/methods/README.md` (16 lines) — one-liner +
-  pointer to convention + boundary mention
-- `templates/methods/EXAMPLE_method/rule.md` (123 lines) —
-  generic worked example carrying all seven required sections
-  (Source / Rule / Why this version / Exclusions / Edge cases /
-  Known limitations / Diagnostic counts) plus an optional
-  "Structural-economy filter" section. Modeled on cambodia's
-  cohort_rule.md, genericized to a "complex-tradable entrant"
-  rule with `vN`-style versioning and placeholder diagnostic
-  counts.
+**`install.sh`** — bumped the project-level scaffolding line from
+`mkdir -p insights wiki raw deliverables sources` to also include
+`data_sources methods`, and added two `mirror_dir` calls right
+after the existing five. Pattern matches the existing calls
+exactly (no new helpers, no new conditionals).
 
-The CLAUDE.md.template edit added two pointer blocks (Methods
-after Decision Records — cross-link relationship; Data Sources
-after Source Registry — both about external knowledge), each
-5 lines body, matching the existing style. The codebase-structure
-tree gained `data_sources/` and an updated gloss for `methods/`.
+**`README.md`** — three additions:
+
+- Conventions tree (top of "What's in here"): added
+  `methods.md` and `data-sources.md` to the conventions listing
+  with one-line glosses.
+- `docs/` tree: added `data-sources-mechanism.md` and
+  `methods-mechanism.md` (the Phase 1 outputs).
+- `templates/` tree: added `data_sources/` and `methods/`
+  entries with one-line glosses listing the seed files.
+- "Conventions installed" prose section: added two new
+  subsections — `methods` (after `decision-records`) and
+  `data-sources` (after `source-registry + /scan-sources`),
+  each one paragraph matching the existing style. Each blurb
+  names the required sections, the boundary with neighbors, and
+  the pointer to the convention + mechanism doc + template.
+
+Verification passed all three checks per plan.
 
 ## What's next
 
-**Phase 3 — installer + framework README.**
+**Plan complete.** Per implementation skill:
 
-1. Edit `install.sh` to add `mirror_dir` calls for
-   `templates/data_sources/` and `templates/methods/`. Mirror the
-   pattern of the existing `mirror_dir` calls in section
-   "3. Project-level scaffolding" (lines ~72–78). Note that the
-   existing scaffolding section uses `mkdir -p insights wiki raw
-   deliverables sources` — Phase 3 should bump this to also
-   create `data_sources methods`. The `mirror_dir` for
-   `templates/data_sources/` mirrors INDEX, README, and the
-   EXAMPLE_*.md doc.
-2. Edit framework `README.md` to add `data-sources` and `methods`
-   to the "Conventions installed" list with one-paragraph blurbs.
-   Match the style of the existing seven entries.
-3. **Verification per plan:**
-   - `bash install.sh /tmp/test-research-project` against fresh
-     empty dir; result includes `data_sources/{INDEX,README,
-     EXAMPLE_world_bank_api}.md` and `methods/{README.md,
-     EXAMPLE_method/rule.md}`.
-   - Re-run install in same dir; every line of output for
-     newly-installed files starts with `~` (skip — idempotent).
-   - Re-run install against `~/cambodia-growth/`. Existing
-     `data_sources/INDEX.md` and `methods/electronics_entry/`
-     are NOT overwritten — `copy_if_absent` handles this. Verify
-     by `git diff` in the cambodia-growth repo (no changes to
-     existing tracked files; new EXAMPLE_*.md files appear).
+1. User confirms plan completion.
+2. `touch plan/plan-refdocs-conventions/.completed` triggers the
+   Stop hook, which spawns the archivist + cleanup subagents.
+3. Archivist synthesizes `archive/plan-refdocs-conventions.md`,
+   updates `archive/index.md`, cleans up
+   `plan/plan-refdocs-conventions/`, updates `.scc/status/`.
+4. Cleanup scans the file manifest for dead code (none expected
+   for this plan — every new file is intentional).
 
-Reading order to start cold for Phase 3: this file → `plan.md`
-("Phase 3 — Installer + framework-level docs" section) →
-`install.sh` (sections "1. Conventions, hooks, skills" and
-"3. Project-level scaffolding") → framework `README.md` (the
-"Conventions installed" list, search heading).
+Future framework work post-archive (per plan.md "Open Items
+Deferred"):
+
+- **Project-utility-module convention** (`<project>_utils.py` +
+  cross-link from data_sources docs to helper functions). Defer
+  to v1.2 — needs a Python+R bilingual story.
+- **`/methods-lint` / `/data-sources-lint` skills.** Possible if
+  discipline slips in pilot use; not v1.
+- **Auto-extraction of headline anchors into a smoke-test
+  runner.** Tempting (run all anchors weekly, alert on drift)
+  but adds always-on infra; the convention is the v1
+  deliverable.
+- **Lifting "headline anchor" into a wiki convention.** Synthesis
+  pages might benefit from an anchor field too; defer until
+  synthesis pages see enough usage.
 
 ## Surprises
 
-- **CLAUDE.md.template already had a `## Data Sources` stub
-  heading** (a project-overview placeholder, with prose that
-  itself was stale — it pointed at "methods/" for "full data
-  ledgers", but data ledgers go in `data_sources/` now). Adding
-  the new pointer block also called "Data Sources" would have
-  created a duplicate-heading collision. Resolved by deleting
-  the stub heading + body (the new pointer block subsumes its
-  purpose: data_sources/INDEX.md is the canonical at-a-glance
-  list, and the pointer block points there). Also removed the
-  matching "Data Sources" line from the recommended-top-sections
-  comment at the top of the template. Net: no `## Data Sources`
-  stub before convention pointer blocks; one `## Data Sources`
-  pointer block after Source Registry.
-- **`EXAMPLE_method/rule.md` has eight section headings, not
-  seven.** The seven required sections are all present in the
-  required order. The extra section, "Structural-economy
-  filter" (between Exclusions and Edge cases), mirrors the
-  cambodia model where exclusions split naturally into "explicit
-  list of re-export hubs" (the canonical Exclusions section) and
-  "data-driven population threshold" (the structural filter).
-  The convention says "extra sections are fine; missing required
-  sections are a smell" — keeping this preserves the realism of
-  the worked example. Acceptable.
-- **`EXAMPLE_world_bank_api.md` is 172 lines** — a third of the
-  cambodia `imf_sdmx_api.md` (467 lines). Cambodia accumulated a
-  real engagement's worth of dataflow cheatsheets and codelist
-  tables. The seed file is deliberately focused on the six
-  required sections plus minimum supporting content. Acceptable
-  — the goal is to show shape, not provide exhaustive content.
-- **`audience-and-philosophy.md` pointer-block count bumped to
-  ten** (from eight, as Phase 1's surprise predicted). The line
-  now reads: "Insights Logging, Wiki, Script Headers, Analytical
-  Commit Format, Handoff Format, Plan Structure, Decision
-  Records, Methods, Source Registry, Data Sources." Order
-  matches the order they appear in the template.
+- **cambodia-growth install side-effect.** The Phase 3
+  verification step ran `bash install.sh ~/cambodia-growth`. That
+  cambodia repo had been on an older framework version (only
+  `.claude/conventions/insights-logging.md` was tracked); this
+  install run brought every framework file the cambodia-growth
+  repo had been missing — eight new convention files, all hooks,
+  all skills, all template scaffolding (`raw/`, `wiki/`,
+  `deliverables/`, `sources/`). Test-specific additions from
+  *this* phase (`data_sources/EXAMPLE_*`, `data_sources/README`,
+  `methods/EXAMPLE_method/`, `methods/README`) were cleaned up
+  after verification. The broader framework upgrade was left in
+  place as untracked files for the user to review and decide on.
+  This is normal `install.sh` behavior — it mirrors everything.
+- **Existing cambodia assets fully preserved.** The plan's load-
+  bearing claim was that `data_sources/INDEX.md` (cambodia's
+  hand-curated index) and `methods/electronics_entry/` (the v2
+  cohort rule + supporting PDFs) survive a re-install. Verified:
+  `data_sources/INDEX.md (exists, skipping)` in install output,
+  no entries for `electronics_entry/` or
+  `structural_transformation_analysis/` (those weren't iterated
+  because the source `templates/methods/` only contains
+  `EXAMPLE_method/` and `README.md`). `git diff` on cambodia-
+  growth's tracked files showed exactly the same three modified
+  files that were modified before the install ran (`.gitignore`,
+  `CLAUDE.md`, `slides/Kickoff with CAPRED.pptx`) — no overwrite.
 
 ## What didn't work
 
-Nothing this session — Phase 2 went as planned, with the one
-collision (Data Sources stub vs pointer block) resolved cleanly.
+Nothing this session — Phase 3 went as planned, and was the
+shortest of the three (two file edits, three verification runs).
 
 ## Verification log
 
-- `wc -l` on the five new files: 70, 14, 172, 16, 123. INDEX is
-  in the typical-seed range; EXAMPLE_world_bank_api is upper-end
-  but acceptable for a seed showing all six required sections;
-  EXAMPLE_method/rule.md fits in the typical-rule range.
-- `grep -E '^## ' templates/methods/EXAMPLE_method/rule.md` →
-  Source / Rule / Why this version / Exclusions / Edge cases /
-  Structural-economy filter / Known limitations / Diagnostic
-  counts. All seven required sections present, in order; one
-  extra section between Exclusions and Edge cases (allowed).
-- `grep -nE '^(\*\*Status\*\*|## Headline anchor|## [0-9]+\.)' templates/data_sources/EXAMPLE_world_bank_api.md`
-  → all six required sections present in order (Status,
-  Headline anchor, Endpoints, Query shape, Parsing, Pitfalls).
-- `awk` body-line count of new pointer blocks: Methods = 5 lines,
-  Data Sources = 5 lines (counted manually from file content).
-  Both ≤6, both reference `.claude/conventions/<name>.md (read on
-  demand)`, both follow name-when-applies-where-protocol shape
-  of the existing eight blocks.
-- `grep -c '^## Data Sources$' templates/CLAUDE.md.template` →
-  1 (no duplicate heading after the stub-removal fix).
-- `git diff --stat HEAD` before commit: 2 modified files
-  (CLAUDE.md.template, audience-and-philosophy.md) + 5 new
-  files in `templates/data_sources/` and `templates/methods/`.
+- **Fresh install** — `rm -rf /tmp/test-research-project && mkdir
+  /tmp/test-research-project && bash install.sh /tmp/test-research-project`.
+  Output included `+ data_sources/EXAMPLE_world_bank_api.md`,
+  `+ data_sources/INDEX.md`, `+ data_sources/README.md`,
+  `+ methods/EXAMPLE_method`, `+ methods/README.md`. Post-run
+  `ls` confirmed all five files in expected locations including
+  `methods/EXAMPLE_method/rule.md`.
+- **Idempotency** — re-ran install in the same `/tmp` dir; every
+  data_sources/methods line started with `~` (skip): six lines
+  total (5 files + 1 conventions/methods.md), all skipped.
+- **Cambodia-growth** — `bash install.sh ~/cambodia-growth`.
+  Output: `~ data_sources/INDEX.md (exists, skipping)` (existing
+  INDEX preserved); `+` for the four new EXAMPLE/README files.
+  `methods/electronics_entry/` and
+  `methods/structural_transformation_analysis/` not listed (not
+  iterated). `git diff --stat` showed no new tracked-file
+  modifications beyond the pre-existing three.
+- **`git status --short`** before commit on framework repo:
+  `M README.md`, `M install.sh`, plus an unrelated
+  `?? plan/plan-v1-framework/.completed` (gitignored, ignore).
+- **`git diff --stat`** before commit: 2 files, 23 insertions, 3
+  deletions. Within expected envelope for this phase.
 
 ## Hash trail
 
@@ -157,4 +135,6 @@ collision (Data Sources stub vs pointer block) resolved cleanly.
 - Handoff refresh after Phase 1: `c6d9d9e`
 - Hash-trail fill-in for Phase 1: `fcfbc1d`
 - Phase 2 work + handoff refresh: `0f18ff0`
-- Hash-trail fill-in for Phase 2: (this commit)
+- Hash-trail fill-in for Phase 2: `6c2813f`
+- Phase 3 work: `baefabc`
+- Handoff refresh + hash-trail fill-in for Phase 3: (this commit)
