@@ -20,7 +20,7 @@ It assumes:
 
 It does *not* target: software engineering teams (Claude Code's defaults already serve them well), one-off data exercises (overkill), or fully-academic research with a LaTeX-Beamer pipeline (deferred to v1.1+).
 
-## The eight design principles
+## The nine design principles
 
 ### 1. Silent-by-default hooks
 
@@ -56,7 +56,7 @@ CLAUDE.md is loaded into every session. Long-form rules in CLAUDE.md cost tokens
 
 The pointer block names the convention, says when it applies, and points at `.claude/conventions/<name>.md` for the protocol. Claude reads the full protocol on demand when the situation matches the trigger. This pattern is the single biggest token-cost lever in the framework.
 
-The seven pointer blocks shipped in v1: Insights Logging, Wiki, Manifest Logging, Handoff Format, Plan Structure, Decision Records, Source Registry.
+The eight pointer blocks shipped in v1: Insights Logging, Wiki, Script Headers, Analytical Commit Format, Handoff Format, Plan Structure, Decision Records, Source Registry.
 
 ### 6. Markdown-first, language-neutral core
 
@@ -84,6 +84,19 @@ Every committed framework file is generic. Pilot-specific configuration (registr
 
 This rules out: hardcoded country names in conventions, engagement-specific rules in skills, brand-styled chart templates in `templates/`. It admits: generic profiles that any country diagnostic could use, registry templates with commented examples, philosophy docs (this one) framed for outside readers.
 
+### 9. Verifiable freshness anchors
+
+Reference documentation about external systems — APIs, codebooks, project-internal methodology rules — accumulates stale claims silently. An endpoint still returns 200, but the response shape shifted. A cohort rule still runs, but the codes underlying it changed and the diagnostic counts no longer match. A `Status: verified 2025-06-12` line by itself rots: a future reader cannot tell whether the claim is still true.
+
+The discipline is to pair every freshness timestamp with at least one **headline anchor** — a concrete value or count produced by the documented procedure. "As of 2026-05-04, the IMF DIP query for KHM 2009 inward FDI from China returns $1.113B." "Under v2 of the electronics-entrant rule, the narrow cohort has 49 entrants, with class breakdown sustainer 39 / faller 6 / plateauer 2 / pending 2." Anchors turn a date stamp into a re-runnable smoke test: future-Claude (or future-you) can re-fetch the value, and any drift surfaces immediately.
+
+Where this binds in v1:
+
+- **`data_sources/<source>_<thing>.md`** — every doc carries a `Status: verified <YYYY-MM-DD>` line plus at least one anchor (a country-year-indicator triple is ideal). See `.claude/conventions/data-sources.md`.
+- **`methods/<method>/rule.md`** — the diagnostic-counts block IS the anchor; bumping a rule from vN to vN+1 requires re-running the implementing script and updating the counts. See `.claude/conventions/methods.md`.
+
+Future ref-doc conventions whose claims age out should adopt the same pattern. The cost is a few minutes per verification; the payoff is an audit trail future readers can cheaply re-confirm. If a source genuinely has no point-in-time anchor (intraday market feeds, frequently-revised series), the escape hatch is a *structural* anchor — "the response object has these top-level keys"; "the codelist contains 20 codes" — weaker but better than a bare timestamp.
+
 ## How the principles bind future additions
 
 Before proposing a new convention, hook, skill, or template, run it past the constitution:
@@ -98,6 +111,7 @@ Before proposing a new convention, hook, skill, or template, run it past the con
 | Markdown-first | Does it work without a specific language toolchain? |
 | Stakes-graded | Does it fit the cost tier (zero / ≤2k / ≤12k tokens)? Or invent a new one with reason? |
 | Open-source | Is anything here engagement-specific? |
+| Verifiable freshness | If this convention adds a ref doc whose claims age out, does it carry a `Status` date paired with a re-runnable headline anchor? |
 
 If a proposal fails one of these and the failure is intentional, the constitution gets revised first — explicitly, in this document — before the addition lands. That's the only way the framework stays small over time.
 
