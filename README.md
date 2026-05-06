@@ -24,7 +24,9 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── handoff-format.md            ← multi-time-scale session-end handoff protocol
 │   ├── plan-structure.md            ← plan/plan-<slug>/ layout for multi-session work
 │   ├── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
-│   └── source-registry.md           ← project-level watchlist + scrape protocol
+│   ├── methods.md                   ← project-internal rule docs (Source/Rule/Exclusions/Diagnostic counts)
+│   ├── source-registry.md           ← project-level watchlist + scrape protocol
+│   └── data-sources.md              ← API/dataset reference docs (Status/Anchor/Workflow/Pitfalls)
 ├── hooks/
 │   └── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
 ├── skills/
@@ -43,6 +45,8 @@ docs/
 ├── wiki-architecture.md             ← Karpathy three-layer, page budgets, ingest/query/lint
 ├── verification-architecture.md     ← /verify + /deliverable-review design rationale
 ├── source-registry-mechanism.md     ← registry format, dedup, freq logic, fail-modes
+├── data-sources-mechanism.md        ← flat folder, INDEX, anchor-as-smoke-test rationale
+├── methods-mechanism.md             ← sub-folder, vN evolution, diagnostic-counts rationale
 ├── audience-and-philosophy.md       ← design constitution for users + contributors
 └── extending.md                     ← how to add new conventions/hooks
 
@@ -52,6 +56,8 @@ templates/
 ├── wiki/                            ← SCHEMA.md + README.md + index.md + log.md (Karpathy seeds)
 ├── raw/README.md                    ← immutable-sources convention (incl. raw/sources/<slug>/)
 ├── sources/                         ← registry.yaml + README.md + seen.jsonl (registry seeds)
+├── data_sources/                    ← INDEX.md + README.md + EXAMPLE_world_bank_api.md (data-sources seeds)
+├── methods/                         ← README.md + EXAMPLE_method/rule.md (methods seeds)
 ├── handoff.md                       ← session-end handoff template
 ├── decision-record.md               ← decision-record fillable template
 └── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
@@ -104,6 +110,12 @@ The policy-research analog of pre-registration. Methodology calls you'd defend i
 
 See `.claude/conventions/decision-records.md`. Template: `templates/decision-record.md`.
 
+### `methods`
+
+Operational project-internal rules — how an entrant cohort is defined, which exclusions apply, what threshold gates inclusion — live in `methods/<method-slug>/rule.md` with seven required sections: Source / Rule / Why-this-version / Exclusions / Edge cases / Known limitations / Diagnostic counts. One sub-folder per method (rules accrete codebooks, PDFs, helper queries); rule files evolve `v1 → v2 → v3` with the prior version preserved in-doc. Boundary: `decisions/` is peer-reviewable methodology calls; `wiki/concepts/` is distilled domain claims with citations; `methods/` is project-internal rules with diagnostic counts. Contestable methods cross-link to a `decisions/` record.
+
+See `.claude/conventions/methods.md` and `docs/methods-mechanism.md`. Template: `templates/methods/EXAMPLE_method/rule.md`.
+
 ### Wiki layer (Karpathy three-layer)
 
 Two skills (`/wiki-ingest`, `/wiki-lint`) plus the schema doc that lives in target projects (`templates/wiki/SCHEMA.md`). `raw/` is immutable; `wiki/` is LLM-owned distilled knowledge. Page types — source (≤300 words), concept (≤800), entity (≤600), synthesis (uncapped + `last_condensed` frontmatter required). `/wiki-ingest <raw/path>` distills; `/wiki-lint` flags orphans, contradictions, stale pages, and budget violations. Researchers may correct factual errors; ingest is always explicit.
@@ -115,6 +127,12 @@ See `docs/wiki-architecture.md`. Schema travels with target projects in `wiki/SC
 Project-level YAML watchlist (`sources/registry.yaml`) of news / company / policy / infra / investment URLs to track continuously, plus the `/scan-sources` skill that re-scrapes entries due for re-fetch. Fields per entry: `slug`, `url`, `category`, `freq` (`daily` / `weekly` / `monthly` / `adhoc`), `last_scraped`, `scrape_method`, `content_selector`, `notes`. Dedup is content-hash via `sources/seen.jsonl`. Fresh content lands in `raw/sources/<slug>/YYYY-MM-DD_<title-slug>.md` and requires explicit `/wiki-ingest` to become wiki-promoted (so the researcher controls what becomes load-bearing). Fetching delegates to the existing `web-scraping` skill (rate limits, robots.txt, identifiable User-Agent inherited). `/scan-sources` is always explicit — never auto-fires on a clock. Flags: `--slug=<slug>` (single source), `--category=<cat>` (filtered), `--force` (bypass freq window).
 
 See `.claude/conventions/source-registry.md` and `docs/source-registry-mechanism.md`. Registry seed: `templates/sources/registry.yaml`.
+
+### `data-sources`
+
+API/dataset reference docs — "how to access World Bank's wbgapi", "how IMF SDMX dataflows are structured" — live in a flat `data_sources/<source>_<thing>.md` folder with six required sections: Status (verified-as-of date) / Headline anchor (a concrete value future-Claude can re-fetch as a smoke test) / Endpoints / Query shape / Parsing / Pitfalls. `data_sources/INDEX.md` is the quick-nav table. Boundary: `raw/sources/` holds *fetched content* governed by the source-registry; `data_sources/` holds *how-to-access* docs written by hand. The headline-anchor + freshness pattern is the load-bearing discipline — re-fetching the anchor proves the doc is still accurate.
+
+See `.claude/conventions/data-sources.md` and `docs/data-sources-mechanism.md`. Templates: `templates/data_sources/{INDEX,README,EXAMPLE_world_bank_api}.md`.
 
 ### `/verify` — per-artifact sanity check
 
