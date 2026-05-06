@@ -9,7 +9,6 @@ Recommended top-level sections:
   - Project Overview (3-5 lines: what this project is, who it's for, current focus)
   - Key Frameworks (the analytical lenses you'll keep returning to)
   - Codebase Structure (one-glance directory tree)
-  - Data Sources (where data lives + how to access)
   - Visualization / Naming Conventions (project-specific)
   - Convention pointers (one short section per .claude/conventions/ file)
 
@@ -36,7 +35,8 @@ project_root/
 ├── raw/                   # immutable source materials (papers, downloads, scrapes)
 ├── wiki/                  # LLM-owned distilled knowledge — index.md, log.md, pages
 ├── insights/              # evidence-based findings doc + INDEX (project-level)
-├── methods/               # methodology notes
+├── data_sources/          # external API/dataset reference docs (INDEX + per-source)
+├── methods/               # operational methodology specs (one folder per method)
 ├── deliverables/          # external memos, briefings, decks (per-profile templates)
 ├── plan/                  # multi-phase implementation plans (gitignored)
 ├── brainstorms/           # decision-rationale write-ups feeding plans (gitignored)
@@ -48,11 +48,6 @@ project_root/
 │   └── settings.json      # project-shared Claude Code settings
 └── CLAUDE.md              # this file
 ```
-
-## Data Sources
-
-<List the primary datasets, how to access them (env vars, API keys, paths),
-and any important quirks. Brief — full data ledgers go in methods/.>
 
 ## Visualization Conventions
 
@@ -110,6 +105,14 @@ identification strategy, sample restriction): file once at
 Why-rejected / Key-assumptions / What-would-invalidate. Full protocol:
 `.claude/conventions/decision-records.md` (read on demand).
 
+## Methods
+
+Operational, project-internal methodology specs in
+`methods/<method-slug>/rule.md` — what we decided to compute and
+why, with diagnostic counts that prove the rule is in force. Cross-link
+load-bearing changes to `decisions/`. Full protocol:
+`.claude/conventions/methods.md` (read on demand).
+
 ## Source Registry
 
 Tracked-source watchlist in `sources/registry.yaml` plus dedup ledger
@@ -119,6 +122,14 @@ re-scrape; `/scan-sources --slug=<slug>` for one source;
 freq window. Scraped content lands in `raw/sources/<slug>/...md` and
 requires explicit `/wiki-ingest` for wiki promotion. Full protocol:
 `.claude/conventions/source-registry.md` (read on demand).
+
+## Data Sources
+
+Reference docs for external APIs and datasets in `data_sources/` —
+one `<source>_<thing>.md` per source-and-purpose, plus `INDEX.md` for
+quick-nav. Each doc carries a `Status: verified <date>` line and at
+least one re-fetchable headline anchor. Full protocol:
+`.claude/conventions/data-sources.md` (read on demand).
 
 <!--
 Add one similar pointer block per additional convention you adopt. The

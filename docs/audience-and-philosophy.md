@@ -56,7 +56,7 @@ CLAUDE.md is loaded into every session. Long-form rules in CLAUDE.md cost tokens
 
 The pointer block names the convention, says when it applies, and points at `.claude/conventions/<name>.md` for the protocol. Claude reads the full protocol on demand when the situation matches the trigger. This pattern is the single biggest token-cost lever in the framework.
 
-The eight pointer blocks shipped in v1: Insights Logging, Wiki, Script Headers, Analytical Commit Format, Handoff Format, Plan Structure, Decision Records, Source Registry.
+The ten pointer blocks shipped in v1: Insights Logging, Wiki, Script Headers, Analytical Commit Format, Handoff Format, Plan Structure, Decision Records, Methods, Source Registry, Data Sources.
 
 ### 6. Markdown-first, language-neutral core
 
