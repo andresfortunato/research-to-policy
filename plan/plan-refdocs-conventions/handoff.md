@@ -151,4 +151,5 @@ Nothing this session — Phase 1 went as planned.
 - Init plan: `b9c7ca7`
 - Cleanup `.Rhistory`: `8aa3d46`
 - Phase 1 work: `65b37e9`
-- This handoff refresh: (uncommitted; resolve at commit time)
+- Handoff refresh: `c6d9d9e`
+- This hash-trail fill-in: (this commit)
