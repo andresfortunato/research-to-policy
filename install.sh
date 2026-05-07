@@ -69,15 +69,16 @@ else
   echo "  ~ .claude/settings.json (exists — merge new hook entries manually if needed)"
 fi
 
-# --- 3. Project-level scaffolding (insights/, wiki/, raw/, deliverables/, sources/, data_sources/, methods/) --
-mkdir -p insights wiki raw deliverables sources data_sources methods
+# --- 3. Project-level scaffolding (insights/, wiki/, raw/, deliverables/, sources/, data_sources/, methods/, project_conventions/) --
+mkdir -p insights wiki raw deliverables sources data_sources methods project_conventions
 copy_if_absent "$SUPER_CLAUDIO/templates/insights/INDEX.md" insights/INDEX.md
-mirror_dir "$SUPER_CLAUDIO/templates/wiki"         wiki
-mirror_dir "$SUPER_CLAUDIO/templates/raw"          raw
-mirror_dir "$SUPER_CLAUDIO/templates/deliverables" deliverables
-mirror_dir "$SUPER_CLAUDIO/templates/sources"      sources
-mirror_dir "$SUPER_CLAUDIO/templates/data_sources" data_sources
-mirror_dir "$SUPER_CLAUDIO/templates/methods"      methods
+mirror_dir "$SUPER_CLAUDIO/templates/wiki"               wiki
+mirror_dir "$SUPER_CLAUDIO/templates/raw"                raw
+mirror_dir "$SUPER_CLAUDIO/templates/deliverables"       deliverables
+mirror_dir "$SUPER_CLAUDIO/templates/sources"            sources
+mirror_dir "$SUPER_CLAUDIO/templates/data_sources"       data_sources
+mirror_dir "$SUPER_CLAUDIO/templates/methods"            methods
+mirror_dir "$SUPER_CLAUDIO/templates/project_conventions" project_conventions
 
 # --- 4. sources/seen.jsonl (empty seed — append-only dedup log) ------------
 if [[ ! -f sources/seen.jsonl ]]; then

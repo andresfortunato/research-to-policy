@@ -25,6 +25,7 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── plan-structure.md            ← plan/plan-<slug>/ layout for multi-session work
 │   ├── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
 │   ├── methods.md                   ← project-internal rule docs (Source/Rule/Exclusions/Diagnostic counts)
+│   ├── project-conventions.md       ← project-bespoke style/process rules (visualization, writing, etc.)
 │   ├── source-registry.md           ← project-level watchlist + scrape protocol
 │   └── data-sources.md              ← API/dataset reference docs (Status/Anchor/Workflow/Pitfalls)
 ├── hooks/
@@ -47,6 +48,7 @@ docs/
 ├── source-registry-mechanism.md     ← registry format, dedup, freq logic, fail-modes
 ├── data-sources-mechanism.md        ← flat folder, INDEX, anchor-as-smoke-test rationale
 ├── methods-mechanism.md             ← sub-folder, vN evolution, diagnostic-counts rationale
+├── project-conventions-mechanism.md ← why a separate folder, no enforced sections, no anchors
 ├── audience-and-philosophy.md       ← design constitution for users + contributors
 └── extending.md                     ← how to add new conventions/hooks
 
@@ -58,6 +60,7 @@ templates/
 ├── sources/                         ← registry.yaml + README.md + seen.jsonl (registry seeds)
 ├── data_sources/                    ← INDEX.md + README.md + EXAMPLE_world_bank_api.md (data-sources seeds)
 ├── methods/                         ← README.md + EXAMPLE_method/rule.md (methods seeds)
+├── project_conventions/             ← INDEX.md + README.md + EXAMPLE_visualization.md (project-conventions seeds)
 ├── handoff.md                       ← session-end handoff template
 ├── decision-record.md               ← decision-record fillable template
 └── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
@@ -115,6 +118,12 @@ See `.claude/conventions/decision-records.md`. Template: `templates/decision-rec
 Operational project-internal rules — how an entrant cohort is defined, which exclusions apply, what threshold gates inclusion — live in `methods/<method-slug>/rule.md` with seven required sections: Source / Rule / Why-this-version / Exclusions / Edge cases / Known limitations / Diagnostic counts. One sub-folder per method (rules accrete codebooks, PDFs, helper queries); rule files evolve `v1 → v2 → v3` with the prior version preserved in-doc. Boundary: `decisions/` is peer-reviewable methodology calls; `wiki/concepts/` is distilled domain claims with citations; `methods/` is project-internal rules with diagnostic counts. Contestable methods cross-link to a `decisions/` record.
 
 See `.claude/conventions/methods.md` and `docs/methods-mechanism.md`. Template: `templates/methods/EXAMPLE_method/rule.md`.
+
+### `project-conventions`
+
+Project-bespoke style and process rules — visualization color choices, writing voice, slide design, naming idioms — live in a flat `project_conventions/<domain>.md` folder with `INDEX.md` for quick-nav. One file per domain, lowercase snake_case; every file opens with "Use this document whenever ..." so Claude knows when to load it on demand. Unlike `data_sources/` and `methods/`, no required internal sections — style rules don't fit a single template; the convention enforces only naming and triggering language. Boundary: `.claude/conventions/` is framework-shared protocols; `data_sources/` is external-system reference docs with anchors; `methods/` is operational compute rules with diagnostic counts; `project_conventions/` is project decisions about how *this engagement* does its work. Principle 9 (freshness anchors) deliberately does not bind — these are decisions, not aging claims.
+
+See `.claude/conventions/project-conventions.md` and `docs/project-conventions-mechanism.md`. Templates: `templates/project_conventions/{INDEX,README,EXAMPLE_visualization}.md`.
 
 ### Wiki layer (Karpathy three-layer)
 
