@@ -78,4 +78,5 @@ Nothing this phase. Sidecar logic is straightforward (`readFile` + `Buffer.equal
 - Handoff hash-trail fill-in for Phase 2: `63563b0`
 - Phase 3 work + handoff refresh: `e2b84e1`
 - Handoff hash-trail fill-in for Phase 3: `cb0c1ec`
-- Phase 4 work + handoff refresh: (this commit)
+- Phase 4 work + handoff refresh: `cc232fc`
+- Handoff hash-trail fill-in for Phase 4: (this commit)
