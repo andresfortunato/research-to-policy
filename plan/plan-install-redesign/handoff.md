@@ -89,4 +89,5 @@ Nothing this phase. Mechanical port of scc-code's two helpers; only changes were
 - Handoff hash-trail fill-in for Phase 1: `3bf0476`
 - Phase 2 work + handoff refresh: `9f0d3fc`
 - Handoff hash-trail fill-in for Phase 2: `63563b0`
-- Phase 3 work + handoff refresh: (this commit)
+- Phase 3 work + handoff refresh: `e2b84e1`
+- Handoff hash-trail fill-in for Phase 3: (this commit)
