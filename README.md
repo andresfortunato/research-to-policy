@@ -30,14 +30,14 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   └── data-sources.md              ← API/dataset reference docs (Status/Anchor/Workflow/Pitfalls)
 ├── hooks/
 │   └── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
-├── skills/
+├── skills/                          ← symlinked into ~/.claude/skills/ (global) by `scr init`, not per-project
 │   ├── verify/                      ← per-artifact sanity check (≤2k tokens)
 │   ├── deliverable-review/          ← forked parallel seven-lens review (≤12k tokens)
 │   ├── wiki-ingest/                 ← raw/ → wiki/ distillation
 │   ├── wiki-lint/                   ← orphans, contradictions, stale, page-budget violations
 │   ├── research-cleanup/            ← orphans + intermediates + unused charts proposal
 │   └── scan-sources/                ← registry-driven targeted scraping
-└── settings.template.json           ← copy to your project's .claude/settings.json
+└── settings.template.json           ← copied to .claude/settings.json (project-shared)
 
 docs/
 ├── insights-mechanism.md            ← design rationale + tradeoffs
@@ -69,17 +69,36 @@ templates/
     └── internal-research-memo/      ← 5–12k words, working-through-a-question
 ```
 
-The framework has no hard external dependencies. Hooks are pure bash + standard Unix tools.
+Hooks are pure bash + standard Unix tools. The `scr` CLI requires Node ≥18 (one runtime dep: `commander`); everything `scr init` installs into a target project is plain markdown, JSON, YAML, or shell.
 
 ## Quickstart — install into an existing research project
 
 ```bash
-git clone https://github.com/<you>/super-claudio-research $HOME/GitHub/super-claudio-research
+npm install -g github:andresfortunato/super-claudio-research
 cd /path/to/your/research-project
-bash $HOME/GitHub/super-claudio-research/install.sh .
+scr init
 ```
 
-`install.sh` is idempotent — safe to re-run as the framework grows. It mirrors `.claude/{conventions,hooks,skills}/` and the `templates/` seeds (insights, wiki, raw, sources, deliverables) into your project, seeds an empty `sources/seen.jsonl`, copies `settings.template.json` to `.claude/settings.json` (only if absent — your customizations are preserved), and appends a framework block to `.gitignore` that shares the framework scaffolding while hiding local working state (`plan/`, `brainstorms/`, `.scc/`).
+`scr init` is idempotent — safe to re-run. It copies `.claude/{conventions,hooks}/`, the project-relative `.claude/settings.json`, the `templates/` seeds (insights, wiki, raw, sources, data_sources, methods, project_conventions, deliverables), `CLAUDE.md`, and a framework block in `.gitignore` into the target project — collaborators (human or AI) cloning the project repo inherit them. Skills and agents go *global*: they're symlinked into `~/.claude/{skills,agents}/` once and shared across every project on the machine, so a skill upgrade lands everywhere automatically. Existing files (`CLAUDE.md`, `.claude/settings.json`, user-edited convention files) are never overwritten.
+
+### Pulling framework updates into an existing project
+
+```bash
+cd /path/to/your/research-project
+scr init --upgrade
+```
+
+For each framework convention or template seed, `--upgrade` either copies it in (if absent), silently skips it (if byte-identical), or writes a `<file>.framework-new` sidecar (if divergent — your version stays put). Review sidecars with your preferred diff tool and merge manually. `CLAUDE.md`, `insights/INDEX.md`, `wiki/index.md`, `wiki/log.md`, `sources/registry.yaml`, and other user-curated seeds are left alone.
+
+### Project → project convention sync
+
+To copy a working set of conventions from one of your project repos into another (without going through the framework):
+
+```bash
+cp -R /path/to/source-project/.claude/conventions/. /path/to/dest-project/.claude/conventions/
+```
+
+`cp -R` overwrites — review with `git diff` in the destination repo before committing.
 
 ## Conventions installed
 
@@ -171,18 +190,4 @@ Three profiles ship in v1 — each is a `PROFILE.md` (length target, register, a
 
 See `templates/deliverables/<profile>/PROFILE.md` for each.
 
-## Roadmap
-
-v1 is the current scoped release, designed for the May 2026 Córdoba/Cambodia kickoff workshop and the two pilots' close-out periods (end-Aug and end-Sept 2026). All eight build phases shipped — every convention, hook, skill, and template listed above is installed and verified. See `plan/plan-v1-framework/plan.md` (in the framework repo) for the build history.
-
-### v1.1 and beyond
-
-- **`evidence-ledger`** — a project-level table of formal claims, the chart/CSV that supports each, and whether the claim has been challenged.
-- **`chart-registry`** — `save_fig(findings={...})` pattern so every chart ships with metadata Claude can read without re-opening the PNG.
-- **`citation-discipline`** — every quantitative claim must reference a source (paper, dataset, internal doc).
-- **LaTeX/Beamer add-on** — borrowed from Pedro/Hugo Sant'Anna's templates; useful when the deliverable register shifts toward academic outputs.
-- **WIP-limited multi-project dashboard** (Hugo's vault-manager pattern) — for researchers juggling multiple country engagements.
-- **Stata first-class support** — alongside R and Python.
-- **Mode-registry / cross-skill advisor** (Imbad pattern) — once skill count exceeds ~8 and "which entry point?" becomes the bottleneck.
-
-Each addition follows the same pattern: one convention file in `.claude/conventions/`, optionally one hook script in `.claude/hooks/`, one section in `docs/`, optionally a skill in `.claude/skills/`. See `docs/extending.md`.
+Project-development backlog (v1.1+ items, open design questions) lives in `TODO.md` at the framework root.

@@ -183,7 +183,7 @@ document this method."
 
 ### 2. The templates (`templates/methods/{README.md,EXAMPLE_method/rule.md}`)
 
-Seeded by `install.sh` into target projects.
+Seeded by `scr init` into target projects.
 
 - `README.md` — one-liner pointing at the convention.
 - `EXAMPLE_method/rule.md` — generic worked example with all

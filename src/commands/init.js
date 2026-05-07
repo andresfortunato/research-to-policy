@@ -1,16 +1,17 @@
-// Phase 3: per-project install + global skills/agents symlinks.
-// Phase 4 will add the --upgrade flow via src/lib/upgrade.js.
-
 import { installProject, printNextSteps } from '../lib/install-project.js';
 import { installGlobals } from '../lib/install-globals.js';
+import { upgradeProject } from '../lib/upgrade.js';
 
 export async function initCommand(options = {}) {
+  const target = process.cwd();
+
   if (options.upgrade) {
-    console.log('scr init --upgrade: not implemented yet (Phase 4)');
+    const ok = await upgradeProject(target);
+    if (!ok) return;
+    await installGlobals();
     return;
   }
 
-  const target = process.cwd();
   const ok = await installProject(target);
   if (!ok) return;
 

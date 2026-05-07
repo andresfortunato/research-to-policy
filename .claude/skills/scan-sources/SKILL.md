@@ -18,7 +18,7 @@ no separate run log.
 
 - `sources/registry.yaml` exists in the project root. If absent, stop
   and tell the user to seed it from `templates/sources/registry.yaml`.
-- `sources/seen.jsonl` exists (seeded empty by `install.sh`). If absent,
+- `sources/seen.jsonl` exists (seeded empty by `scr init`). If absent,
   create it as an empty file before the first fetch.
 - The `web-scraping` skill is installed and discoverable. Without it,
   this skill cannot fetch.

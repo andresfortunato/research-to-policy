@@ -89,7 +89,7 @@ no separate run log.
 
 ### 3. The templates (`templates/sources/{registry.yaml,README.md}`)
 
-Seeded by `install.sh` into target projects. The registry has four
+Seeded by `scr init` into target projects. The registry has four
 commented examples covering the four "shape" archetypes
 (investment-news daily/httpx, company-filings weekly/playwright,
 infrastructure-tracker monthly/scrapegraph, policy-news weekly/crawl4ai).

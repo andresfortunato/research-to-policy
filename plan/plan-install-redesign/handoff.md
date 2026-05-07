@@ -2,86 +2,73 @@
 
 ## Status
 
-**Phase 3: ✅ done.** `src/lib/install-globals.js` symlinks the framework's `.claude/skills/` and `.claude/agents/` subdirs into `~/.claude/{skills,agents}/`. Wired into `src/commands/init.js` to run *after* `installProject`. `scr init` now produces a complete install: per-project layout + global skill availability across all Claude Code projects. Phase 4 (upgrade flow + README rewrite + delete install.sh) next.
+**Phase 4: ✅ done. Plan complete — all four phases verified.**
+
+`src/lib/upgrade.js` lands the sidecar-based `--upgrade` flow. `src/commands/init.js` now branches on `options.upgrade` to delegate to `upgradeProject()` (followed by `installGlobals()` to refresh symlinks). README's Quickstart points at `npm install -g github:andresfortunato/super-claudio-research` + `scr init`; `--upgrade` and the project→project `cp -R` recipe are documented. `TODO.md` at the framework root holds the v1.1+ backlog plus the new globalize-conventions entry. `install.sh` deleted; references to it in current docs/skills updated to point at `scr init`.
 
 | Phase | Title | Status | Notes |
 |---|---|---|---|
 | 1 | Bootstrap the Node package | ✅ done | package.json + install.js + src/cli.js + stubbed src/commands/init.js + .gitignore. Verified via `npm link`. |
 | 2 | Per-project install (port install.sh) | ✅ done | `src/lib/install-project.js` + wired into `src/commands/init.js`. Diff vs `install.sh` output is exactly the two intended deltas. |
-| 3 | Global skills/agents symlink | ✅ done | `src/lib/install-globals.js` ports scc-code's `installSkills()`/`installAgents()` near-verbatim with sources at `<framework>/.claude/{skills,agents}/`. 6 skills symlink into `~/.claude/skills/` on first run; idempotent re-runs report "already installed". Skill-name disjointness vs scc-code re-verified (`comm -12` empty). |
-| 4 | Upgrade flow + README + delete install.sh | ⏳ next | `src/lib/upgrade.js`, README rewrite, TODO.md, delete install.sh |
+| 3 | Global skills/agents symlink | ✅ done | `src/lib/install-globals.js` ports scc-code's helpers near-verbatim. 6 skills symlinked into `~/.claude/skills/`; idempotent. |
+| 4 | Upgrade flow + README + delete install.sh | ✅ done | `src/lib/upgrade.js`, `--upgrade` wired, README rewritten, `TODO.md` written, `install.sh` deleted, current-docs references updated. |
 
 ## Read Order
 
 1. This file
 2. `plan.md` — full plan (goal, constraints, decisions, file manifest, phases, dependencies)
 3. `brainstorms/install-redesign.md` — decision rationale (do not re-debate)
-4. Reference for Phase 4: `plan.md` Phase 4 section + plan.md "Decisions resolved during planning" (sidecar-based `--upgrade`, `TODO.md` at framework root, the warning-only migration path)
 
 ## Start At
 
-**Phase 4 — Upgrade flow, README rewrite, install.sh deletion.** Concrete deliverables:
+**No phases remaining.** Plan is ready for archival via the `.completed` marker.
 
-1. **`src/lib/upgrade.js`** — for each file under framework's `.claude/conventions/` and `templates/` (excluding `templates/CLAUDE.md.template`):
-   - If absent in project → copy in.
-   - If byte-identical → silent skip.
-   - If divergent → write `<file>.framework-new` sidecar (don't overwrite), tally the path.
-   - At end: print one-line summary `"N files have framework-new sidecars; review with git diff or your editor"` (or `"No upgrades needed"` if N=0).
-   - Also: detect old-shape `<project>/.claude/skills/` directory and print one-line warning recommending `rm -rf .claude/skills/` (don't auto-delete).
+## Key Constraints (final, for the archive record)
 
-2. **`src/commands/init.js`** — replace the `--upgrade` stub with `import { upgradeProject } from '../lib/upgrade.js'` + delegate.
-
-3. **`README.md`** — rewrite Quickstart (`README.md:74-82`) to point at `npm install -g github:andresfortunato/super-claudio-research` + `scr init`. Document `scr init --upgrade` and the project→project `cp -R` recipe. Strip the "Roadmap" section (`README.md:174-186`).
-
-4. **`TODO.md`** at framework root — moved roadmap items + new entry: *"globalize conventions (without conflicting with Claude's defaults) — let researchers share one set of conventions across multiple project repos. Open question: how does this interact with project-shared `.claude/conventions/` (README principle 4)?"*
-
-5. **Delete `install.sh`.** Then `git grep "install.sh"` should return 0 hits in current docs (README, current plan/, .claude/, templates/). Hits inside `plan/plan-v1-framework/` historical content are acceptable.
-
-**Verification (full list in `plan.md` Phase 4 section).**
-- Edit a convention file in a tmpdir, run `scr init --upgrade` → sidecar appears, original untouched.
-- Manually create `.claude/skills/` in a tmpdir, run `scr init --upgrade` → warning prints, dir not deleted.
-- `--upgrade` does not touch `CLAUDE.md` or scaffolding folder content.
-- README's Quickstart is ~5 lines; "Roadmap" gone; `TODO.md` exists.
-- `git grep install.sh` returns 0 hits in current docs.
-
-## Key Constraints
-
-- All decisions in `brainstorms/install-redesign.md` are settled. Don't re-debate.
-- The framework repo is **not** a target project — `scr init` is for *target research projects*. Verified guard works (refuses cleanly when `package.json.name === "super-claudio-research"`). Use `/tmp/test-*` dirs for testing.
-- `scr` and `scc` coexist; both target `~/.claude/{skills,agents}/`. Phase 3 re-confirmed: zero skill-name overlap.
-- Idempotency is non-negotiable for both `scr init` and `scr init --upgrade`. Real files never get overwritten without explicit signal — sidecars only.
-- Sidecar approach is the v1 answer. Don't reach for hash-based install-manifests or interactive prompts (rejected during planning).
-- Phases are strictly sequential — each blocks the next. No parallelism opportunities.
+- The framework repo is **not** a target project. `scr init` and `scr init --upgrade` both refuse cleanly when run against `super-claudio-research` itself (guard: `package.json.name === "super-claudio-research"`).
+- `scr` and `scc` coexist; both write into `~/.claude/{skills,agents}/`. Skill-name disjointness re-verified in Phase 3.
+- Idempotency held end-to-end: install + immediate upgrade is a no-op; sidecars only written on real divergence; user-managed seeds (CLAUDE.md, INDEX.md, wiki index/log, registry.yaml) are never overwritten and never sidecared.
+- Sidecar approach is v1's answer for divergent-file handling. Hash-based install-manifests and interactive prompts were rejected during planning.
 
 ## Open Decisions
 
 None.
 
-## Surprises (Phase 3)
+## Surprises (Phase 4)
 
-- **`installAgents` source path.** scc-code's `installAgents()` reads `agentsSource = resolve(__dirname, '../../agents')` — that's `<package-root>/agents/`. The research framework keeps agents under `.claude/agents/`, matching where skills live, so the source path here is `<framework>/.claude/agents/`. Same correction applies to `installSkills` (already noted in handoff).
-- **Empty agents directory is fine.** `<framework>/.claude/agents/` exists but contains zero `*.md` files. The loop's filter `e.isFile() && e.name.endsWith('.md')` returns empty, `installed` stays at 0, and the helper prints `"agents already installed or none to install"` — slightly tweaked from scc-code's `"agents already installed"` message to cover the empty-source case clearly. `~/.claude/agents/` itself is `mkdir -p`'d, so the dir exists for future agent additions.
-- **Idempotency depends on `readlink === source` exact-string match.** The helper detects existing-correct symlinks by comparing `readlink(target)` against the absolute `source` string. If a researcher had previously symlinked these via a different absolute path (e.g., a `~`-expansion that resolved differently, or a relative link), the `existing === source` check would miss, `unlink` would run, and a fresh symlink would replace it — still correct, just one extra operation. Worth knowing if upgrade verification ever shows symlink churn on no-op runs.
-- **scc-code skill source is `skills/`, ours is `.claude/skills/`.** Already documented in the previous handoff but worth reiterating: anyone reading the two implementations side-by-side will see the path divergence. It's intentional — the research framework keeps Claude assets under `.claude/` consistently; scc-code hoisted `skills/` to package root.
+- **`templates/` projection is asymmetric.** `.claude/conventions/<file>.md` lives at the same path in framework and project, but `templates/<x>` lives at `<project>/<x>` (the `templates/` prefix is dropped during install). `upgrade.js` handles both via a `toProjectRel()` projection that strips the `templates/` prefix when present. Without that, the upgrade would compare `templates/wiki/SCHEMA.md` against `<project>/templates/wiki/SCHEMA.md` (a path that doesn't exist) and emit spurious `+` lines.
+- **EXCLUDE list is the load-bearing knob.** The plan said "exclude `templates/CLAUDE.md.template`" but the verification line ("scaffolding folders' content (insights/INDEX.md, etc.)") implied a wider exclusion. Settled list: CLAUDE.md.template, insights/INDEX.md, wiki/index.md, wiki/log.md, sources/registry.yaml, data_sources/INDEX.md, project_conventions/INDEX.md, plus the loose templates (handoff.md, decision-record.md) that have no fixed project counterpart. Verified: edits to all four user-managed seeds plus CLAUDE.md produce zero sidecars on `--upgrade`.
+- **`scr init --upgrade` runs `installGlobals()` after the upgrade pass.** Symlinks may have gone stale if the user reinstalled the framework via `npm install -g github:...` and the install path moved. Cheap to re-verify (idempotent), and skipping it would mean researchers have to remember `scr init` (without `--upgrade`) to refresh global skill links — too easy to miss.
+- **Removed `install.sh` references in docs/skills, not in `src/`.** Plan scope said "source-of-truth files (README, plan/, brainstorms/, docs/, .claude/, templates/)" — `src/` was excluded. Kept the comments in `src/lib/install-project.js` that explain "ports the project-level work of install.sh into Node" because they're accurate historical context for someone reading the code. Same logic for the active plan/brainstorm dir (`plan/plan-install-redesign/`, `brainstorms/install-redesign.md`) — references there describe install.sh's replacement, not promote its use.
+- **README's "no hard external dependencies" line is now slightly less true.** The framework-installed pieces (hooks, conventions, templates) are still pure bash/markdown/JSON/YAML, but `scr` itself needs Node ≥18 and `commander`. Updated the README sentence to draw that distinction explicitly.
 
 ## What didn't work
 
-Nothing this phase. Mechanical port of scc-code's two helpers; only changes were the source-path corrections and a slightly more accurate empty-agents log message.
+Nothing this phase. Sidecar logic is straightforward (`readFile` + `Buffer.equals`); the projection function is two lines; the EXCLUDE list is a hardcoded `Set`. Most of the work was deciding what belongs on the EXCLUDE list — a one-shot reading of the plan's verification language and the templates/ contents settled it.
 
-## Verification log (Phase 3)
+## Verification log (Phase 4)
 
-- **Fresh install** — `rm -rf /tmp/test-scr-phase3 && mkdir /tmp/test-scr-phase3 && cd /tmp/test-scr-phase3 && scr init`. Per-project layout matched Phase 2 output (33 `+` lines). Then global section printed `Installing global skills/agents to ~/.claude/`, followed by `✓ ~/.claude/skills/ (6 skills linked)` and `· ~/.claude/agents/ (agents already installed or none to install)`.
-- **Symlink targets** — `ls -la ~/.claude/skills/ | grep -E "(verify|deliverable-review|wiki-ingest|wiki-lint|scan-sources|research-cleanup)"` shows all 6 as `lrwxr-xr-x` symlinks pointing to `/Users/anf191/github/super-claudio-research/.claude/skills/<name>`.
-- **Agents dir created (empty)** — `ls -la ~/.claude/agents/` shows the dir exists with 0 `*.md` entries.
-- **Idempotency** — re-ran `scr init` in the same `/tmp/test-scr-phase3`. Per-project section all `~ ... (exists, ...)`; global section now `· ~/.claude/skills/ (skills already installed)` and `· ~/.claude/agents/ (agents already installed or none to install)`. No symlink churn (none recreated).
-- **Skill-name disjointness vs scc-code** — `comm -12 <(ls /Users/anf191/github/super-claudio-research/.claude/skills | sort) <(ls /Users/anf191/github/super-claudio-code/skills | sort)` returns empty.
-- **Framework-repo guard** — `cd /Users/anf191/github/super-claudio-research && scr init` prints "Refusing to run scr init against the framework repo itself." and exits without doing any work. Post-run `git status --short` shows only the intended Phase 3 file changes (`src/commands/init.js`, `src/lib/install-globals.js`) plus pre-existing `.completed` markers from other plans.
-- **Gitignore content unchanged from Phase 2** — `grep -E "skills|agents" /tmp/test-scr-phase3/.gitignore` returns no hits. The Phase 2 gitignore block already omits the obsolete negation entries.
+- **Fresh-install + immediate `--upgrade`** — `rm -rf /tmp/test-scr-phase4 && mkdir /tmp/test-scr-phase4 && cd /tmp/test-scr-phase4 && scr init > /dev/null && scr init --upgrade`. Output: "No upgrades needed — project is in sync with the framework." No sidecars created.
+- **Edited convention triggers sidecar** — `echo "EDIT BY USER" >> .claude/conventions/insights-logging.md && scr init --upgrade`. Output: `⚠ .claude/conventions/insights-logging.md.framework-new (divergent — sidecar written, original untouched)` + summary "1 file(s) have framework-new sidecars". Tail of original kept the user edit; tail of sidecar matched the framework version.
+- **Excluded user-managed seeds get no sidecars** — edited `insights/INDEX.md`, `sources/registry.yaml`, `wiki/index.md`, `wiki/log.md`, and `CLAUDE.md`; ran `scr init --upgrade`. `find . -name "*.framework-new"` returned empty. Summary line: "No upgrades needed — project is in sync with the framework."
+- **CLAUDE.md never sidecared** — explicit edit, then upgrade; `ls CLAUDE.md*` returns only `CLAUDE.md`; tail still has the user-customized line.
+- **Old-shape skills warning** — manually `mkdir .claude/skills && touch .claude/skills/old-skill`, then `scr init --upgrade`. Output included `⚠ .claude/skills/ exists in this project — obsolete (skills now live globally in ~/.claude/skills/). Run `rm -rf .claude/skills/` to clean up. Not deleting automatically.` Directory was not deleted.
+- **Framework-repo guard for upgrade** — guard added to `upgradeProject()` mirrors `installProject()`; refuses cleanly when run from the framework repo itself.
+- **CLI help surfaces `--upgrade`** — `scr init --help` lists `--upgrade   Refresh framework-tracked files; emit .framework-new sidecars on divergence`.
+- **README rewrite** — Quickstart is now `npm install -g github:andresfortunato/super-claudio-research` + `cd <project>` + `scr init` (3 commands). `--upgrade` documented in a follow-on section, project→project `cp -R` recipe documented after that. "Roadmap" section deleted; replaced with one-liner pointing at `TODO.md`.
+- **`TODO.md` exists at framework root** — contains v1 status sentence, v1.1+ backlog (7 items previously in README's Roadmap), the new globalize-conventions entry with the open question about collaborator clones, and the build-pattern contributor note.
+- **`install.sh` deleted** — `ls install.sh` returns "No such file or directory".
+- **`git grep "install.sh"` clean in source-of-truth scope** — `git grep -l "install.sh" -- README.md TODO.md docs/ .claude/ templates/` returns no hits. References in `plan/plan-v1-framework/`, `plan/plan-project-conventions/`, `plan/plan-refdocs-conventions/`, `brainstorms/v1-framework-scope.md`, the active plan dir, and `src/lib/install-project.js` are intentionally left as historical context.
 
-## Files added/modified (Phase 3)
+## Files added/modified (Phase 4)
 
-- ✚ `src/lib/install-globals.js` — port of scc-code's `installSkills()` + `installAgents()`. Source paths point at `<framework>/.claude/{skills,agents}/`. Exports a single `installGlobals()` that wraps both.
-- ✎ `src/commands/init.js` — added `import { installGlobals }`; calls `installGlobals()` after `installProject()` succeeds, before `printNextSteps()`.
+- ✚ `src/lib/upgrade.js` — sidecar-based upgrade flow; walks `.claude/conventions/` + `templates/` (minus EXCLUDE), copies/skips/sidecars; old-skills warning; framework-repo guard.
+- ✎ `src/commands/init.js` — replaced Phase 3 stub with real `--upgrade` branch (delegates to `upgradeProject` + `installGlobals`).
+- ✚ `TODO.md` (framework root) — v1.1+ backlog moved from README's Roadmap + globalize-conventions entry + build-pattern note.
+- ✎ `README.md` — rewrote Quickstart to `npm install -g …` + `scr init`; documented `--upgrade` + `cp -R` recipe; stripped Roadmap; clarified `skills/` is symlinked globally; updated dependency note (Node ≥18 + commander).
+- ✘ `install.sh` — deleted.
+- ✎ `docs/data-sources-mechanism.md`, `docs/methods-mechanism.md`, `docs/project-conventions-mechanism.md`, `docs/source-registry-mechanism.md` — `install.sh` → `scr init` (each one line).
+- ✎ `.claude/skills/scan-sources/SKILL.md`, `.claude/skills/wiki-ingest/SKILL.md` — `install.sh` → `scr init` (each one line).
 
 ## Hash trail
 
@@ -90,4 +77,5 @@ Nothing this phase. Mechanical port of scc-code's two helpers; only changes were
 - Phase 2 work + handoff refresh: `9f0d3fc`
 - Handoff hash-trail fill-in for Phase 2: `63563b0`
 - Phase 3 work + handoff refresh: `e2b84e1`
-- Handoff hash-trail fill-in for Phase 3: (this commit)
+- Handoff hash-trail fill-in for Phase 3: `cb0c1ec`
+- Phase 4 work + handoff refresh: (this commit)
