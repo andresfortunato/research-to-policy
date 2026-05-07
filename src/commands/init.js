@@ -1,12 +1,16 @@
-// Phase 1 stub — proves the distribution path is wired.
-// Phase 2 ports install.sh's per-project work into src/lib/install-project.js.
-// Phase 3 adds global skills/agents symlinks via src/lib/install-globals.js.
-// Phase 4 adds the --upgrade flow via src/lib/upgrade.js.
+// Phase 2: per-project install wired in.
+// Phase 3 will add global skills/agents symlinks via src/lib/install-globals.js.
+// Phase 4 will add the --upgrade flow via src/lib/upgrade.js.
+
+import { installProject, printNextSteps } from '../lib/install-project.js';
 
 export async function initCommand(options = {}) {
   if (options.upgrade) {
-    console.log('scr init --upgrade: not implemented yet (Phase 1 stub)');
-  } else {
-    console.log('scr init: not implemented yet (Phase 1 stub)');
+    console.log('scr init --upgrade: not implemented yet (Phase 4)');
+    return;
   }
+
+  const target = process.cwd();
+  const ok = await installProject(target);
+  if (ok) printNextSteps();
 }
