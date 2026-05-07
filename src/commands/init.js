@@ -1,8 +1,8 @@
-// Phase 2: per-project install wired in.
-// Phase 3 will add global skills/agents symlinks via src/lib/install-globals.js.
+// Phase 3: per-project install + global skills/agents symlinks.
 // Phase 4 will add the --upgrade flow via src/lib/upgrade.js.
 
 import { installProject, printNextSteps } from '../lib/install-project.js';
+import { installGlobals } from '../lib/install-globals.js';
 
 export async function initCommand(options = {}) {
   if (options.upgrade) {
@@ -12,5 +12,8 @@ export async function initCommand(options = {}) {
 
   const target = process.cwd();
   const ok = await installProject(target);
-  if (ok) printNextSteps();
+  if (!ok) return;
+
+  await installGlobals();
+  printNextSteps();
 }
