@@ -74,4 +74,5 @@ Nothing this phase — the bootstrap was a near-mechanical mirror of scc-code's 
 
 ## Hash trail
 
-- Phase 1 work: (this commit)
+- Phase 1 work: `e21f592`
+- Handoff hash-trail fill-in: (this commit)
