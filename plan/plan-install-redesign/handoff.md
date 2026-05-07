@@ -68,4 +68,5 @@ Nothing this phase. The structural mapping from `install.sh` shell idioms to Nod
 
 - Phase 1 work: `e21f592`
 - Handoff hash-trail fill-in for Phase 1: `3bf0476`
-- Phase 2 work + handoff refresh: (this commit)
+- Phase 2 work + handoff refresh: `9f0d3fc`
+- Handoff hash-trail fill-in for Phase 2: (this commit)
