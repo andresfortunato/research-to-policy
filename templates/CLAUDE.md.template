@@ -9,7 +9,6 @@ Recommended top-level sections:
   - Project Overview (3-5 lines: what this project is, who it's for, current focus)
   - Key Frameworks (the analytical lenses you'll keep returning to)
   - Codebase Structure (one-glance directory tree)
-  - Visualization / Naming Conventions (project-specific)
   - Convention pointers (one short section per .claude/conventions/ file)
 
 The convention pointers should be ~4 lines each — name + when-to-apply +
@@ -37,6 +36,7 @@ project_root/
 ├── insights/              # evidence-based findings doc + INDEX (project-level)
 ├── data_sources/          # external API/dataset reference docs (INDEX + per-source)
 ├── methods/               # operational methodology specs (one folder per method)
+├── project_conventions/   # project-bespoke style/process rules (visualization, etc.)
 ├── deliverables/          # external memos, briefings, decks (per-profile templates)
 ├── plan/                  # multi-phase implementation plans (gitignored)
 ├── brainstorms/           # decision-rationale write-ups feeding plans (gitignored)
@@ -49,9 +49,13 @@ project_root/
 └── CLAUDE.md              # this file
 ```
 
-## Visualization Conventions
+## Project Conventions
 
-<Project-specific color rules, chart-naming conventions, etc.>
+Project-bespoke style and process rules in `project_conventions/`
+— visualization, writing voice, slide design, naming. One file
+per domain; `INDEX.md` for quick-nav. Read the relevant file on
+demand when work touches the domain. Full protocol:
+`.claude/conventions/project-conventions.md` (read on demand).
 
 ## Insights Logging
 
