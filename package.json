@@ -1,0 +1,30 @@
+{
+  "name": "super-claudio-research",
+  "version": "0.1.0",
+  "description": "Super Claudio Research — research-engagement framework for Claude Code (skills, conventions, planning scaffolding)",
+  "type": "module",
+  "bin": {
+    "scr": "./src/cli.js"
+  },
+  "files": [
+    "src/",
+    ".claude/",
+    "templates/",
+    "docs/",
+    "install.js"
+  ],
+  "keywords": [
+    "claude-code",
+    "research",
+    "wiki",
+    "deliverables",
+    "ai-development"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "commander": "^13.1.0"
+  }
+}
