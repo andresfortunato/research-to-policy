@@ -1,8 +1,8 @@
 # Handoff: plan-cordoba-lessons
 
-**Status:** ALL PHASES VERIFIED — awaiting user confirmation to mark `.completed` and trigger archival.
+**Status:** ALL PHASES VERIFIED — `.completed` was set after user confirmation, then removed because plan-skill-independence opened mid-flight. Will be re-touched at the end of plan-skill-independence Phase 3 so cordoba-lessons archives once the v1.1+ surface is complete.
 **Date:** 2026-05-08
-**Last commit on plan branch:** Phase 6 commit pending (this session). Plan baseline at `aae136e`; Phase 5 at `9ff5740`.
+**Last commit on plan branch:** `58ab63b` (Phase 6: README rewrite). Plan baseline at `aae136e`; Phase 5 at `9ff5740`.
 
 ## Phase status
 
