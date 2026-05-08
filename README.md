@@ -36,7 +36,8 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── wiki-ingest/                 ← raw/ → wiki/ distillation
 │   ├── wiki-lint/                   ← orphans, contradictions, stale, page-budget violations
 │   ├── research-cleanup/            ← orphans + intermediates + unused charts proposal
-│   └── scan-sources/                ← registry-driven targeted scraping
+│   ├── scan-sources/                ← registry-driven targeted scraping
+│   └── web-scraping/                ← Playwright/httpx/BeautifulSoup + AI-extraction toolkit (delegated to by /scan-sources)
 └── settings.template.json           ← copied to .claude/settings.json (project-shared)
 
 docs/

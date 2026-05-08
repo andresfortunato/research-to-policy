@@ -26,6 +26,21 @@ Every analytical script starts with these comment lines, in this order:
 If a field doesn't apply, write `none` (do not omit the line — the fixed
 shape is what makes the header greppable).
 
+## Optional fields
+
+When a script *replaces* an earlier script (a new specification, a
+refactor, a corrected pipeline), add a `Supersedes:` line pointing at
+the old script and the decision record that motivated the swap:
+
+```
+# Supersedes: scripts/04_baseline_v0.R (decision: decisions/2026-04-12_baseline-redesign.md)
+```
+
+This pattern replaces ad-hoc `_v2` / `_fixed` / `_extended` filename
+suffixes — those collide, drift, and lose history. The new script lives
+under its real name; the old one stays as a numbered sibling until it's
+deleted; the decision record explains why.
+
 ## Format examples
 
 ### R
@@ -37,9 +52,12 @@ shape is what makes the header greppable).
 # Seed:     42
 # Env:      R 4.3.1, tidyverse 2.0.0, fixest 0.11
 
+library(here)
 library(tidyverse)
 library(fixest)
 set.seed(42)
+
+wdi <- read_csv(here("data/clean/wdi.csv"))
 # ... rest of the script
 ```
 
@@ -52,9 +70,14 @@ set.seed(42)
 # Seed:     42
 # Env:      Python 3.11, pandas 2.1, statsmodels 0.14
 
+from pathlib import Path
 import pandas as pd
 import numpy as np
+
+REPO = Path(__file__).resolve().parent.parent
 np.random.seed(42)
+
+wdi = pd.read_csv(REPO / "data/clean/wdi.csv")
 # ... rest of the script
 ```
 
@@ -112,6 +135,55 @@ of *result*. Together they replace `manifest.jsonl`.
 - **Don't lie about seeds.** If a script uses `set.seed(NULL)` or no seed, write `Seed: none`. Tools that scan for missing seeds rely on this.
 - **One pair of eyes is enough.** This is not a peer-review checklist. The header is for the future-you who's six months out.
 - **Do not make the header longer.** No "purpose" or "author" or "version" lines — git carries those. The fixed five fields are the contract.
+
+## Repo-relative paths
+
+Every path inside an analytical script is relative to the project root,
+resolved via the language's repo-aware idiom:
+
+- **R**: `here::here("data/clean/wdi.csv")` — anchors on the project's
+  `.Rproj` or `.here` marker.
+- **Python**: `Path(__file__).resolve().parent.parent / "data/clean/wdi.csv"`,
+  or a small `repo_root()` helper. `pathlib`, never `os.path.join` with
+  raw strings.
+
+Absolute paths (`setwd("/home/researcher/projects/cordoba")`,
+`/Users/<name>/...`, `C:\\...`) are an anti-pattern. They break for
+every other collaborator and for future-you on a different machine.
+The header's `Inputs:` / `Outputs:` lines are also repo-relative — the
+script body and the header agree.
+
+## Shared utilities
+
+Helper functions used by more than one script live in the project's
+shared-utilities directory and are *imported*, not copy-pasted:
+
+- **R**: put helpers in `R/<topic>.R` and load with
+  `source(here::here("R/<topic>.R"))` at the top of each consumer.
+  This is the R-idiomatic location (the same one `devtools::load_all()`
+  picks up if the project later becomes a package).
+- **Python**: put helpers in `scripts/_lib/<topic>.py` and import as
+  `from scripts._lib.<topic> import <fn>`. The `_lib` prefix keeps
+  them visually separate from the numbered analytical scripts.
+
+A helper duplicated across three scripts is three places to fix when
+the helper is wrong. Move it the first time you copy it; the second
+copy is the signal.
+
+## One project, one env
+
+A project has *one* environment definition at the project root:
+
+- **R**: `renv.lock` at the root.
+- **Python**: a single `pyproject.toml` (with `uv` / `poetry` /
+  `hatch` lockfile) or `requirements.txt` + lock at the root.
+
+Sub-tools with their own `.venv` / `pyproject.toml` per scraper, per
+notebook, or per pipeline stage (`scrapers/foo/.venv` +
+`scrapers/bar/.venv`) is an anti-pattern. It splits the dependency
+graph, hides version skew, and makes the `Env:` field lie. If two
+parts of the project genuinely need incompatible deps, that's a sign
+they belong in different repos.
 
 ## Cross-references
 

@@ -76,6 +76,15 @@ An internal research memo lands when:
    stand alone.
 5. **Open questions are concrete.** Future-work bullets name the dataset,
    the variation, or the comparison that would resolve the question.
+6. **Long-running memos accrete dated addenda; they are not rewritten.**
+   When a memo's findings need updating after the original draft has
+   circulated, append a `## Update: YYYY-MM-DD` section at the bottom
+   (one per revision, dated, in chronological order) rather than
+   editing the body of the memo in place. Rewrites discard the
+   inquiry's history; addenda preserve it. The memo's original
+   reasoning chain is part of what makes it useful six months later
+   — the addendum says what changed and why, without erasing the
+   prior version.
 
 A memo flops when it reads as a stream-of-consciousness analysis log
 (no argumentative spine), when speculative claims are presented as found

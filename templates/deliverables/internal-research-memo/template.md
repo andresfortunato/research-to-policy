@@ -181,3 +181,31 @@ data-cleaning notes. -->
 ## References
 
 <!-- Standard academic references, papers and reports cited in the body. -->
+
+<!--
+## Update: YYYY-MM-DD
+
+When the memo's findings need updating after the original draft has
+circulated, append a dated `## Update:` section here rather than
+editing the body of the memo in place. One section per revision,
+in chronological order. Each addendum says what changed and why,
+without erasing the prior version — the memo's history is part of
+what makes it useful six months later.
+
+A typical addendum has three parts:
+
+**What's new.** New data, a re-estimation, a corrected mistake, a
+peer-review comment that landed.
+
+**What this changes in the original argument.** Which findings
+above are upgraded, downgraded, or superseded. Be specific — name
+the section / subsection.
+
+**What still stands.** The findings the addendum does NOT touch
+remain authoritative as written.
+
+Successive updates stack in chronological order. The body of the
+memo is not edited (except for typo fixes and broken-link repairs);
+the dated addenda carry the revisions.
+-->
+
