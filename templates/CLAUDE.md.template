@@ -41,7 +41,8 @@ project_root/
 ├── project_conventions/   # project-bespoke style/process rules (visualization, etc.)
 ├── deliverables/          # external memos, briefings, decks (per-profile templates)
 ├── plan/                  # multi-phase implementation plans (gitignored)
-├── brainstorms/           # decision-rationale write-ups feeding plans (gitignored)
+├── brainstorms/           # decisions-pre-planning, output of /brainstorming (gitignored)
+│                          # opt-in: brainstorms/<theme>/<topic>.md for theme-parallel
 ├── scripts/               # build scripts behind notebooks
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)
@@ -95,6 +96,15 @@ End of any working session that touched a `plan/plan-<name>/`: rewrite
 that plan's `handoff.md` in place. Multi-time-scale (within-session,
 researcher↔researcher, year-later). Full protocol:
 `.claude/conventions/handoff-format.md` (read on demand).
+
+## Brainstorming
+
+Before writing a plan for a non-trivial methodology call, run the
+`brainstorming` skill — it produces `brainstorms/<topic>.md` with the
+decisions a plan needs (deflator, identification, reference category,
+sample restriction). Decisions a peer reviewer would push on graduate to
+`decisions/YYYY-MM-DD_<slug>.md`. Full protocol:
+`.claude/conventions/brainstorm-format.md` (read on demand).
 
 ## Plan Structure
 

@@ -24,6 +24,7 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── handoff-format.md            ← multi-time-scale session-end handoff protocol
 │   ├── plan-structure.md            ← plan/plan-<slug>/ layout for multi-session work
 │   ├── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
+│   ├── brainstorm-format.md         ← decisions-pre-planning shape, handoff to planning skill
 │   ├── methods.md                   ← project-internal rule docs (Source/Rule/Exclusions/Diagnostic counts)
 │   ├── project-conventions.md       ← project-bespoke style/process rules (visualization, writing, etc.)
 │   ├── source-registry.md           ← project-level watchlist + scrape protocol
@@ -31,6 +32,7 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 ├── hooks/
 │   └── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
 ├── skills/                          ← symlinked into ~/.claude/skills/ (global) by `scr init`, not per-project
+│   ├── brainstorming/               ← decisions-pre-planning conversation (research-domain)
 │   ├── verify/                      ← per-artifact sanity check (≤2k tokens)
 │   ├── deliverable-review/          ← forked parallel seven-lens review (≤12k tokens)
 │   ├── wiki-ingest/                 ← raw/ → wiki/ distillation
@@ -44,6 +46,7 @@ docs/
 ├── insights-mechanism.md            ← design rationale + tradeoffs
 ├── handoff-mechanism.md             ← multi-time-scale handoff design rationale
 ├── plan-structure-mechanism.md      ← scc adaptation for research, layout rationale
+├── brainstorm-mechanism.md          ← why brainstorms are gitignored, distinct from /verify and decisions/
 ├── wiki-architecture.md             ← Karpathy three-layer, page budgets, ingest/query/lint
 ├── verification-architecture.md     ← /verify + /deliverable-review design rationale
 ├── source-registry-mechanism.md     ← registry format, dedup, freq logic, fail-modes
@@ -64,6 +67,7 @@ templates/
 ├── project_conventions/             ← INDEX.md + README.md + EXAMPLE_visualization.md (project-conventions seeds)
 ├── handoff.md                       ← session-end handoff template
 ├── decision-record.md               ← decision-record fillable template
+├── brainstorms/README.md            ← orientation for the gitignored brainstorms/ directory
 └── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
     ├── country-diagnostic-memo/     ← 4–7k words, technical-peer audience
     ├── ministerial-briefing/        ← ≤1.2k words / 2pp hard cap, executive audience
@@ -128,6 +132,12 @@ See `.claude/conventions/handoff-format.md` and `docs/handoff-mechanism.md`. Tem
 Multi-session work lives at `plan/plan-<slug>/{plan.md, handoff.md, log.md}` (scc-style, at project root). Verification is **domain-shaped** — sign-of-coefficients, magnitude sanity, breakpoint alignment, source-citation present — not code-shaped. Methodology calls cross-link to `decisions/`.
 
 See `.claude/conventions/plan-structure.md` and `docs/plan-structure-mechanism.md`.
+
+### `brainstorm-format` + `/brainstorming`
+
+Decisions-pre-planning conversation. The `brainstorming` skill drives a three-phase exchange (listen and synthesize → challenge and probe → propose alternatives and trade-offs) for methodology calls — deflator choice, identification strategy, reference categories, survey-vintage breaks. Output lands at `brainstorms/<topic>.md` (gitignored, free-form working state) with five sections: Problem / Decisions / Research / Open Questions / Constraints. The skill triggers "the planning skill" by name (agnostic about whose) when the researcher signals readiness; choices a peer reviewer would push on graduate to `decisions/YYYY-MM-DD_<slug>.md`. Distinct from `/verify` (which sanity-checks an existing artifact) and from `decisions/` (which is the citable form of a settled call).
+
+See `.claude/skills/brainstorming/SKILL.md`, `.claude/conventions/brainstorm-format.md`, and `docs/brainstorm-mechanism.md`.
 
 ### `decision-records`
 
