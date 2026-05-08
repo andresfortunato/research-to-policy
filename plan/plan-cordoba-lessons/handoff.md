@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phase 1 complete; Phase 2 next.
 **Date:** 2026-05-08
-**Last commit on plan branch:** Phase 1 commit (filled after commit lands).
+**Last commit on plan branch:** `4c80c65` — "Phase 1: six small wins (script-header tweaks, web-scraping bundle, addendum pattern)" (plan baseline at `aae136e`).
 
 ## Phase status
 
