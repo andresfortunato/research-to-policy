@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phase 3 complete; Phase 4 next.
 **Date:** 2026-05-08
-**Last commit on plan branch:** `<TBD>` — "Phase 3: brainstorming skill (research-adapted port from scc)" (plan baseline at `aae136e`).
+**Last commit on plan branch:** `c9d6bee` — "Phase 3: brainstorming skill (research-adapted port from scc)" (plan baseline at `aae136e`).
 
 ## Phase status
 
@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 1 | Six small wins (script-header tweaks, web-scraping bundle, addendum pattern) | ✅ done | `4c80c65`. Mechanical, isolated. |
 | 2 | Theme-parallel opt-in (insights-logging + check-insights.sh + INDEX schema) | ✅ done | `c296083`. Schema change; verification log in earlier handoff. |
-| 3 | Brainstorming skill (port from scc, research-adapted) | ✅ done | `<TBD>`. Eight files; verification log below. |
+| 3 | Brainstorming skill (port from scc, research-adapted) | ✅ done | `c9d6bee`. Eight files; verification log below. |
 | 4 | Learning-capture skill + retrieve-learnings.sh + precompact-handoff.sh | ⏭ next | Three-bucket model: insights/decisions/learnings. |
 | 5 | Plan archival (Stop hook extension + archivist agent + archive/) | ⏭ queued | Existing four .completed markers archived manually first. Archivist scope kept narrow — defers project-wide cleanup to `/research-cleanup`. |
 | 6 | README rewrite for researcher audience | ⏭ queued | Quickstart → workflow → scaffolding → tools → what's in here → updates → design philosophy (last). Ships after all components exist. |
