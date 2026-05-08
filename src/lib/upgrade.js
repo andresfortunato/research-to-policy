@@ -23,6 +23,7 @@ import {
   writeFile,
   access,
   stat,
+  chmod,
   readdir,
 } from 'node:fs/promises';
 import { join, dirname, relative, resolve } from 'node:path';
@@ -113,9 +114,13 @@ export async function upgradeProject(target) {
 
   const candidates = [];
   for await (const rel of walkFiles('.claude/conventions')) candidates.push(rel);
+  for await (const rel of walkFiles('.claude/hooks')) candidates.push(rel);
   for await (const rel of walkFiles('templates')) {
     if (!EXCLUDE.has(rel)) candidates.push(rel);
   }
+  // settings.template.json is a single tracked file — surface as sidecar so
+  // users can diff against their runtime .claude/settings.json.
+  candidates.push('.claude/settings.template.json');
 
   let copied = 0;
   let identical = 0;
@@ -129,6 +134,9 @@ export async function upgradeProject(target) {
     if (!(await fileExists(dstPath))) {
       await mkdir(dirname(dstPath), { recursive: true });
       await copyFile(srcPath, dstPath);
+      if (projectRel.startsWith('.claude/hooks/') && projectRel.endsWith('.sh')) {
+        await chmod(dstPath, 0o755);
+      }
       console.log(`  + ${projectRel}`);
       copied++;
       continue;

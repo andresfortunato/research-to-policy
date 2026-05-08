@@ -43,6 +43,7 @@ project_root/
 ├── plan/                  # multi-phase implementation plans (gitignored)
 ├── brainstorms/           # decisions-pre-planning, output of /brainstorming (gitignored)
 │                          # opt-in: brainstorms/<theme>/<topic>.md for theme-parallel
+├── learnings/             # tacit gotchas + insights, retrieval-keyed (project-wide)
 ├── scripts/               # build scripts behind notebooks
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)
@@ -121,6 +122,18 @@ identification strategy, sample restriction): file once at
 `decisions/YYYY-MM-DD_<slug>.md`. Format: Decision / Alternatives /
 Why-rejected / Key-assumptions / What-would-invalidate. Full protocol:
 `.claude/conventions/decision-records.md` (read on demand).
+
+## Learning Capture
+
+Tacit gotchas and discoveries (survey-vintage breakage, deflator
+divergences, sample-restriction side effects) live at
+`learnings/<slug>.md` plus a `triggers:` row in `learnings/index.yaml`.
+The `retrieve-learnings.sh` UserPromptSubmit hook surfaces relevant
+learnings when ≥2 trigger keywords appear in a prompt; the
+`precompact-handoff.sh` hook nudges to capture surprises before
+context is compacted. Distinct from `insights/` (formal findings)
+and `decisions/` (peer-reviewable methodology calls). Full protocol:
+`.claude/conventions/learning-capture.md` (read on demand).
 
 ## Methods
 

@@ -25,14 +25,18 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── plan-structure.md            ← plan/plan-<slug>/ layout for multi-session work
 │   ├── decision-records.md          ← Decision/Alternatives/Why/Invalidate template
 │   ├── brainstorm-format.md         ← decisions-pre-planning shape, handoff to planning skill
+│   ├── learning-capture.md          ← gotcha/insight format, index.yaml, retrieval contract
 │   ├── methods.md                   ← project-internal rule docs (Source/Rule/Exclusions/Diagnostic counts)
 │   ├── project-conventions.md       ← project-bespoke style/process rules (visualization, writing, etc.)
 │   ├── source-registry.md           ← project-level watchlist + scrape protocol
 │   └── data-sources.md              ← API/dataset reference docs (Status/Anchor/Workflow/Pitfalls)
 ├── hooks/
-│   └── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
+│   ├── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
+│   ├── retrieve-learnings.sh        ← UserPromptSubmit hook (silent unless ≥2 trigger keywords match a learning)
+│   └── precompact-handoff.sh        ← PreCompact hook (silent unless an active plan exists)
 ├── skills/                          ← symlinked into ~/.claude/skills/ (global) by `scr init`, not per-project
 │   ├── brainstorming/               ← decisions-pre-planning conversation (research-domain)
+│   ├── learning-capture/            ← gotchas + insights, retrieval-keyed, project-wide
 │   ├── verify/                      ← per-artifact sanity check (≤2k tokens)
 │   ├── deliverable-review/          ← forked parallel seven-lens review (≤12k tokens)
 │   ├── wiki-ingest/                 ← raw/ → wiki/ distillation
@@ -47,6 +51,7 @@ docs/
 ├── handoff-mechanism.md             ← multi-time-scale handoff design rationale
 ├── plan-structure-mechanism.md      ← scc adaptation for research, layout rationale
 ├── brainstorm-mechanism.md          ← why brainstorms are gitignored, distinct from /verify and decisions/
+├── learning-capture-mechanism.md    ← three-bucket model (insights/decisions/learnings), trigger-keyword retrieval
 ├── wiki-architecture.md             ← Karpathy three-layer, page budgets, ingest/query/lint
 ├── verification-architecture.md     ← /verify + /deliverable-review design rationale
 ├── source-registry-mechanism.md     ← registry format, dedup, freq logic, fail-modes
@@ -68,6 +73,7 @@ templates/
 ├── handoff.md                       ← session-end handoff template
 ├── decision-record.md               ← decision-record fillable template
 ├── brainstorms/README.md            ← orientation for the gitignored brainstorms/ directory
+├── learnings/                       ← README.md (orientation) + index.yaml (empty seed)
 └── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
     ├── country-diagnostic-memo/     ← 4–7k words, technical-peer audience
     ├── ministerial-briefing/        ← ≤1.2k words / 2pp hard cap, executive audience
@@ -144,6 +150,12 @@ See `.claude/skills/brainstorming/SKILL.md`, `.claude/conventions/brainstorm-for
 The policy-research analog of pre-registration. Methodology calls you'd defend in peer review (deflator choice, identification strategy, sample restriction) get filed once at `decisions/YYYY-MM-DD_<slug>.md` with five sections: Decision / Alternatives / Why-rejected / Key-assumptions / What-would-invalidate. Lighter than ADRs but heavier than nothing.
 
 See `.claude/conventions/decision-records.md`. Template: `templates/decision-record.md`.
+
+### `learning-capture` + `/learning-capture`
+
+Tacit gotchas and discoveries — the "third bucket" alongside `insights/` (formal findings) and `decisions/` (peer-reviewable methodology calls). One file per learning at `learnings/<slug>.md` (gotcha or insight type, frontmatter + 3-section body) plus a `triggers:` row in `learnings/index.yaml`. Two hooks make the corpus retrieval-keyed: `retrieve-learnings.sh` fires on every `UserPromptSubmit` and surfaces up to three matched learnings as `additionalContext` when ≥2 trigger keywords appear in the prompt; `precompact-handoff.sh` fires on `PreCompact` to nudge a handoff refresh and prompt for any session surprises worth preserving. Project-wide, not theme-aware — trigger-keyword matching does the routing. Distinct from `insights/` (chart-backed evidence), `decisions/` (citable methodology), and `brainstorms/` (decisions-pre-planning conversation).
+
+See `.claude/skills/learning-capture/SKILL.md`, `.claude/conventions/learning-capture.md`, and `docs/learning-capture-mechanism.md`.
 
 ### `methods`
 
