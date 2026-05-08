@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — Phase 5 complete; Phase 6 next.
 **Date:** 2026-05-08
-**Last commit on plan branch:** `<TBD>` — "Phase 5: plan archival (archivist agent + Stop hook extension + archive/)" (plan baseline at `aae136e`).
+**Last commit on plan branch:** `9ff5740` — "Phase 5: plan archival (archivist agent + Stop hook extension + archive/)" (plan baseline at `aae136e`).
 
 ## Phase status
 
@@ -12,7 +12,7 @@
 | 2 | Theme-parallel opt-in (insights-logging + check-insights.sh + INDEX schema) | ✅ done | `c296083`. Schema change; verification log in earlier handoff. |
 | 3 | Brainstorming skill (port from scc, research-adapted) | ✅ done | `c9d6bee`. Eight files; verification log in prior handoff. |
 | 4 | Learning-capture skill + retrieve-learnings.sh + precompact-handoff.sh | ✅ done | `d8d27fb`. Twelve files; verification log in prior handoff. |
-| 5 | Plan archival (Stop hook extension + archivist agent + archive/) | ✅ done | `<TBD>`. Eleven files + housekeeping commit that archived the four legacy plans first; verification log below. |
+| 5 | Plan archival (Stop hook extension + archivist agent + archive/) | ✅ done | `9ff5740`. Eleven files + housekeeping commit that archived the four legacy plans first; verification log below. |
 | 6 | README rewrite for researcher audience | ⏭ next | Quickstart → workflow → scaffolding → tools → what's in here → updates → design philosophy (last). Ships now that all components exist. |
 
 ## Where we are
