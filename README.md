@@ -31,9 +31,11 @@ The full eight-principle constitution (silent-by-default, conditional-not-always
 │   ├── source-registry.md           ← project-level watchlist + scrape protocol
 │   └── data-sources.md              ← API/dataset reference docs (Status/Anchor/Workflow/Pitfalls)
 ├── hooks/
-│   ├── check-insights.sh            ← Stop hook (silent unless analysis lacks insights doc)
+│   ├── check-insights.sh            ← Stop hook: archival tripwire (BLOCKING on plan/<slug>/.completed) + insights tripwire (silent nudge when analysis lacks an insights doc)
 │   ├── retrieve-learnings.sh        ← UserPromptSubmit hook (silent unless ≥2 trigger keywords match a learning)
 │   └── precompact-handoff.sh        ← PreCompact hook (silent unless an active plan exists)
+├── agents/                          ← symlinked into ~/.claude/agents/ (global) by `scr init`, not per-project
+│   └── archivist.md                 ← per-plan archival on .completed marker (synthesizes archive/<slug>.md, deletes plan dir)
 ├── skills/                          ← symlinked into ~/.claude/skills/ (global) by `scr init`, not per-project
 │   ├── brainstorming/               ← decisions-pre-planning conversation (research-domain)
 │   ├── learning-capture/            ← gotchas + insights, retrieval-keyed, project-wide
@@ -50,6 +52,7 @@ docs/
 ├── insights-mechanism.md            ← design rationale + tradeoffs
 ├── handoff-mechanism.md             ← multi-time-scale handoff design rationale
 ├── plan-structure-mechanism.md      ← scc adaptation for research, layout rationale
+├── plan-archival-mechanism.md       ← .completed marker → archivist agent → archive/ entry, boundary with /research-cleanup
 ├── brainstorm-mechanism.md          ← why brainstorms are gitignored, distinct from /verify and decisions/
 ├── learning-capture-mechanism.md    ← three-bucket model (insights/decisions/learnings), trigger-keyword retrieval
 ├── wiki-architecture.md             ← Karpathy three-layer, page budgets, ingest/query/lint
@@ -74,6 +77,7 @@ templates/
 ├── decision-record.md               ← decision-record fillable template
 ├── brainstorms/README.md            ← orientation for the gitignored brainstorms/ directory
 ├── learnings/                       ← README.md (orientation) + index.yaml (empty seed)
+├── archive/                         ← README.md (orientation) + index.md (empty rollup seed)
 └── deliverables/                    ← three v1 profiles, each with PROFILE.md + template.md
     ├── country-diagnostic-memo/     ← 4–7k words, technical-peer audience
     ├── ministerial-briefing/        ← ≤1.2k words / 2pp hard cap, executive audience
@@ -90,7 +94,7 @@ cd /path/to/your/research-project
 scr init
 ```
 
-`scr init` is idempotent — safe to re-run. It copies `.claude/{conventions,hooks}/`, the project-relative `.claude/settings.json`, the `templates/` seeds (insights, wiki, raw, sources, data_sources, methods, project_conventions, deliverables), `CLAUDE.md`, and a framework block in `.gitignore` into the target project — collaborators (human or AI) cloning the project repo inherit them. Skills and agents go *global*: they're symlinked into `~/.claude/{skills,agents}/` once and shared across every project on the machine, so a skill upgrade lands everywhere automatically. Existing files (`CLAUDE.md`, `.claude/settings.json`, user-edited convention files) are never overwritten.
+`scr init` is idempotent — safe to re-run. It copies `.claude/{conventions,hooks}/`, the project-relative `.claude/settings.json`, the `templates/` seeds (insights, wiki, raw, sources, data_sources, methods, project_conventions, brainstorms, learnings, archive, deliverables), `CLAUDE.md`, and a framework block in `.gitignore` into the target project — collaborators (human or AI) cloning the project repo inherit them. Skills and agents go *global*: they're symlinked into `~/.claude/{skills,agents}/` once and shared across every project on the machine, so a skill upgrade lands everywhere automatically. Existing files (`CLAUDE.md`, `.claude/settings.json`, user-edited convention files) are never overwritten.
 
 ### Pulling framework updates into an existing project
 
@@ -138,6 +142,14 @@ See `.claude/conventions/handoff-format.md` and `docs/handoff-mechanism.md`. Tem
 Multi-session work lives at `plan/plan-<slug>/{plan.md, handoff.md, log.md}` (scc-style, at project root). Verification is **domain-shaped** — sign-of-coefficients, magnitude sanity, breakpoint alignment, source-citation present — not code-shaped. Methodology calls cross-link to `decisions/`.
 
 See `.claude/conventions/plan-structure.md` and `docs/plan-structure-mechanism.md`.
+
+### Plan archival (`.completed` marker + `archivist` agent)
+
+When every phase verifies and the researcher confirms a plan is done, `touch plan/plan-<slug>/.completed` triggers Tripwire 1 of `check-insights.sh` on the next Stop event. The hook writes a `.archival-triggered` sentinel and emits a `decision: block` instructing Claude to launch the **archivist** subagent (`~/.claude/agents/archivist.md`). The archivist reads `plan.md` / `handoff.md` / `log.md`, synthesizes a 60–150-line entry at `archive/plan-<slug>.md` (What was built / Key decisions / Methods landed / Files modified / Learnings / Metrics), appends a one-liner to `archive/index.md`, updates `CLAUDE.md` if architecture changed, and deletes `plan/plan-<slug>/` entirely. The sentinel protects against re-block loops if the invocation is interrupted.
+
+Boundary with `/research-cleanup`: the archivist is per-plan and automated (no source-code touches, no project-wide scans); `/research-cleanup` is project-wide and user-invoked. Each defers to the other; no overlap.
+
+See `.claude/agents/archivist.md`, `.claude/conventions/plan-structure.md` ("Completion and archival"), and `docs/plan-archival-mechanism.md`. Templates: `templates/archive/{README,index}.md`.
 
 ### `brainstorm-format` + `/brainstorming`
 

@@ -44,6 +44,7 @@ project_root/
 ├── brainstorms/           # decisions-pre-planning, output of /brainstorming (gitignored)
 │                          # opt-in: brainstorms/<theme>/<topic>.md for theme-parallel
 ├── learnings/             # tacit gotchas + insights, retrieval-keyed (project-wide)
+├── archive/               # permanent record of completed plans (one .md per plan + index.md)
 ├── scripts/               # build scripts behind notebooks
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)

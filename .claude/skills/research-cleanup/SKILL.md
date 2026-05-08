@@ -148,3 +148,11 @@ Skill walks the project, runs four audits, writes `cleanup-proposal.md`, and rep
 - Does not commit. The proposal is uncommitted markdown; the researcher decides whether to commit it as an audit record or discard it after acting.
 - Does not cross into `wiki/` for content checks. `/wiki-lint` handles wiki-internal cleanup.
 - Does not lint code style, fix bugs, or refactor. Cleanup is about removal, not improvement.
+
+## Boundary with the archivist agent
+
+Per-plan archival — synthesizing `archive/plan-<slug>.md` from a completed plan, deleting the plan directory, updating `CLAUDE.md` if architecture changed — is the **archivist** agent's job (`~/.claude/agents/archivist.md`), invoked automatically by the Stop hook when a `plan/plan-<slug>/.completed` marker appears. This skill does **not** look inside active or completed `plan/` directories, does **not** propose archiving plans, and does **not** delete or modify `archive/` entries.
+
+Conversely, the archivist is scope-bounded: it touches only the plan being archived, `archive/`, and `CLAUDE.md`. Project-wide cruft — orphan scripts under `scripts/`, stale intermediates under `data/`, unreferenced charts under `output/`, scratch notebook cells — is out of its scope. After the archivist finishes a plan that materially touched source files, it recommends the user run `/research-cleanup` to sweep the rest.
+
+The split is deliberate: per-plan archival is automated (Stop hook → agent → done) and bounded; project-wide cleanup is user-invoked (you read `cleanup-proposal.md` and act manually) and decision-laden. Mixing them would either overreach (the archivist deletes a script that *looked* orphaned) or underreach (this skill skips a plan-shaped cleanup that needed plan context). Each side defers to the other; no logic is duplicated.

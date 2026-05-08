@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
-# Stop hook: nudge Claude to write insights/NN_*.md when a session produced
-# new analysis evidence (charts, panels, methods notes) without a new insights
-# doc to record what was learned.
+# Stop hook: two tripwires on a single Stop event.
 #
-# SILENT by default. Only emits a nudge when:
-#   1. There ARE uncommitted analysis artifacts (output/[<theme>/]0[0-9]*_*.{png,csv,meta.json}
-#      or methods/*.md), AND
-#   2. There are NO uncommitted insights/[<theme>/]NN_*.md changes.
+# Tripwire 1 — Plan archival (BLOCKING).
+#   When any plan/plan-*/.completed marker is present and the plan's
+#   .archival-triggered sentinel is absent: write the sentinel, emit
+#   decision:block + reason instructing Claude to launch the archivist
+#   subagent, exit 2. The sentinel prevents re-block loops on subsequent
+#   Stop events; both markers are removed when the archivist deletes
+#   the plan directory. Bash-port of scc hooks/stop.js. See
+#   .claude/conventions/plan-structure.md "Completion and archival" and
+#   docs/plan-archival-mechanism.md.
 #
-# Both flat (output/01_*, insights/01_*.md) and theme-parallel
-# (output/<theme>/01_*, insights/<theme>/01_*.md) layouts satisfy
-# the tripwire. See .claude/conventions/insights-logging.md and
-# docs/theme-parallel-mechanism.md.
+# Tripwire 2 — Insights logging (NON-BLOCKING nudge).
+#   Nudge Claude to write insights/NN_*.md when a session produced new
+#   analysis evidence (charts, panels, methods notes) without a new
+#   insights doc to record what was learned. Only emits when:
+#     1. There ARE uncommitted analysis artifacts
+#        (output/[<theme>/]0[0-9]*_*.{png,csv,meta.json} or methods/*.md), AND
+#     2. There are NO uncommitted insights/[<theme>/]NN_*.md changes.
+#   Both flat (output/01_*, insights/01_*.md) and theme-parallel
+#   (output/<theme>/01_*, insights/<theme>/01_*.md) layouts satisfy
+#   the tripwire. See .claude/conventions/insights-logging.md and
+#   docs/theme-parallel-mechanism.md.
 #
-# Soft warn only — hooks return non-blocking additionalContext via stdout JSON.
+# SILENT by default. Tripwire 1 fires before tripwire 2 when both apply
+# (archival is the higher-signal event; the insights nudge can wait for
+# the next Stop after archival completes).
 
 set -euo pipefail
 
@@ -21,6 +33,36 @@ set -euo pipefail
 ROOT="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 cd "$ROOT" 2>/dev/null || exit 0
 
+# === Tripwire 1: plan archival ===
+# Iterate plan/plan-*/.completed markers. For the first plan whose
+# .archival-triggered sentinel is missing, write the sentinel and
+# emit a block. Subsequent Stop events on the same plan are silent
+# (sentinel honored) until the archivist deletes the directory.
+if [[ -d plan ]]; then
+  for completed_marker in plan/plan-*/.completed; do
+    [[ -f "$completed_marker" ]] || continue
+    plan_dir="$(dirname "$completed_marker")"
+    plan_name="$(basename "$plan_dir")"
+    sentinel="$plan_dir/.archival-triggered"
+    [[ -f "$sentinel" ]] && continue
+
+    # Write sentinel first — protects against re-block loops if the
+    # archivist invocation is interrupted before plan-dir cleanup lands.
+    date -u +"%Y-%m-%dT%H:%M:%SZ" > "$sentinel"
+
+    # Emit decision:block + reason. Claude Code reads the JSON from
+    # stdout, blocks the Stop, and surfaces `reason` to the model.
+    cat <<EOF
+{
+  "decision": "block",
+  "reason": "Plan \"$plan_name\" is marked complete (.completed marker found). Before stopping, launch the archivist subagent (defined in ~/.claude/agents/archivist.md) to synthesize archive/$plan_name.md, update archive/index.md, clean up plan/$plan_name/, and update CLAUDE.md if architecture changed. After archival completes you can stop. If the plan touched many source files, recommend the user run /research-cleanup afterward — project-wide cleanup is outside the archivist's scope."
+}
+EOF
+    exit 2
+  done
+fi
+
+# === Tripwire 2: insights logging ===
 # Skip if not a git repo (no way to detect "what changed this session").
 git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 

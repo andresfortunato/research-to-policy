@@ -41,6 +41,8 @@ const EXCLUDE = new Set([
   'templates/sources/registry.yaml',
   'templates/data_sources/INDEX.md',
   'templates/project_conventions/INDEX.md',
+  // Archivist appends rows here across sessions; framework never overwrites.
+  'templates/archive/index.md',
   // Loose templates referenced from convention docs; no fixed project copy.
   'templates/handoff.md',
   'templates/decision-record.md',

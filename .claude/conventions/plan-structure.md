@@ -108,8 +108,44 @@ its own and survives plan close-out.
 - **`output/` is scratch.** Parallel agents may stage intermediate files
   there; gitignore or clean on plan close. Do not let it become a shadow
   `insights/`.
-- **Closing a plan** means setting `handoff.md` Status to
-  `CLOSED — YYYY-MM-DD` and committing. The directory stays as record.
+
+## Completion and archival
+
+A plan is "complete" when every phase's verification has passed and the
+researcher has confirmed there is no remaining work. At that point:
+
+1. **Create the marker.** `touch plan/plan-<slug>/.completed`. The marker
+   is intentionally explicit — researcher-controlled, not auto-detected
+   from a "✅ COMPLETE" line in `handoff.md` (which would mis-fire on
+   intermediate phase-completion summaries).
+2. **Stop hook fires.** On the next Stop event, the
+   `check-insights.sh` hook (Tripwire 1) finds the marker, writes a
+   `.archival-triggered` sentinel, and emits a Stop-blocking instruction
+   to launch the **archivist** subagent
+   (`~/.claude/agents/archivist.md`).
+3. **Archivist runs.** It reads `plan.md`, `handoff.md`, and `log.md`,
+   synthesizes `archive/plan-<slug>.md` (key decisions, methods landed,
+   files modified, learnings, metrics), appends a one-liner to
+   `archive/index.md`, updates `CLAUDE.md` if architecture changed,
+   then deletes `plan/plan-<slug>/` entirely.
+4. **No re-block.** The `.archival-triggered` sentinel protects against
+   re-blocking on subsequent Stop events if the archivist invocation
+   was interrupted; the sentinel is removed with the plan directory
+   when the archivist completes.
+
+**Boundary with `/research-cleanup`.** The archivist is *per-plan and
+automated* (synthesizes the archive entry, deletes the plan directory).
+`/research-cleanup` is *project-wide and user-invoked* (audits orphan
+scripts, stale intermediates, unreferenced charts). The two are
+complementary, never overlapping. If a completed plan touched many
+source files, the archivist recommends the user run `/research-cleanup`
+afterward; the archivist itself does not scan beyond the plan
+directory.
+
+**Do not** rename `.completed` to anything else, edit it after creation,
+or commit it (the marker is local working state). The archive entry —
+`archive/plan-<slug>.md` — is the permanent record committed alongside
+the deletion of `plan/plan-<slug>/`.
 
 ## Why scc-style at project root
 

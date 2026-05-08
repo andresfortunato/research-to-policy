@@ -29,6 +29,7 @@ const SCAFFOLDING_DIRS = [
   'project_conventions',
   'brainstorms',
   'learnings',
+  'archive',
 ];
 
 // Gitignore block emitted into target projects. Diverges from install.sh's
@@ -201,6 +202,11 @@ export async function installProject(target) {
   await mirrorDir(
     join(FRAMEWORK_ROOT, 'templates/learnings'),
     join(target, 'learnings'),
+    target,
+  );
+  await mirrorDir(
+    join(FRAMEWORK_ROOT, 'templates/archive'),
+    join(target, 'archive'),
     target,
   );
 

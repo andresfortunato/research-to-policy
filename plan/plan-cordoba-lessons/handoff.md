@@ -1,8 +1,8 @@
 # Handoff: plan-cordoba-lessons
 
-**Status:** ACTIVE — Phase 4 complete; Phase 5 next.
+**Status:** ACTIVE — Phase 5 complete; Phase 6 next.
 **Date:** 2026-05-08
-**Last commit on plan branch:** `d8d27fb` — "Phase 4: learning-capture skill + 2 hooks (research-adapted from scc)" (plan baseline at `aae136e`).
+**Last commit on plan branch:** `<TBD>` — "Phase 5: plan archival (archivist agent + Stop hook extension + archive/)" (plan baseline at `aae136e`).
 
 ## Phase status
 
@@ -11,176 +11,178 @@
 | 1 | Six small wins (script-header tweaks, web-scraping bundle, addendum pattern) | ✅ done | `4c80c65`. Mechanical, isolated. |
 | 2 | Theme-parallel opt-in (insights-logging + check-insights.sh + INDEX schema) | ✅ done | `c296083`. Schema change; verification log in earlier handoff. |
 | 3 | Brainstorming skill (port from scc, research-adapted) | ✅ done | `c9d6bee`. Eight files; verification log in prior handoff. |
-| 4 | Learning-capture skill + retrieve-learnings.sh + precompact-handoff.sh | ✅ done | `d8d27fb`. Twelve files; verification log below. |
-| 5 | Plan archival (Stop hook extension + archivist agent + archive/) | ⏭ next | Existing four .completed markers archived manually first. Archivist scope kept narrow — defers project-wide cleanup to `/research-cleanup`. |
-| 6 | README rewrite for researcher audience | ⏭ queued | Quickstart → workflow → scaffolding → tools → what's in here → updates → design philosophy (last). Ships after all components exist. |
+| 4 | Learning-capture skill + retrieve-learnings.sh + precompact-handoff.sh | ✅ done | `d8d27fb`. Twelve files; verification log in prior handoff. |
+| 5 | Plan archival (Stop hook extension + archivist agent + archive/) | ✅ done | `<TBD>`. Eleven files + housekeeping commit that archived the four legacy plans first; verification log below. |
+| 6 | README rewrite for researcher audience | ⏭ next | Quickstart → workflow → scaffolding → tools → what's in here → updates → design philosophy (last). Ships now that all components exist. |
 
 ## Where we are
 
-Phase 4 landed in one commit. The third bucket — `learnings/` — is now
-real: skill, convention, two hooks (UserPromptSubmit + PreCompact),
-templates seeds, mechanism doc, install-project + upgrade wiring,
-CLAUDE.md.template pointer block, and README tactical edits. The
-skill is globally symlinked at `~/.claude/skills/learning-capture/`
-during `scr init`.
+Phase 5 landed in two commits: a housekeeping commit that archived the
+four pre-existing `.completed` plans manually (so the new Stop hook
+wouldn't fire on legacy markers post-ship), and the Phase 5 implementation
+itself. The framework now has its plan-archival lifecycle wired:
+researcher creates `plan/plan-<slug>/.completed`, the Stop hook's new
+Tripwire 1 emits `decision: block` instructing Claude to launch the
+archivist subagent, the archivist synthesizes
+`archive/plan-<slug>.md`, appends to `archive/index.md`, optionally
+edits CLAUDE.md, and deletes the plan directory.
 
-`retrieve-learnings.sh` is the load-bearing piece: ~80 lines bash that
-reads `learnings/index.yaml`, tokenizes the user's prompt, counts
-trigger-keyword overlap, and surfaces up to three matched learnings
-as `additionalContext` when at least one entry has ≥2 trigger hits.
-Silent otherwise — verified across four positive/negative/threshold/
-multi-match cases. Uses jq (the v1 framework's runtime ceiling) for
-stdin/stdout JSON; silent if jq is missing.
+`check-insights.sh` is now a two-tripwire Stop hook. Tripwire 1 (plan
+archival, BLOCKING) runs before Tripwire 2 (insights, NON-BLOCKING)
+because archival is the higher-signal event — the insights nudge can
+wait for the next Stop after archival completes. Sentinel pattern
+(`.archival-triggered`) bash-ports scc's stop.js loop-protection.
 
-`precompact-handoff.sh` is informational-only: when any `plan/plan-*/`
-exists, it emits a two-line reminder (refresh handoff, capture
-learnings); silent when no active plan. Verified silent + active
-cases.
+`.claude/agents/archivist.md` is the research-adapted port: scc's
+"Files modified" section is augmented with **Methods landed**
+(cross-links to `methods/<slug>/rule.md`) and **Key decisions**
+explicitly cross-linking to `decisions/YYYY-MM-DD_<slug>.md`. The
+boundary paragraph deferring repo-wide cleanup to `/research-cleanup`
+is load-bearing — it pairs symmetrically with the boundary paragraph
+just added to `research-cleanup/SKILL.md`.
 
-A pre-existing gap surfaced and got fixed inside this phase:
-`scr init --upgrade` previously didn't walk `.claude/hooks/` or pick
-up `.claude/settings.template.json`, so any hook-shaped change from
-Phase 2 onward wouldn't propagate to existing v1 projects. Extending
-upgrade.js to walk `.claude/hooks/` + sidecar settings.template.json
-was the smallest fix that satisfied Phase 4's verification gate ("new
-files land cleanly; existing settings.template.json sidecars on
-divergence") and retroactively closed the Phase 2 gap.
+The four legacy plans archived during housekeeping
+(`archive/plan-install-redesign.md`, `plan-project-conventions.md`,
+`plan-refdocs-conventions.md`, `plan-v1-framework.md`) populate the
+archive on first contact rather than shipping with `(no archived plans
+yet)`. Each entry follows the archivist's documented structure (60–110
+lines: What was built / Key decisions / Methods landed / Files added
+or modified / Learnings / Metrics).
 
-Phase 5 is plan archival: extend `check-insights.sh` to detect
-`.completed` markers and nudge archival; new `archivist` agent
-(research-adapted port from scc); new `archive/` directory; explicit
-boundary doc with `/research-cleanup` (archivist = automated,
-plan-scoped; `/research-cleanup` = user-invoked, project-scoped).
-The four pre-existing `.completed` markers in `plan/` (plan-install-
-redesign, plan-project-conventions, plan-refdocs-conventions,
-plan-v1-framework) need to be archived manually first, before the
-new Stop-hook extension fires on legacy markers.
+`install-globals.js` already iterated `.claude/agents/` from Phase 3 of
+the install-redesign plan — the new archivist.md gets symlinked
+automatically; no installer-globals change needed. `install-project.js`
+got `archive` added to `SCAFFOLDING_DIRS` and one new `mirrorDir` call
+for `templates/archive/`. `upgrade.js` got `templates/archive/index.md`
+added to its `EXCLUDE` set so the archivist's append-only edits to
+`index.md` survive `scr init --upgrade`.
 
 ## What's next
 
-1. **Phase 5 kickoff** — `phases/phase-5.md`. Touches:
-   - `.claude/agents/archivist.md` (new — research-adapted port of scc archivist)
-   - `.claude/conventions/plan-structure.md` (extend: document `.completed` → archival flow)
-   - `.claude/hooks/check-insights.sh` (extend: add `.completed` detection + archival nudge alongside existing insights-tripwire)
-   - `.claude/skills/research-cleanup/SKILL.md` (extend: add "Boundary with archivist agent" paragraph)
-   - `templates/archive/{README.md, index.md}` (new — empty seeds; index header + placeholder list)
-   - `docs/plan-archival-mechanism.md` (new — `.completed` marker rationale, archive vs delete, boundary with /research-cleanup)
-   - `templates/CLAUDE.md.template` (pointer block + tree gloss for `archive/`)
-   - `src/lib/install-project.js` (seed `templates/archive/`)
-   - `src/lib/install-globals.js` (symlink the new agent)
-   - `README.md` (Conventions + Skills + Hooks + Agents tactical edits)
-2. **Pre-Phase 5 housekeeping (do BEFORE Phase 5 lands the Stop-hook
-   extension):** archive the four pre-existing `.completed` markers
-   manually (plan-install-redesign, plan-project-conventions,
-   plan-refdocs-conventions, plan-v1-framework). Either move them
-   to `archive/` with a hand-written summary, or delete the markers
-   if the plans themselves were already cleaned up. Otherwise the
-   new Stop hook will fire on legacy markers as soon as Phase 5
-   ships, producing a confusing first-contact experience.
+**Phase 6 — README rewrite for researcher audience.** All v1.1
+components now exist; the rewrite can describe the full surface in one
+pass without churn. Per `phases/phase-6.md`:
 
-## Phase 4 verification log
+- Section order: intro summary → quickstart → what the framework does
+  (workflow narrative, scaffolding, tools/skills) → what's in here
+  (component reference) → updates → design philosophy.
+- Audience: applied researchers at the May 2026 Córdoba/Cambodia
+  kickoff, not framework developers. Quickstart is the entry point;
+  design philosophy is at the bottom (load-bearing for contributors,
+  not what a researcher needs first).
+- Tactical edits already landed in Phases 1–5 (Hooks/Agents tree
+  entries, Conventions installed entries) become inputs for the
+  rewrite — they're correct in content but live in the old structure.
+  Phase 6 reorganizes; it doesn't re-author.
+- After Phase 6 ships: the cordoba-lessons plan is itself ready for
+  archival via the new `.completed` mechanism. That will be the first
+  end-to-end test of the archivist agent on a real plan.
+
+Phase 6 is a single-pass rewrite — likely one or two sessions
+depending on how much pruning the design-philosophy section needs.
+
+## Phase 5 verification log
 
 | Gate | Result | Evidence |
 |---|---|---|
-| `retrieve-learnings.sh`: matching prompt fires | ✓ | Scratch fixture with `learnings/index.yaml` containing PONDII entry; prompt "Why does PONDII fail in EPH 2014 wave for our panel?" matches 4 trigger words → emits Relevant Learnings JSON. |
-| `retrieve-learnings.sh`: irrelevant prompt silent | ✓ | Prompt "What time is it right now?" with same fixture → exit 0, no stdout. |
-| `retrieve-learnings.sh`: 1-keyword prompt silent (below threshold) | ✓ | Prompt "Tell me about PONDII please." matches 1 trigger; threshold is 2 → silent. |
-| `retrieve-learnings.sh`: multi-match prompt surfaces both learnings | ✓ | Prompt mixing PONDII+EPH+2014 with PWT+rgdpe+oil triggers both entries; both files emitted in additionalContext separated by `\n\n---\n\n`. |
-| `retrieve-learnings.sh`: missing index silent | ✓ | Empty scratch dir with no `learnings/index.yaml` → exit 0, no stdout. |
-| `retrieve-learnings.sh`: empty `learnings: []` index silent | ✓ | Scratch dir with `learnings: []` only → exit 0, no stdout. |
-| `precompact-handoff.sh`: no plan silent | ✓ | Empty scratch dir with no `plan/` → exit 0, no stdout. |
-| `precompact-handoff.sh`: active plan(s) fires with two reminders + active list | ✓ | Scratch dir with `plan/plan-foo/` and `plan/plan-bar/` → emits PreCompact JSON additionalContext naming both slugs. |
-| `learning-capture` SKILL: two-file atomicity documented | ✓ | SKILL.md "How it works" steps 4–5 enforce `learnings/<slug>.md` + `learnings/index.yaml` row written together; convention "Atomicity" section restates. |
-| `learning-capture.md` convention length within band | ✓ | 153 lines — within the 80–150 band (slight overrun acceptable; covers retrieval contract + boundary section). |
-| `scr init` lands all three hooks executable | ✓ | Scratch dir post-init: `check-insights.sh`, `precompact-handoff.sh`, `retrieve-learnings.sh` all `-rwxr-xr-x`. |
-| `scr init` wires UserPromptSubmit + PreCompact in settings.json | ✓ | Generated `.claude/settings.json` contains both new hook entries alongside existing Stop. |
-| `scr init` seeds `learnings/` with README + index.yaml | ✓ | Both files copied via `mirrorDir(templates/learnings/, ...)`. |
-| `learnings/` is committed (not gitignored) | ✓ | `grep learnings .gitignore` returns nothing in the post-init scratch dir. |
-| Global skill symlink | ✓ | `~/.claude/skills/learning-capture` → `~/github/super-claudio-research/.claude/skills/learning-capture`. |
-| `scr init --upgrade`: divergent settings.template.json sidecars | ✓ | Pre-staged scratch with old 110-byte settings.template.json → upgrade emits `⚠ .claude/settings.template.json.framework-new`; original untouched. |
-| `scr init --upgrade`: divergent check-insights.sh sidecars | ✓ | Pre-staged scratch with old check-insights stub → upgrade emits `⚠ .claude/hooks/check-insights.sh.framework-new`; original untouched. |
-| `scr init --upgrade`: new hooks land directly | ✓ | retrieve-learnings.sh + precompact-handoff.sh appear as `+` in upgrade output and end up `-rwxr-xr-x` in `.claude/hooks/`. |
-| No project-specific cordoba content shipped | ✓ | Domain examples are PONDII / EPH 2014 / PWT rgdpe-rgdpo / educ-NA-rural-attrition — generic-shaped survey-vintage / deflator-divergence / sample-restriction warnings; mechanism doc references "an applied-research project that ran without scr conventions" abstractly. |
+| Hook: `.completed` present, no sentinel → `decision: block` + sentinel written | ✓ | Scratch `plan/plan-test-foo/.completed`, hook exits 2, stdout is valid `{"decision":"block","reason":"..."}` JSON, `.archival-triggered` lands with ISO-8601 timestamp. |
+| Hook: re-Stop after sentinel exists → silent | ✓ | Same scratch with sentinel + `.completed` both present, hook exits 0 with empty stdout. Loop-protection works. |
+| Hook: no plan dir → silent (no regression) | ✓ | Empty scratch with `git init`, hook exits 0 silent. |
+| Hook: `.completed` AND analysis evidence → archival fires first (insights tripwire deferred) | ✓ | Scratch with `plan/plan-foo/.completed` AND `output/06_chart.png` untracked → archival block JSON emits, exit 2; insights tripwire NOT reached. |
+| Hook: NO `.completed` but uncommitted analysis evidence → insights tripwire fires (no regression) | ✓ | Scratch with only `output/06_chart.png` untracked → exit 0, hookSpecificOutput.additionalContext nudge for insights doc. |
+| Hook: clean repo (no plan, no analysis evidence) → silent | ✓ | Bare scratch with `git init`, hook exits 0 silent. |
+| `scr init`: seeds `archive/` with README.md + index.md | ✓ | Fresh `scr init` output shows `+ archive/README.md` and `+ archive/index.md`. |
+| `scr init`: symlinks archivist agent globally | ✓ | `~/.claude/agents/archivist.md` → repo's `.claude/agents/archivist.md` after fresh init. `installGlobals` reports `✓ ~/.claude/agents/ (1 agents linked)`. |
+| `scr init --upgrade`: divergent `archive/index.md` preserved (EXCLUDEd) | ✓ | Pre-edited scratch index.md keeps user-appended row; no `.framework-new` sidecar emitted. Control: divergent `insights-logging.md` correctly DOES emit a sidecar. |
+| `scr init --upgrade`: divergent pre-Phase-5 `check-insights.sh` → sidecar lands with new Tripwire 1 | ✓ | Simulated old v1 install: original stub untouched, `check-insights.sh.framework-new` written with the new two-tripwire content. |
+| Boundary mutual-deference: archivist defers to /research-cleanup | ✓ | Frontmatter description + dedicated section in `agents/archivist.md`; recommends user run `/research-cleanup` after plan-touched-many-source-files cases. |
+| Boundary mutual-deference: /research-cleanup defers to archivist | ✓ | New "Boundary with the archivist agent" section in `skills/research-cleanup/SKILL.md`; declares it does NOT touch `plan/` or `archive/`. |
+| Pre-housekeeping: four legacy `.completed` markers no longer present | ✓ | `ls plan/` returns only `plan-cordoba-lessons`; the four legacy plan directories deleted; archive entries written for each. |
+| `archive/index.md` populated with four entries on first contact | ✓ | `archive/index.md` lists Install Redesign / Project Conventions / Refdocs Conventions / v1 framework with dates and full-archive links. |
+| No project-specific cordoba content shipped | ✓ | All Phase 5 framework files (agent, hook, conventions, mechanism doc, README, templates) use generic placeholders (`<slug>`, `<name>`); the four archive entries describe scr-internal plans (install-redesign etc.), not cordoba research. |
 
 ## Surprises
 
-- **`scr init --upgrade` previously didn't propagate hook updates.**
-  upgrade.js walked only `.claude/conventions/` and `templates/`,
-  missing `.claude/hooks/` entirely. This meant Phase 2's
-  check-insights.sh extension wouldn't have reached existing v1
-  projects either — a quietly-broken state that nobody hit because
-  no v1 project had upgraded yet. Phase 4's verification gate ("new
-  files land cleanly; existing settings.template.json sidecars on
-  divergence") forced the fix. upgrade.js now walks `.claude/hooks/`
-  and treats `.claude/settings.template.json` as a single tracked
-  candidate. Hooks land `-rwxr-xr-x`. The retroactive effect: any
-  v1 project running `scr init --upgrade` post-Phase-4 picks up
-  Phase 2's check-insights.sh extension along with Phase 4's new
-  hooks.
-- **The two-file atomicity rule shows up in three places.** SKILL.md
-  enforces it ("step 4: write the file. step 5: append to index.yaml.
-  always do both atomically"); the convention restates it under
-  "Atomicity"; the mechanism doc explains *why* a single-file design
-  was rejected (would force the hook to open every `.md` on every
-  prompt; would tie retrieval to filename heuristics rather than
-  researcher-curated triggers). Three separate restatements is
-  intentional — the failure mode (silent invisibility of unindexed
-  learnings) is too quiet to surface from a single mention.
-- **Settings.template.json now ships into projects on upgrade.**
-  Pre-Phase-4, `scr init` only copied `settings.template.json` →
-  `settings.json` on first install; the template itself never landed
-  in projects. Upgrade now copies the template directly to
-  `.claude/settings.template.json` so divergent users can diff
-  against their runtime `.claude/settings.json`. New behavior; no
-  documented impact yet but flagged here in case pilot users see
-  unexpected `+ .claude/settings.template.json` on their next
-  upgrade.
+- **`install-globals.js` already iterated `.claude/agents/` from
+  install-redesign Phase 3.** Phase 5 was scoped to "wire archivist
+  symlink in `installGlobals()`" but the work was already done — the
+  loop walks every `.md` file in the framework's `.claude/agents/`
+  and creates a symlink. Dropping `archivist.md` into the directory
+  is plug-and-play. The original task to extend `installGlobals` got
+  removed from the task list as misconceived. Same observation extends
+  to upgrade.js: agents are symlinks, not project-mirrored, so they
+  should NOT be walked by upgrade's per-project file copier — that
+  path correctly remains untouched.
+- **`upgrade.js` needed one EXCLUDE addition, not a directory walk.**
+  The agent didn't need adding to upgrade.js at all (agents go through
+  `installGlobals`, not `upgradeProject`), but the new
+  `templates/archive/index.md` did need adding to the EXCLUDE set —
+  otherwise an `scr init --upgrade` would emit a `.framework-new`
+  sidecar against an archive index that the archivist appends to
+  across sessions. Found by reasoning about what would happen on a
+  long-lived project's second upgrade; verified in scratch.
+- **The four legacy archives are larger than the archivist's spec
+  suggests.** The spec says 60–150 lines; the v1-framework archive
+  came in at ~50 lines (above), the install-redesign at ~70, the
+  refdocs/project at ~50 each. v1-framework has more content because
+  it's an 8-phase plan with two post-ship simplifications. The spec
+  "60–150" is a guideline, not a hard ceiling — the load-bearing
+  property is "useful reference, not copy of the plan", and a v1
+  archive that omits the manifest-replacement decision would fail
+  that test.
+- **Sentinel ISO-8601 format is `date -u +"%Y-%m-%dT%H:%M:%SZ"`.**
+  scc's stop.js uses `new Date().toISOString()` which emits
+  millisecond precision (`2026-05-08T17:34:12.123Z`). The bash port
+  drops to second precision because `date` doesn't have a portable
+  millisecond format across BSD and GNU. Functionally identical: the
+  sentinel is a presence flag, not a timestamp the hook reads back.
 
 ## What didn't work
 
-- Initially considered using a JSON parser (e.g., python-based) for
-  the YAML index in retrieve-learnings.sh. Rejected — the v1
-  constitution caps runtime deps at jq, and the index format is
-  shallow enough that bash regex matching on `- file:` and
-  `triggers: "..."` lines is sufficient. Confirmed by the
-  edge-case tests (empty index, missing index, multi-entry index).
-- The PreCompact hook's reminder text initially included a list of
-  "things you might have learned this session" as a checklist
-  (variable broke / deflator vintage / sample restriction). Pulled
-  back to a one-line nudge — the SKILL.md description already covers
-  what counts as a learning; the hook just needs to ping. Avoids
-  noise on routine compactions.
+- Initially considered putting the archival tripwire AFTER the
+  insights tripwire on the assumption that insights were the more
+  common case. Rejected: archival fires once per plan, blocks Stop,
+  and is action-required; insights fires repeatedly with non-blocking
+  nudges. Putting archival first means a Stop event with both
+  conditions emits the higher-priority block immediately, and the
+  insights nudge naturally rolls forward to the next Stop after the
+  archivist completes. This matches scc's stop.js layering.
+- Initially considered making the archivist update `CLAUDE.md`
+  unconditionally (mirror scc's behavior). Pulled back: most v1
+  plans don't change architecture (they ship seeds, edit prose,
+  refactor internals); a CLAUDE.md edit "to be safe" produces churn.
+  Spec now says "skip this step entirely if the plan was scoped to
+  internal protocol edits, doc rationale, or seeds without an
+  architectural surface."
+- Initially considered emitting a non-blocking nudge for archival
+  (matching the existing insights tripwire shape). Rejected: the
+  archivist invocation is a multi-step file mutation; if Claude
+  ignores the nudge, the `.completed` marker stays and the next Stop
+  re-emits — but a non-blocking nudge can be missed. Blocking with
+  sentinel-protection is the right shape: forces the action while
+  protecting against re-block loops.
 
-## Implementation hints for Phase 5
+## Implementation hints for Phase 6
 
-- Read `~/github/super-claudio-code/agents/archivist.md` once, then
-  write the scr version. Adaptation work: domain examples shifted
-  to research artifact types (insights doc, decision record,
-  notebook outputs); narrowed scope (per-plan archival, not
-  project-wide cleanup); explicit boundary paragraph against
-  `/research-cleanup`.
-- Extend `check-insights.sh`, don't fork it. The plan calls out
-  *extending* the existing hook for `.completed` detection. The
-  current hook is a Stop hook with two tripwires (analysis evidence
-  + insights doc absence) — adding a third tripwire (`.completed`
-  marker → archival nudge) keeps the hook count down and matches
-  the constitution's "compose, don't duplicate" principle.
-- The new `.claude/agents/` directory will need a global-symlink
-  pass in `installGlobals()`. scc's install-globals likely iterates
-  agents/ same way it iterates skills/; check the existing pattern
-  there before writing scr's agent installer.
-- Archive four pre-existing `.completed` markers BEFORE landing the
-  Stop-hook extension. They're at `plan/plan-install-redesign/`,
-  `plan/plan-project-conventions/`, `plan/plan-refdocs-conventions/`,
-  `plan/plan-v1-framework/`. Either move to `archive/` with
-  hand-written summaries, or delete the markers if the underlying
-  plan dirs were already cleaned. Otherwise the first session post-
-  Phase-5 will see four archival nudges fire at once, which would
-  make the new behavior look noisy on first contact.
-- The boundary doc between archivist agent and `/research-cleanup`
-  skill is load-bearing — the constraint section of plan.md called
-  out "consistent results, no duplicated cleanup logic". Archivist
-  defers project-wide concerns (orphans, intermediates, unreferenced
-  charts) to `/research-cleanup`; `/research-cleanup` documents
-  that per-plan archival is the archivist's job. Codify this in
-  both files' "Distinct from neighboring conventions" sections.
+- `phases/phase-6.md` describes the rewrite scope in detail. Read it
+  once at session start; the rest of `plan.md` is already well-trod.
+- Read the **current** README in full before drafting. Many section-
+  level edits landed across Phases 1–5 (Conventions installed,
+  Hooks tree, Agents tree, Quickstart parenthetical). The rewrite
+  reorganizes; it doesn't reauthor — preserve content where the
+  intent is correct, just relocate.
+- Anchor the rewrite to the section order from `plan.md` Decisions:
+  intro → quickstart → workflow narrative → scaffolding map →
+  tools/skills reference → what's in here → updates → design
+  philosophy. Workflow narrative is new prose (brainstorming →
+  planning → implementation → archival, with handoffs) — not in the
+  current README.
+- The "Tools/skills" section can be a reference table (not the
+  current per-skill prose blocks) — researchers want a one-glance
+  catalogue, not paragraphs.
+- Design philosophy moves to bottom but stays — contributors and
+  future-Claude need it. Don't delete; reorder.
+- After Phase 6 ships: refresh handoff one last time, mark plan
+  complete, `touch plan/plan-cordoba-lessons/.completed`. The
+  archivist will run on the next Stop — first real-world test of
+  the Phase 5 mechanism.
