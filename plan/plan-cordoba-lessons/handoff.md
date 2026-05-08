@@ -1,110 +1,113 @@
 # Handoff: plan-cordoba-lessons
 
-**Status:** ACTIVE — Phase 1 complete; Phase 2 next.
+**Status:** ACTIVE — Phase 2 complete; Phase 3 next.
 **Date:** 2026-05-08
-**Last commit on plan branch:** `4c80c65` — "Phase 1: six small wins (script-header tweaks, web-scraping bundle, addendum pattern)" (plan baseline at `aae136e`).
+**Last commit on plan branch:** `c296083` — "Phase 2: theme-parallel opt-in (insights/<theme>/, output/<theme>/)" (plan baseline at `aae136e`).
 
 ## Phase status
 
 | Phase | Title | Status | Notes |
 |---|---|---|---|
-| 1 | Six small wins (script-header tweaks, web-scraping bundle, addendum pattern) | ✅ done | Mechanical, isolated; shipped first. Verification log below. |
-| 2 | Theme-parallel opt-in (insights-logging + check-insights.sh + INDEX schema) | ⏭ next | Schema change; ships before Phases 3–5 so they land theme-aware. |
-| 3 | Brainstorming skill (port from scc, research-adapted) | ⏭ queued | Closes the methodology-essay-isn't-a-plan gap. |
+| 1 | Six small wins (script-header tweaks, web-scraping bundle, addendum pattern) | ✅ done | `4c80c65`. Mechanical, isolated. |
+| 2 | Theme-parallel opt-in (insights-logging + check-insights.sh + INDEX schema) | ✅ done | `c296083`. Schema change; verification log below. |
+| 3 | Brainstorming skill (port from scc, research-adapted) | ⏭ next | Closes the methodology-essay-isn't-a-plan gap. |
 | 4 | Learning-capture skill + retrieve-learnings.sh + precompact-handoff.sh | ⏭ queued | Three-bucket model: insights/decisions/learnings. |
 | 5 | Plan archival (Stop hook extension + archivist agent + archive/) | ⏭ queued | Existing four .completed markers archived manually first. Archivist scope kept narrow — defers project-wide cleanup to `/research-cleanup`. |
 | 6 | README rewrite for researcher audience | ⏭ queued | Quickstart → workflow → scaffolding → tools → what's in here → updates → design philosophy (last). Ships after all components exist. |
 
 ## Where we are
 
-Phase 1 landed in one commit (six small wins, all framework-internal,
-no architectural ripple). Plan baseline committed at `aae136e` ahead
-of Phase 1; Phase 1's commit hash filled in below once it lands.
+Phase 2 landed in one commit. The opt-in theme-parallel layout is now
+in place across the convention, the hook, the INDEX template, the
+CLAUDE.md.template tree + pointer block, the README, and a new
+`docs/theme-parallel-mechanism.md` rationale doc. Hooks accept both
+flat (`insights/NN_*.md`, `output/NN_*`) and theme-parallel
+(`insights/<theme>/NN_*.md`, `output/<theme>/NN_*`) shapes.
 
-Phase 2 is the schema change — opt-in `insights/<theme>/` subfolder
-support in `insights-logging.md` + `check-insights.sh` glob update +
-`insights/INDEX.md` template — and it should land before Phases 3–5
-so the new conventions/skills/hooks reference theme-awareness as
-already-shipped rather than retrofitted.
+Phase 3 is the brainstorming-skill port from scc. Reference material
+lives at `~/github/super-claudio-code/skills/brainstorming/SKILL.md`
+— read once, then write the scr version with research-domain examples
+(deflator choice, identification strategy, reference-category
+selection, survey-vintage breakage) and a planning-skill-agnostic
+handoff.
 
 ## What's next
 
-1. **Phase 2 kickoff** — `phases/phase-2.md`. Touches:
-   `.claude/conventions/insights-logging.md` (document opt-in
-   `<theme>/` subfolder), `.claude/hooks/check-insights.sh` (extend
-   glob to also pick up `insights/<theme>/*.md`), and the
-   `insights/INDEX.md` template if its schema needs a theme column.
-   Plus a new rationale doc at `docs/theme-parallel-mechanism.md`.
+1. **Phase 3 kickoff** — `phases/phase-3.md`. Touches:
+   `.claude/skills/brainstorming/SKILL.md` (new),
+   `.claude/conventions/brainstorm-format.md` (new),
+   `templates/brainstorms/README.md` (new),
+   `docs/brainstorm-mechanism.md` (new),
+   `templates/CLAUDE.md.template` (pointer block + tree gloss),
+   `src/lib/install-project.js` (seed `templates/brainstorms/` on
+   init; symlink skill globally — but check first whether
+   `installGlobals()` already auto-symlinks every subdir of
+   `<framework>/.claude/skills/`; that was the surprise from Phase 1
+   — it does, so no JS edit may be needed for the symlink),
+   `README.md` (one entry under Conventions installed + one under
+   Skills).
 2. **Pre-Phase 5 housekeeping (deferrable until Phase 5):** archive
    the four pre-existing `.completed` markers manually
    (plan-install-redesign, plan-project-conventions,
    plan-refdocs-conventions, plan-v1-framework) so the new Stop
    hook doesn't fire on legacy markers when Phase 5 lands.
 
-## Phase 1 verification log
+## Phase 2 verification log
 
 | Gate | Result | Evidence |
 |---|---|---|
-| script-header.md adds optional `Supersedes:` field with example | ✓ | New "Optional fields" section + format `Supersedes: scripts/<old>.R (decision: decisions/<slug>.md)`. |
-| Format examples updated for R (`here::here()`) + Python (`pathlib.Path(__file__).parent.parent`) | ✓ | Both examples rewritten; no `setwd("/...")` anywhere. |
-| New "Repo-relative paths" rule | ✓ | New section explicitly forbids absolute user paths. |
-| New "Shared utilities" section (`R/`, `scripts/_lib/`) | ✓ | Idiomatic locations + import-not-duplicate rule. |
-| New "One project, one env" section | ✓ | Anti-pattern named (sub-tools with own `.venv`/`pyproject.toml`). |
-| `web-scraping` skill bundled at `.claude/skills/web-scraping/` | ✓ | SKILL.md + 3 references (`ai-extraction.md`, `anti-detection.md`, `data-pipeline.md`) sourced from `~/.claude/skills/web-scraping/`. |
-| `internal-research-memo/PROFILE.md` endorses addendum pattern | ✓ | Success criterion #6 added: "Long-running memos accrete dated addenda; they are not rewritten." |
-| `internal-research-memo/template.md` has commented `## Update:` example | ✓ | Three-part addendum block (What's new / What this changes / What still stands) at file bottom. |
-| `README.md` one-line tactical update | ✓ | `web-scraping/` entry added to `.claude/skills/` tree in "What's in here". Full rewrite is Phase 6. |
-| `scr init` in fresh dir: installs everything | ✓ | All conventions + memo template land correctly. |
-| `scr init --upgrade` against divergent `script-header.md`: sidecar pattern | ✓ | `.framework-new` sidecar written; original untouched. |
-| Hook count unchanged | ✓ | Still only `check-insights.sh`. |
+| `insights-logging.md` adds clearly-labeled "Theme-parallel layout (opt-in)" section | ✓ | New section after "Where insights live"; flat-is-default rule preserved at top. Cross-links to `docs/theme-parallel-mechanism.md`. |
+| `check-insights.sh` artifact glob accepts `output/<theme>/0[0-9]_*` | ✓ | Regex extended to `output/([^/]+/)?0[0-9][a-z]?_.*\.(png\|csv\|meta\.json)`. |
+| `check-insights.sh` insights glob accepts `insights/<theme>/NN_*.md` | ✓ | Regex extended to `insights/([^/]+/)?[0-9]+_.*\.md`. |
+| Theme artifact + no insights doc → hook fires naming the artifact | ✓ | Scratch-dir test: `output/spatial-equilibrium/01_chart.png` produced JSON `additionalContext` listing the file. |
+| Theme insights doc staged → hook silent | ✓ | Scratch-dir test: `insights/spatial-equilibrium/01_*.md` exits 0 with no stdout. |
+| Flat artifact + no insights doc → hook still fires (regression) | ✓ | Scratch-dir test: `output/01_chart.png` produced the JSON nudge. |
+| Flat insights doc staged → hook still silent (regression) | ✓ | Scratch-dir test: `insights/01_finding.md` exits 0 with no stdout. |
+| `INDEX.md` template carries optional `Theme` column with omit/keep guidance | ✓ | Header preamble explains: omit for flat, keep for theme-parallel; example cross-references `insights-logging.md`. |
+| `docs/theme-parallel-mechanism.md` mirrors the rhythm of `insights-mechanism.md` | ✓ | Sections: Problem → What the framework does → Why opt-in → Why subfolder not declaration → "Theme" defined → Cross-cutting insights → Tradeoffs → What this does NOT do → Provenance. |
+| `CLAUDE.md.template` codebase-tree annotates `insights/`/`output/` with opt-in pattern; pointer block updated | ✓ | Tree adds inline comments for both directories; Insights Logging block names the opt-in pattern in one sentence. |
+| `README.md` insights-logging paragraph documents opt-in pattern | ✓ | One paragraph added; full rewrite deferred to Phase 6. Cross-links to all three docs (convention, mechanism, theme-parallel-mechanism). |
+| No project-specific cordoba content shipped in committed framework files | ✓ | Theme names in examples are generic (`spatial-equilibrium`, `labor-markets`). Provenance section in mechanism doc references "the cordoba audit" abstractly (no filenames, no scripts). |
 
 ## Surprises
 
-- **The plan said `install-project.js` needed a "skills-symlink list"
-  extension. It doesn't.** `install-globals.js` (added in
-  plan-install-redesign Phase 3) iterates every subdirectory of
-  `<framework>/.claude/skills/` and symlinks each into
-  `~/.claude/skills/`. Adding the `web-scraping/` directory is
-  sufficient — no JS edits. Phase 1's plan paragraph is one
-  outdated bullet because it was written against the pre-Phase-3
-  install model.
-
-- **On THIS user's machine, `~/.claude/skills/web-scraping/` is a
-  real directory, not a symlink.** The framework copy is new (this
-  Phase); the user's home-dir copy preexisted (May 5). After the
-  framework bundle lands, the two are byte-identical. On a *fresh*
-  machine, `scr init`'s `installGlobals()` step will create the
-  symlink correctly. On *this* machine, the real dir blocks the
-  symlink — `install-globals.js` catches the EEXIST and silently
-  skips ("don't overwrite user's files"). One-shot fix if the user
-  wants framework updates to flow through:
-
-  ```bash
-  rm -rf ~/.claude/skills/web-scraping
-  ln -s /Users/anf191/github/super-claudio-research/.claude/skills/web-scraping ~/.claude/skills/web-scraping
-  ```
-
-  Optional. The skill works either way today — but the symlink is
-  the supported path going forward.
+- **No surprises in Phase 2.** The scope was tight (six files,
+  one of them new), the regex change was a single optional
+  capture group `([^/]+/)?` in two places, and verification was a
+  scratch-dir bash sequence. The decision to keep the existing
+  hook nudge text flat-biased ("ls insights/ | sort") rather than
+  bloating it for theme-aware projects is intentional — the
+  convention file carries the full guidance; the hook stays terse.
 
 ## What didn't work
 
-- Nothing meaningful in Phase 1. One scope clarification (plan said
-  "fetch from canonical Anthropic source"; reality is the working
-  `~/.claude/skills/web-scraping/` *is* ours). Logged in `log.md`,
-  plan + phase-1.md updated before the plan-baseline commit.
+- Nothing meaningful in Phase 2.
 
-## Implementation hints for Phase 2
+## Implementation hints for Phase 3
 
-- Read `.claude/conventions/insights-logging.md` and
-  `.claude/hooks/check-insights.sh` first; both are short.
-- The `<theme>/` subfolder pattern is **opt-in and free-form** — no
-  `themes.md` declaration, no enumeration, no enforcement. The hook
-  just globs `insights/*.md` AND `insights/*/*.md`. Convention text
-  documents the subfolder option as available, not required.
-- New file at `docs/theme-parallel-mechanism.md` carries the
-  rationale (why opt-in, why no declaration). Mirror the rhythm
-  of `docs/insights-mechanism.md` for style.
-- `templates/insights/INDEX.md` may need a `Theme` column or a
-  free-text "scope" hint — confirm with the existing seed before
-  changing the schema.
+- Read `~/github/super-claudio-code/skills/brainstorming/SKILL.md`
+  once, then write the scr version. The adaptation work is
+  domain-shifting (web-app examples → applied-research examples)
+  + planning-skill-agnostic handoff text + output path
+  (`brainstorms/<topic>.md`).
+- The directory `brainstorms/` is already in
+  `templates/CLAUDE.md.template`'s codebase tree (line ~42:
+  "decision-rationale write-ups feeding plans (gitignored)"),
+  so no tree change is needed there — only the pointer block.
+  Check whether the brainstorms/ subdirectory needs to be
+  seeded by `install-project.js` (TBD; depends on whether
+  v1 install already creates it).
+- For symlinking the new skill: `installGlobals()` already
+  iterates every subdir of `<framework>/.claude/skills/` and
+  symlinks each into `~/.claude/skills/` (this was the Phase 1
+  surprise). Adding `.claude/skills/brainstorming/` is sufficient
+  — no JS edits, just like web-scraping in Phase 1.
+- Theme-parallel awareness: the brainstorming skill should mention
+  `brainstorms/<topic>.md` as the default and note (one line) that
+  theme-parallel projects may use `brainstorms/<theme>/<topic>.md`
+  if they wish. Don't over-engineer this; one sentence in the
+  SKILL.md suffices.
+- Decisions-vs-brainstorms boundary: `decisions/` records carry
+  peer-reviewable methodology calls; `brainstorms/` carry
+  decisions-pre-planning that may or may not graduate to
+  `decisions/`. Document this boundary in `brainstorm-mechanism.md`.
