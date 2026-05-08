@@ -107,7 +107,9 @@ cp -R /path/to/source-project/.claude/conventions/. /path/to/dest-project/.claud
 
 After substantive data analysis, write `insights/NN_<slug>.md` (3–8 evidence-based findings with concrete numbers) and append a row to `insights/INDEX.md`. The Stop hook fires only when uncommitted analysis artifacts exist (`output/0[0-9][a-z]?_*.{png,csv,meta.json}`, `methods/*.md`) and no new `insights/*.md` is staged.
 
-See `.claude/conventions/insights-logging.md` and `docs/insights-mechanism.md`.
+Projects carrying multiple parallel lines of inquiry — each with its own audience and deliverable target — may opt into a one-level subfolder layout: `insights/<theme>/NN_*.md` and `output/<theme>/NN_*`. Flat is the default; the hook accepts both shapes; no `themes.md` declaration is required.
+
+See `.claude/conventions/insights-logging.md`, `docs/insights-mechanism.md`, and `docs/theme-parallel-mechanism.md`.
 
 ### `script-header` + `analytical-commit-format`
 

@@ -9,7 +9,45 @@ that produces evidence (charts, panels, comparisons, regressions, decompositions
 - Numbering is **sequential across the whole project**, regardless of plan/phase.
   Use `ls insights/ | sort` to find the next free `NN`.
 - Index: `insights/INDEX.md` — one row per insight in a markdown table:
-  `| NN | [Title](NN_slug.md) | YYYY-MM-DD | source |`.
+  `| NN | [Title](NN_slug.md) | YYYY-MM-DD | source |` (add a `theme`
+  column if the project uses theme subfolders — see below).
+
+## Theme-parallel layout (opt-in)
+
+When a project carries multiple parallel lines of inquiry — each with
+its own audience and its own deliverable target — flat numbering can
+collide ("which theme is `07_` about?"). The opt-in alternative is
+a one-level subfolder per theme:
+
+```
+insights/
+├── INDEX.md
+├── 01_overall_macro_priors.md          # cross-cutting; lives at top level
+├── spatial-equilibrium/
+│   ├── 01_amenity_gradient_buenos_aires.md
+│   └── 02_within_metro_dispersion.md
+└── labor-markets/
+    └── 01_eph_panel_attrition.md
+```
+
+Rules:
+
+- **Flat is the default.** Single-theme projects, or projects in early
+  exploration, stay flat. Don't introduce subfolders preemptively.
+- **Themes are free-form.** No `themes.md` declaration, no upfront
+  enumeration. Use lowercase-snake-case (suggested, not enforced).
+  Add a theme by creating its folder; retire one by emptying it.
+- **Numbering can be per-theme or global.** Per-theme (`01_`, `02_`
+  inside each subfolder) is usually less friction; pick one shape
+  per project and stay consistent.
+- **Cross-cutting insights stay flat.** When a finding spans themes,
+  put it at `insights/NN_*.md` — don't force it into one theme's
+  folder.
+- **Hooks accept both shapes.** `check-insights.sh` globs flat and
+  subfolder paths; you can adopt or migrate gradually without
+  retrofitting.
+
+Rationale and tradeoffs: `docs/theme-parallel-mechanism.md`.
 
 ## Required structure
 
