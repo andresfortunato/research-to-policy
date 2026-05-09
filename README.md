@@ -18,6 +18,8 @@ r2p init
 
 If the project predates r2p — random scripts at the root, charts mixed with data, methodology buried in `README.md` and script docstrings, prior `CLAUDE.md` or `.cursorrules` content — run `/r2p-adopt` after `r2p init`. It walks the tree, classifies pre-existing files against framework slots (`raw/`, `output/`, `data/processed/`, `decisions/`, `insights/`, `project_conventions/`), reconciles any prior AI config, surfaces methodology calls hidden in unstructured locations as candidate `decisions/` records, and flags orphan analysis. Output is `ADOPTION_PROPOSAL.md` at project root. **Nothing is moved automatically** — you review the proposal section by section, execute the moves by hand, and commit after each. Run once per project, at adoption; for ongoing maintenance use `/research-cleanup`.
 
+The skill ships **dormant by default**: `r2p init` writes `"skillOverrides": {"r2p-adopt": "user-invocable-only"}` into `.claude/settings.json`, and the skill itself carries `disable-model-invocation: true` in its frontmatter. The combined effect — Claude can't auto-trigger it from natural-language prompts, and the description doesn't load into context across sessions (zero token cost when idle). You enable it on demand by typing `/r2p-adopt` in the slash menu; after adoption there is nothing to disable. Upgrading an existing project from an older r2p? `r2p init --upgrade` doesn't touch your `.claude/settings.json`, so add the `skillOverrides` block manually if you want the zero-context-cost layer. The frontmatter flag protects you against misfires either way.
+
 Once installed, a typical first session:
 
 ```text
@@ -95,7 +97,7 @@ User-invoked skills (`/<name>` in Claude Code):
 | `/wiki-lint` | After a batch of ingests | Flags orphans, contradictions, stale pages, page-budget violations |
 | `/scan-sources` | Refreshing tracked sources | Re-scrapes `sources/registry.yaml` entries due for refetch (delegates to `web-scraping`) |
 | `/research-cleanup` | Before a milestone or handoff | Project-wide orphan + intermediate proposal at `cleanup-proposal.md` (never deletes) |
-| `/r2p-adopt` | First-time adoption on a pre-framework project | One-shot audit + `ADOPTION_PROPOSAL.md`: file classification, CLAUDE.md/.claude reconciliation, methodology archaeology, orphan flag (never moves) |
+| `/r2p-adopt` | First-time adoption on a pre-framework project | One-shot audit + `ADOPTION_PROPOSAL.md`: file classification, CLAUDE.md/.claude reconciliation, methodology archaeology, orphan flag (never moves). **Dormant by default** — user-invocable only; no auto-trigger; zero context cost when idle |
 
 Background hooks (silent unless their condition holds):
 

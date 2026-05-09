@@ -2,7 +2,18 @@
 name: r2p-adopt
 description: Audit an existing, pre-framework research project and propose how to map it onto the research-to-policy structure — file classification (raw/output/scripts/decisions), CLAUDE.md and .claude/ reconciliation, methodology archaeology (extracting decisions from READMEs and script docstrings), and orphan detection. Use when the user says "adopt this framework", "onboard existing project", "/r2p-adopt", "migrate this messy project to r2p", "how do I apply r2p to this old project", or otherwise asks to bring an already-existing project under the framework. Produces a markdown proposal at `ADOPTION_PROPOSAL.md`; the researcher reviews and executes the moves manually. NEVER moves, deletes, or rewrites anything.
 allowed-tools: Read, Write, Bash, Glob, Grep
+disable-model-invocation: true
 ---
+
+<!--
+This skill is dormant by default. It only fires when the user explicitly types
+`/r2p-adopt`. Adoption is a one-shot transition; routing on natural-language
+prompts ("clean this up", "this is messy") would mis-fire on already-adopted
+projects. The seed `.claude/settings.json` also sets
+`skillOverrides: {"r2p-adopt": "user-invocable-only"}` so the description
+doesn't load into Claude's context across sessions — defense in depth.
+-->
+
 
 # r2p-adopt
 
