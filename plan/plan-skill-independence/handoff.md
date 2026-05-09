@@ -2,7 +2,7 @@
 
 **Status:** Phase 2 complete + verified. Phase 3 next (fresh session).
 **Date:** 2026-05-08
-**Last commit on plan branch:** `<TBD — refresh after Phase 2 commit lands>` (Phase 2). Phase 1 at `f449044`.
+**Last commit on plan branch:** `45b12da` (Phase 2). Phase 1 at `f449044`.
 
 ## Phase status
 
