@@ -1,4 +1,4 @@
-# research-to-policy
+# Research to Policy
 
 A Claude Code harness for **applied research projects** — applied development economics and policy research.
 
