@@ -22,7 +22,7 @@ and isolated — highest confidence, no architectural ripple.
 - `.claude/skills/web-scraping/` (new) — bundle our own web-scraping
   skill into the framework. Source: copy from `~/.claude/skills/web-scraping/`
   (the working version on this machine — `SKILL.md` + `references/`).
-  Symlinked into `~/.claude/skills/` by `scr init` like other global
+  Symlinked into `~/.claude/skills/` by `r2p init` like other global
   skills. Do NOT vendor the binary blob from `~/cordoba/docs/web-scraping.skill`.
 - `templates/deliverables/internal-research-memo/PROFILE.md` —
   add a paragraph endorsing dated `## Update: <date>` addendum
@@ -40,7 +40,7 @@ and isolated — highest confidence, no architectural ripple.
 
 ## Verification
 
-- Re-run `scr init` against a fresh empty dir. Result:
+- Re-run `r2p init` against a fresh empty dir. Result:
   `~/.claude/skills/web-scraping/` exists (symlinked).
 - `script-header.md` example block contains the new
   `Supersedes:` field as optional, with format
@@ -50,7 +50,7 @@ and isolated — highest confidence, no architectural ripple.
   usage. No `setwd("/home/...")` anywhere.
 - `internal-research-memo/PROFILE.md` "Success criteria" block
   names the addendum pattern explicitly.
-- `scr init --upgrade` against a v1 project: existing
+- `r2p init --upgrade` against a v1 project: existing
   `script-header.md` lands as `script-header.md.framework-new`
   sidecar (divergent), not overwritten. Researcher merges
   manually.

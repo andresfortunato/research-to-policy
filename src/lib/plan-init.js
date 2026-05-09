@@ -39,7 +39,7 @@ async function writeIfAbsent(dst, contents, label) {
 export async function planInit(slug) {
   if (!slug) {
     console.error('Error: slug is required.');
-    console.error('Usage: scr plan init <slug>');
+    console.error('Usage: r2p plan init <slug>');
     process.exit(1);
   }
 

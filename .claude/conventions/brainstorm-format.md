@@ -63,7 +63,7 @@ choices made in the brainstorm should graduate to `decisions/`.
 ## Handoff to the planning skill
 
 The brainstorming skill triggers **the planning skill** by name — agnostic
-about whose. scr does not ship its own planning skill in v1.1; it relies
+about whose. r2p does not ship its own planning skill in v1.1; it relies
 on the planning skill installed globally (typically from
 `super-claudio-code`). When the brainstorm is complete and the researcher
 says "go to planning", the brainstorming skill writes the summary file
@@ -123,7 +123,7 @@ and hands off — it does not write the plan itself.
 ## Provenance
 
 This convention codifies a gap surfaced by an audit of an applied-research
-project that ran without scr conventions: a long methodology essay had
+project that ran without r2p conventions: a long methodology essay had
 been written that *felt* like a plan but never produced one — implementation
 sessions kept stalling because the methodology calls hadn't actually been
 settled. The brainstorming skill closes that gap by making "settle the

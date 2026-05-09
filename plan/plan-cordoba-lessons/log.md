@@ -4,7 +4,7 @@
 
 - Diagnostic source: `~/cordoba` audit run during this conversation.
   ~22 R/Python scripts, ~4900 LOC, four parallel lines of inquiry,
-  no scr conventions installed. Surfaced 7+ framework gaps and 3
+  no r2p conventions installed. Surfaced 7+ framework gaps and 3
   scc components worth porting.
 - Brainstorm consumed in-conversation (no separate
   `brainstorms/<topic>.md` written — discussion was tight enough
@@ -25,7 +25,7 @@
   diagnostic specificity.
 - Scope split confirmed: this plan = improve framework based on
   cordoba lessons. A second plan (post-v1.1) = retrofit/triage
-  workflow for onboarding scr into existing disorganized projects.
+  workflow for onboarding r2p into existing disorganized projects.
 - 5 phases initially, strict sequential order: small wins →
   theme-parallel → brainstorming → learning-capture+hooks → plan
   archival. Theme-parallel intentionally landed before the new

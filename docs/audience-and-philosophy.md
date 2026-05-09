@@ -2,7 +2,7 @@
 
 This document is for two readers:
 
-1. **Researchers evaluating super-claudio-research** for their own engagement — what's the framework actually opinionated about, and is it aligned with how you want to work?
+1. **Researchers evaluating research-to-policy** for their own engagement — what's the framework actually opinionated about, and is it aligned with how you want to work?
 2. **Contributors extending it** — every new convention, hook, skill, or template needs to fit the constitution below. If a proposed addition violates one of these principles, it is the wrong addition (or the principle needs to be re-debated explicitly, not silently bypassed).
 
 The framework is small on purpose. Each piece earns its place. The principles below are how we keep it that way.

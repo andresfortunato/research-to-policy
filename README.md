@@ -1,4 +1,4 @@
-# super-claudio-research
+# research-to-policy
 
 A Claude Code harness for **research projects** — applied economics, data analysis, and policy research.
 
@@ -7,12 +7,12 @@ The default Claude Code experience is built for software engineering. Research p
 ## Quickstart
 
 ```bash
-npm install -g github:andresfortunato/super-claudio-research
+npm install -g github:andresfortunato/research-to-policy
 cd /path/to/your/research-project
-scr init
+r2p init
 ```
 
-`scr init` is idempotent — safe to re-run. It seeds the project with `.claude/{conventions,hooks}/`, `.claude/settings.json`, scaffolding directories (`insights/`, `wiki/`, `methods/`, `decisions/`, `learnings/`, `archive/`, `deliverables/`, etc.), `CLAUDE.md`, and a framework block in `.gitignore`. Skills and agents are global — symlinked into `~/.claude/{skills,agents}/` so an upgrade lands everywhere automatically. Existing files are never overwritten.
+`r2p init` is idempotent — safe to re-run. It seeds the project with `.claude/{conventions,hooks}/`, `.claude/settings.json`, scaffolding directories (`insights/`, `wiki/`, `methods/`, `decisions/`, `learnings/`, `archive/`, `deliverables/`, etc.), `CLAUDE.md`, and a framework block in `.gitignore`. Skills and agents are global — symlinked into `~/.claude/{skills,agents}/` so an upgrade lands everywhere automatically. Existing files are never overwritten.
 
 Once installed, a typical first session:
 
@@ -48,7 +48,7 @@ Two cross-cutting affordances run alongside the workflow. **Learnings** — gotc
 
 ### Scaffolding and project structure
 
-What `scr init` lays down in your research project:
+What `r2p init` lays down in your research project:
 
 ```text
 your-research-project/
@@ -81,7 +81,7 @@ User-invoked skills (`/<name>` in Claude Code):
 | Skill | When | What it does |
 |---|---|---|
 | `/brainstorming` | Before planning a methodology call | Three-phase exchange to settle a research-design decision; output → `brainstorms/<topic>.md` |
-| `/planning` | After brainstorm | Produces `plan/plan-<slug>/{plan.md, phases/phase-N.md}`; pairs with the `scr plan init <slug>` CLI subcommand for scaffolding |
+| `/planning` | After brainstorm | Produces `plan/plan-<slug>/{plan.md, phases/phase-N.md}`; pairs with the `r2p plan init <slug>` CLI subcommand for scaffolding |
 | `/implementation` | Executing a plan | Reads plan + handoff, works the phases, rewrites handoff at session end, drives `.completed`-driven archival |
 | `/agent-teams` | Parallelizing 2+ independent units | Orchestrates teammate scope, isolation, output collection — methodology comparisons, robustness sweeps, multi-source ingest |
 | `/learning-capture` | Captured a gotcha or insight | Files `learnings/<slug>.md` + adds a row to `learnings/index.yaml` |
@@ -138,9 +138,9 @@ The framework's own internals — useful if you're proposing a new convention, h
 │   ├── check-insights.sh              ← Stop hook: archival tripwire + insights tripwire
 │   ├── retrieve-learnings.sh          ← UserPromptSubmit: trigger-keyword learning retrieval
 │   └── precompact-handoff.sh          ← PreCompact: handoff refresh nudge
-├── agents/                            ← symlinked into ~/.claude/agents/ globally by `scr init`
+├── agents/                            ← symlinked into ~/.claude/agents/ globally by `r2p init`
 │   └── archivist.md                   ← per-plan archival on .completed
-├── skills/                            ← symlinked into ~/.claude/skills/ globally by `scr init`
+├── skills/                            ← symlinked into ~/.claude/skills/ globally by `r2p init`
 │   ├── brainstorming/                 ← decisions-pre-planning conversation
 │   ├── planning/                      ← multi-phase research plan authoring
 │   ├── implementation/                ← phase-by-phase execution + handoff lifecycle
@@ -172,7 +172,7 @@ docs/
 ├── methods-mechanism.md
 └── project-conventions-mechanism.md
 
-templates/                              ← seeds installed by `scr init`
+templates/                              ← seeds installed by `r2p init`
 ├── CLAUDE.md.template                 ← short CLAUDE.md scaffold with v1.1 pointer blocks
 ├── insights/INDEX.md                  ← empty INDEX seed
 ├── wiki/                              ← SCHEMA.md + README.md + index.md + log.md
@@ -189,7 +189,7 @@ templates/                              ← seeds installed by `scr init`
 └── deliverables/                      ← three profiles, each PROFILE.md + template.md
 ```
 
-Hooks are pure bash + standard Unix tools. The `scr` CLI requires Node ≥18 (one runtime dep: `commander`); everything `scr init` installs into a target project is plain markdown, JSON, YAML, or shell.
+Hooks are pure bash + standard Unix tools. The `r2p` CLI requires Node ≥18 (one runtime dep: `commander`); everything `r2p init` installs into a target project is plain markdown, JSON, YAML, or shell.
 
 ## Updates
 
@@ -197,16 +197,16 @@ Pull framework changes into an existing project:
 
 ```bash
 cd /path/to/your/research-project
-scr init --upgrade
+r2p init --upgrade
 ```
 
 Scaffold a new plan directory:
 
 ```bash
-scr plan init <slug>      # creates plan/plan-<slug>/{plan.md, handoff.md, log.md, phases/, context/}
+r2p plan init <slug>      # creates plan/plan-<slug>/{plan.md, handoff.md, log.md, phases/, context/}
 ```
 
-`scr plan init` is idempotent — re-running on an existing slug skips files that already exist. The planning skill recommends running it before drafting `plan.md`.
+`r2p plan init` is idempotent — re-running on an existing slug skips files that already exist. The planning skill recommends running it before drafting `plan.md`.
 
 For each framework convention or template seed, `--upgrade` either copies it in (if absent), silently skips it (if byte-identical), or writes a `<file>.framework-new` sidecar (if divergent — your version stays put). Review sidecars with your preferred diff tool and merge manually. `CLAUDE.md`, `insights/INDEX.md`, `wiki/index.md`, `wiki/log.md`, `sources/registry.yaml`, `archive/index.md`, and other user-curated seeds are left alone.
 
@@ -220,7 +220,7 @@ cp -R /path/to/source-project/.claude/conventions/. /path/to/dest-project/.claud
 
 Project-development backlog (v1.1+ items, open design questions) lives in `TODO.md` at the framework root.
 
-If you also have super-claudio-code (scc) installed, both frameworks register their skills as symlinks under `~/.claude/skills/`. Last-installer-wins: running `scr init` after `scc init` makes scr's skills (planning, implementation, agent-teams) authoritative; vice versa makes scc's authoritative. Re-run whichever framework you want active. See `docs/skill-independence-mechanism.md` for the rationale behind vendoring rather than depending on scc.
+If you also have super-claudio-code (scc) installed, both frameworks register their skills as symlinks under `~/.claude/skills/`. Last-installer-wins: running `r2p init` after `scc init` makes r2p's skills (planning, implementation, agent-teams) authoritative; vice versa makes scc's authoritative. Re-run whichever framework you want active. See `docs/skill-independence-mechanism.md` for the rationale behind vendoring rather than depending on scc.
 
 ## Design philosophy
 

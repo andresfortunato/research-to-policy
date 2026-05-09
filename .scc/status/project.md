@@ -1,4 +1,4 @@
-# super-claudio-research
+# research-to-policy
 
 A Claude Code harness for applied empirical, data-analytical, and policy research — adapts scc's planning/handoff/verification discipline to the realities of policy research and applied development economics.
 

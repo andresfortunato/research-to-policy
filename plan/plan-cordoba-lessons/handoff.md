@@ -58,7 +58,7 @@ considers a CLAUDE.md edit (this plan changed scaffolding
 considerably — a v1.1 architecture note may be appropriate), and
 deletes the plan directory.
 
-After archival, scr v1.1 is ready for the May 2026 Córdoba/Cambodia
+After archival, r2p v1.1 is ready for the May 2026 Córdoba/Cambodia
 kickoff.
 
 ## Phase 6 verification log
@@ -74,19 +74,19 @@ kickoff.
 | Tool/skill table covers 12 conventions | ✓ | insights-logging, script-header, analytical-commit-format, handoff-format, plan-structure, decision-records, brainstorm-format, learning-capture, methods, project-conventions, source-registry, data-sources |
 | No prose duplication between README and convention files | ✓ | Each convention row in the table is a one-liner; full prose lives in `.claude/conventions/<name>.md` (source of truth). README explicitly states this. |
 | Eight-principle constitution preserved | ✓ | Four-principle numbered list verbatim at bottom + eight-name parenthetical + cross-link to `docs/audience-and-philosophy.md` |
-| Quickstart bash blocks executable as written | ✓ | Three blocks: `npm install -g …`, `scr init`, `scr init --upgrade`. Identical commands to v1; no stale flags. The "tiny worked example" is plain-prose `/brainstorming` → `/planning` → `/implementation` flow, no executable code beyond `touch …/.completed`. |
+| Quickstart bash blocks executable as written | ✓ | Three blocks: `npm install -g …`, `r2p init`, `r2p init --upgrade`. Identical commands to v1; no stale flags. The "tiny worked example" is plain-prose `/brainstorming` → `/planning` → `/implementation` flow, no executable code beyond `touch …/.completed`. |
 | Tactical edits from Phases 1–5 absorbed | ✓ | Hooks tree (3 entries), agents directory, conventions list (12), archive/ + learnings/ + brainstorms/ template directories — all present in the rewrite. |
 | First-time-reader test (researcher cold-read → working install + first insight) | ✓ | Read top-down from a researcher's perspective: install (3 commands), workflow narrative names the lifecycle, scaffolding map shows where things go, tools table is one-glance reference. The "first session" worked example demonstrates `/brainstorming` → `/planning` → `/implementation` → first insight + first script-header block. |
 | Design philosophy at bottom (load-bearing for contributors, not first-read) | ✓ | Section now last (line 211); preceded by a short note that researchers can skip it; full content preserved with no edits. |
 
 ## Surprises
 
-- **`/planning` and `/implementation` are scc-supplied, not scr-supplied.**
-  The plan.md decisions section flagged this ("scr relies on scc's
+- **`/planning` and `/implementation` are scc-supplied, not r2p-supplied.**
+  The plan.md decisions section flagged this ("r2p relies on scc's
   planning skill — installed globally"), but the README needed to make
   it visible to researchers. Solution: skill-table rows for both
   carry `*(scc, global)*` annotation. Without that, a researcher
-  searching the scr `.claude/skills/` directory wouldn't find them
+  searching the r2p `.claude/skills/` directory wouldn't find them
   and might think the workflow is broken. The annotation makes the
   layered-install model explicit on first read.
 - **`brainstorms/` is gitignored, but `templates/brainstorms/README.md`
@@ -100,7 +100,7 @@ kickoff.
   README enumerated 9 skill rows in the v1 tree (incl. `web-scraping`),
   but plan.md's decisions section explicitly counted "Skill count
   after v1.1: 8". The rewrite handles this by listing 8 user-invoked
-  scr-supplied skills in the table + `/planning` and `/implementation`
+  r2p-supplied skills in the table + `/planning` and `/implementation`
   as scc-supplied + `web-scraping` as a delegated-to utility (mentioned
   in the `/scan-sources` row, not as a separate user-invoked entry).
   All present in the tree under "What's in here" for completeness.

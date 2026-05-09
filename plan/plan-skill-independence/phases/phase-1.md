@@ -4,7 +4,7 @@ Read `plan.md` for the goal, constraints, decisions, file manifest, and repo con
 
 ## Intent
 
-Copy `~/github/super-claudio-code/skills/planning/{SKILL.md, references/multi-session.md}` into `.claude/skills/planning/`, adapt language and cross-references to the research domain. The bones of the skill (intent over implementation, constraints over instructions, decisions as records, tasks as checkpoints, context budget, multi-session design) are domain-neutral and stay verbatim. The adaptations are surgical: swap SE examples for research examples, swap SE verification language for domain-shaped verification, swap scc-specific paths/commands/cross-references for scr equivalents.
+Copy `~/github/super-claudio-code/skills/planning/{SKILL.md, references/multi-session.md}` into `.claude/skills/planning/`, adapt language and cross-references to the research domain. The bones of the skill (intent over implementation, constraints over instructions, decisions as records, tasks as checkpoints, context budget, multi-session design) are domain-neutral and stay verbatim. The adaptations are surgical: swap SE examples for research examples, swap SE verification language for domain-shaped verification, swap scc-specific paths/commands/cross-references for r2p equivalents.
 
 ## Files
 
@@ -15,8 +15,8 @@ Copy `~/github/super-claudio-code/skills/planning/{SKILL.md, references/multi-se
 
 ### Mechanical swaps (no judgment)
 
-- Project-identity bash block at the top: `cat .scc/status/project.md` → `cat CLAUDE.md` (researcher's project-orientation file, seeded by `scr init`). Adjust the warning text accordingly: instead of "create `.scc/status/project.md`", say "ensure `CLAUDE.md` exists at project root — `scr init` seeds it from the framework template."
-- Plan Setup section: replace `Run \`scc plan init [name]\`` with `Run \`scr plan init <slug>\` (added in Phase 3 of plan-skill-independence) — or scaffold the directory manually with \`mkdir -p plan/plan-<slug>/{phases,context}\`.`
+- Project-identity bash block at the top: `cat .scc/status/project.md` → `cat CLAUDE.md` (researcher's project-orientation file, seeded by `r2p init`). Adjust the warning text accordingly: instead of "create `.scc/status/project.md`", say "ensure `CLAUDE.md` exists at project root — `r2p init` seeds it from the framework template."
+- Plan Setup section: replace `Run \`scc plan init [name]\`` with `Run \`r2p plan init <slug>\` (added in Phase 3 of plan-skill-independence) — or scaffold the directory manually with \`mkdir -p plan/plan-<slug>/{phases,context}\`.`
 - Drop `tdd` skill cross-reference; replace with `/verify` cross-reference and a pointer to `methods.md`'s "diagnostic counts" pattern + `decisions/` records.
 - Frontmatter `description:` field: tighten the trigger language to research-domain ("research-design plans, methodology calls, multi-phase analyses").
 
@@ -33,7 +33,7 @@ Copy `~/github/super-claudio-code/skills/planning/{SKILL.md, references/multi-se
 
 ### Cross-references to add
 
-The vendored skill should explicitly cross-reference scr's existing conventions when the research adaptation is load-bearing:
+The vendored skill should explicitly cross-reference r2p's existing conventions when the research adaptation is load-bearing:
 
 - "Decisions Made" section → cross-link `decision-records.md` (when a brainstorm decision graduates to a peer-reviewable methodology call, file at `decisions/YYYY-MM-DD_<slug>.md`).
 - "Verification" — cross-link `plan-structure-mechanism.md` ("verification is domain-shaped, not code-shaped").
@@ -43,14 +43,14 @@ The vendored skill should explicitly cross-reference scr's existing conventions 
 
 Light adaptation: skim for code-shaped language. Specific fixes likely needed:
 - Session-scoping examples reframed for research (a 4-phase identification analysis spanning 3 sessions, not a frontend migration).
-- Handoff prose stays mostly verbatim (handoff-format.md and scr's existing handoff convention align with scc's protocol already).
+- Handoff prose stays mostly verbatim (handoff-format.md and r2p's existing handoff convention align with scc's protocol already).
 
 ## Verification
 
 - `wc -l .claude/skills/planning/SKILL.md` ≈ 150 ± 20 (preserves scc's structure; adaptations don't add bulk).
 - Frontmatter `description:` mentions research/methodology/analysis explicitly.
 - `grep -E "\.scc/|WebsiteLayout|App\.tsx|tdd skill|scc plan init|i18n provider"` against the new SKILL.md → 0 matches.
-- Symlink: a fresh scratch project + `scr init` results in `~/.claude/skills/planning/` → `<scr-repo>/.claude/skills/planning/`. (No installer change needed; `installGlobals()` already walks `.claude/skills/`.)
+- Symlink: a fresh scratch project + `r2p init` results in `~/.claude/skills/planning/` → `<r2p-repo>/.claude/skills/planning/`. (No installer change needed; `installGlobals()` already walks `.claude/skills/`.)
 - Brainstorm-handoff contract preserved: SKILL.md still has a "Consuming brainstorming output" section that names the five-section schema (Problem / Decisions / Research / Open Questions / Constraints).
 - Project-identity bash block reads `CLAUDE.md`, not `.scc/status/project.md`.
 - Examples throughout are research-shaped (no JSX, no npm install, no test runners). Smoke-test: `grep -iE "react|jsx|frontend|backend|API endpoint|component"` → 0 matches. (If a generic word like "API" survives in a non-software context, that's fine; the grep is a smoke-check, not a hard gate.)

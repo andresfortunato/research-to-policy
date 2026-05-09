@@ -10,13 +10,13 @@
 |---|---|---|---|
 | 1 | Vendor + adapt `planning` | ✅ done | `f449044`. SKILL.md (163 lines) + references/multi-session.md (95 lines). |
 | 2 | Vendor + adapt `implementation` | ✅ done | `45b12da`. SKILL.md (175 lines) + references/escalation-reference.md (90 lines). |
-| 3 | Vendor + adapt `agent-teams` + ship `scr plan init` + README pass | ✅ done | `1a99830`. SKILL.md (161 lines) + plan-init.js + cli wiring + plan.md template + skill-independence-mechanism.md (59 lines) + README updates + TODO bump. cordoba-lessons `.completed` re-touched. |
+| 3 | Vendor + adapt `agent-teams` + ship `r2p plan init` + README pass | ✅ done | `1a99830`. SKILL.md (161 lines) + plan-init.js + cli wiring + plan.md template + skill-independence-mechanism.md (59 lines) + README updates + TODO bump. cordoba-lessons `.completed` re-touched. |
 
 ## Where we are
 
-Three scc skills vendored and research-adapted. The `scr plan init <slug>` CLI subcommand ships and is smoke-tested. README drops the `*(scc, global)*` annotations, adds the agent-teams row, the scr plan init block in Updates, and a last-installer-wins precedence note pointing at the new mechanism doc. TODO.md acknowledges v1.1 (cordoba-lessons) and v1.2 (skill-independence) as shipped.
+Three scc skills vendored and research-adapted. The `r2p plan init <slug>` CLI subcommand ships and is smoke-tested. README drops the `*(scc, global)*` annotations, adds the agent-teams row, the r2p plan init block in Updates, and a last-installer-wins precedence note pointing at the new mechanism doc. TODO.md acknowledges v1.1 (cordoba-lessons) and v1.2 (skill-independence) as shipped.
 
-scr is now genuinely standalone — `npm install -g super-claudio-research` + `scr init` produces the full workflow surface (brainstorming → planning → implementation → archival, plus the parallel-team orchestration skill). No scc co-install required.
+r2p is now genuinely standalone — `npm install -g research-to-policy` + `r2p init` produces the full workflow surface (brainstorming → planning → implementation → archival, plus the parallel-team orchestration skill). No scc co-install required.
 
 ## Phase 3 verification log
 
@@ -26,11 +26,11 @@ scr is now genuinely standalone — `npm install -g super-claudio-research` + `s
 | Frontmatter mentions research-domain triggers | ✓ | "research project", "parallelize analysis, robustness checks, methodology comparisons, multi-source ingest" |
 | scc-residue grep on agent-teams (`.scc/`, `tdd skill`, `context-monitor hook`, `cleanup subagent`, `cleanup agent`, `output/[task-name]`) → 0 matches | ✓ | grep exit 1 |
 | Software-residue smoke (`react`, `jsx`, `frontend`, `backend`, `API endpoint`, `UserContext`, `AuthContext`) → 0 matches | ✓ | grep exit 1 |
-| `scr plan init <slug>` first run scaffolds plan dir | ✓ | `plan/plan-test-foo/{plan.md, handoff.md, log.md, phases/, context/}` created in /tmp/scr-plan-init-smoke |
+| `r2p plan init <slug>` first run scaffolds plan dir | ✓ | `plan/plan-test-foo/{plan.md, handoff.md, log.md, phases/, context/}` created in /tmp/r2p-plan-init-smoke |
 | Idempotent re-run | ✓ | `~ plan/plan-test-foo/<file> (exists, skipping)` for each file on second invocation |
-| Leading `plan-` prefix stripped | ✓ | `scr plan init plan-test-bar` produced `plan/plan-test-bar/` (no `plan-plan-` doubling) |
-| Slug validation rejects invalid input | ✓ | `scr plan init Test_Bad` exited 1 with "must be lowercase letters, digits, or hyphens, starting with a letter" |
-| `scr --help` and nested `scr plan --help` / `scr plan init --help` show subcommand | ✓ | All three help screens render correctly via commander nested-command pattern |
+| Leading `plan-` prefix stripped | ✓ | `r2p plan init plan-test-bar` produced `plan/plan-test-bar/` (no `plan-plan-` doubling) |
+| Slug validation rejects invalid input | ✓ | `r2p plan init Test_Bad` exited 1 with "must be lowercase letters, digits, or hyphens, starting with a letter" |
+| `r2p --help` and nested `r2p plan --help` / `r2p plan init --help` show subcommand | ✓ | All three help screens render correctly via commander nested-command pattern |
 | README skill table: `grep "scc, global"` → 0 matches | ✓ | `grep -n "scc, global" README.md` exit 1 |
 | README skill table includes `/agent-teams` row | ✓ | line 86 of README.md |
 | README `.claude/skills/` tree shows all 12 dirs | ✓ | brainstorming, planning, implementation, agent-teams, learning-capture, verify, deliverable-review, wiki-ingest, wiki-lint, research-cleanup, scan-sources, web-scraping |
@@ -39,7 +39,7 @@ scr is now genuinely standalone — `npm install -g super-claudio-research` + `s
 | `templates/plan/plan.md` seed exists | ✓ | 25 lines, all required sections (Goal, Constraints, Decisions Made, File Manifest, Repo Context, Phases, Phase Order) |
 | TODO.md updated with shipped items | ✓ | "Shipped" section names v1.1 + v1.2 |
 | cordoba-lessons `.completed` re-touched | ✓ | `plan/plan-cordoba-lessons/.completed` exists, included in commit `1a99830` |
-| Symlink mechanism wired | ✓ | All three new skill dirs (planning, implementation, agent-teams) live under `.claude/skills/`; `installGlobals()` will pick them up at next `scr init` |
+| Symlink mechanism wired | ✓ | All three new skill dirs (planning, implementation, agent-teams) live under `.claude/skills/`; `installGlobals()` will pick them up at next `r2p init` |
 
 ## What's next
 
@@ -69,10 +69,10 @@ When the archivist fires on either plan:
 
 ## Surprises
 
-- **Distribution-clean test surfaced a clearer success criterion.** Mid-Phase-2, the user clarified the goal: "we just don't want other users to load scc via scr." The vendored skills already satisfied that — the user's own global symlinks pointing at scc are not a problem because they're personal-environment state, not what new installers will inherit. The README precedence note documents this for users with both frameworks, but the framework itself is distribution-independent: a fresh `npm install -g super-claudio-research` + `scr init` symlinks ONLY scr's `.claude/skills/` and `.claude/agents/`, never reaching for scc. Verified by reading `src/lib/install-globals.js`.
+- **Distribution-clean test surfaced a clearer success criterion.** Mid-Phase-2, the user clarified the goal: "we just don't want other users to load scc via r2p." The vendored skills already satisfied that — the user's own global symlinks pointing at scc are not a problem because they're personal-environment state, not what new installers will inherit. The README precedence note documents this for users with both frameworks, but the framework itself is distribution-independent: a fresh `npm install -g research-to-policy` + `r2p init` symlinks ONLY r2p's `.claude/skills/` and `.claude/agents/`, never reaching for scc. Verified by reading `src/lib/install-globals.js`.
 - **agent-teams skill needed minimal adaptation.** scc's agent-teams skill is closer to domain-neutral than planning or implementation — orchestration, file ownership, output collection, and quality gates are framework-shaped, not language-shaped. The research adaptations were narrower than expected: scratch/[task-name]/ swap, examples reframed (parallel deflators / robustness / per-country panels / multi-source ingest), `.scc/status/` step dropped from lead consolidation. The bones are unchanged; the surgical-not-architectural adaptation philosophy from Phase 1 carried through cleanly.
 - **`templates/plan/plan.md` didn't exist.** Phase 3 spec flagged this as a possibility ("If `templates/plan/plan.md` doesn't exist, this phase adds it as a minimal seed"). Confirmed at the start of Phase 3 — `templates/plan/` was missing entirely. The seed is 25 lines, mirrors `plan/plan-skill-independence/plan.md`'s structure (Goal / Constraints / Decisions Made / File Manifest / Repo Context / Phases / Phase Order).
-- **CLI uses commander's nested-command pattern**, not flat `program.command('plan-init <slug>')`. Slightly more verbose to wire (three .command() calls instead of one), but produces clean help output: `scr --help` shows `init` and `plan` as top-level commands; `scr plan --help` shows `init` as the only subcommand. Future commands like `scr plan list` or `scr plan archive` slot in cleanly without flag explosion.
+- **CLI uses commander's nested-command pattern**, not flat `program.command('plan-init <slug>')`. Slightly more verbose to wire (three .command() calls instead of one), but produces clean help output: `r2p --help` shows `init` and `plan` as top-level commands; `r2p plan --help` shows `init` as the only subcommand. Future commands like `r2p plan list` or `r2p plan archive` slot in cleanly without flag explosion.
 
 ## What didn't work
 

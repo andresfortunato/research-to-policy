@@ -35,7 +35,7 @@ const SCAFFOLDING_DIRS = [
 // Gitignore block emitted into target projects. Diverges from install.sh's
 // version: no !.claude/skills/ or !.claude/skills/** entries — those are
 // obsolete now that skills live in ~/.claude/skills/ globally.
-const GITIGNORE_BLOCK = `# super-claudio-research framework — share scaffolding, hide local state
+const GITIGNORE_BLOCK = `# research-to-policy framework — share scaffolding, hide local state
 .claude/*
 !.claude/conventions/
 !.claude/conventions/**
@@ -105,7 +105,7 @@ async function isFrameworkRepo(target) {
   if (!(await fileExists(pkgPath))) return false;
   try {
     const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
-    return pkg.name === 'super-claudio-research';
+    return pkg.name === 'research-to-policy';
   } catch {
     return false;
   }
@@ -113,12 +113,12 @@ async function isFrameworkRepo(target) {
 
 export async function installProject(target) {
   if (await isFrameworkRepo(target)) {
-    console.log('Refusing to run scr init against the framework repo itself.');
-    console.log('  scr init is for target research projects, not super-claudio-research.');
+    console.log('Refusing to run r2p init against the framework repo itself.');
+    console.log('  r2p init is for target research projects, not research-to-policy.');
     return false;
   }
 
-  console.log(`Installing super-claudio-research into: ${target}`);
+  console.log(`Installing research-to-policy into: ${target}`);
 
   // 1. Conventions and hooks. Skills mirror is gone — Phase 3 handles globals.
   await mirrorDir(
@@ -234,7 +234,7 @@ export async function installProject(target) {
   const gitignorePath = join(target, '.gitignore');
   if (await fileExists(gitignorePath)) {
     const existing = await readFile(gitignorePath, 'utf-8');
-    if (existing.includes('super-claudio-research framework')) {
+    if (existing.includes('research-to-policy framework')) {
       console.log(
         '  ~ .gitignore (framework block already present — review manually if upgrading from an older install)',
       );

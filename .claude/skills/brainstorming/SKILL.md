@@ -82,7 +82,7 @@ When the brainstorming was about a piece of analysis the researcher wants to bui
 
 **Example**: "I want to decompose Argentina's productivity slowdown by sector" → explore PWT rgdpe vs rgdpo → research how Diao-McMillan and other decompositions handle the comparable cases → decide on rgdpe with a one-paragraph robustness note → trigger the planning skill with decisions in hand.
 
-Write the summary to `brainstorms/<topic>.md` (directory created by `scr init`), then trigger the planning skill. The summary becomes the decisions input — the planning skill reads it and incorporates the decisions rather than re-debating them.
+Write the summary to `brainstorms/<topic>.md` (directory created by `r2p init`), then trigger the planning skill. The summary becomes the decisions input — the planning skill reads it and incorporates the decisions rather than re-debating them.
 
 For projects using the opt-in theme-parallel layout (see `.claude/conventions/insights-logging.md`), brainstorms tied to a specific theme may live at `brainstorms/<theme>/<topic>.md`. Cross-cutting brainstorms stay flat. One sentence; don't over-engineer this.
 

@@ -9,7 +9,7 @@ Rewrite `README.md` for the audience that matters at the May 2026
 kickoff: applied researchers, not framework contributors. The
 current README reads as a constitution-and-component-catalogue
 (design principles up front, every convention/skill explained in
-turn). A researcher installing scr for the first time should land
+turn). A researcher installing r2p for the first time should land
 on quickstart, see the workflow narrative (brainstorming → planning
 → implementation, with handoffs), see the scaffolding, and see the
 tool reference — *before* the design philosophy. Ships last because
@@ -27,7 +27,7 @@ rewriting against a moving target wastes effort.
 1. **Intro summary** — kept from current README; sets up "Claude
    Code is for software engineers; research has different
    rhythms; here's the harness that adapts it."
-2. **Quickstart** — install via npm (existing flow), `scr init`
+2. **Quickstart** — install via npm (existing flow), `r2p init`
    in a research project, run a tiny worked example
    (`/brainstorming` → `/planning` → first analysis script
    with header → first insight doc). One-screen, copy-pasteable.
@@ -41,7 +41,7 @@ rewriting against a moving target wastes effort.
      the insights-logging convention. Plain prose, no
      constitution language.
    - **Scaffolding and project structure.** Annotated tree
-     showing what `scr init` lays down. Maps each folder to
+     showing what `r2p init` lays down. Maps each folder to
      its purpose in plain English (`insights/` = "evidence-based
      findings"; `decisions/` = "methodology calls you'd defend
      in peer review"; `methods/` = "operational rules with
@@ -59,7 +59,7 @@ rewriting against a moving target wastes effort.
    the framework's own internals."
 5. **Updates.** A short section pointing at git tags / release
    notes / TODO.md. Where to find changes between versions;
-   how to upgrade an existing project (`scr init --upgrade`
+   how to upgrade an existing project (`r2p init --upgrade`
    flow, sidecars, manual merge).
 6. **Design philosophy.** Moved to the bottom. The
    eight-principle constitution (silent-by-default,
@@ -70,7 +70,7 @@ rewriting against a moving target wastes effort.
 
 ## Verification
 
-- First-time-reader test: a researcher unfamiliar with scr
+- First-time-reader test: a researcher unfamiliar with r2p
   can read top-down and reach a working install + first
   insight doc within ~10 minutes. Tested by reading the
   rewrite cold.

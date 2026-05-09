@@ -31,7 +31,7 @@ boundaries were left implicit:
   `.claude/conventions/methods.md`.
 - **`.claude/conventions/<name>.md`** documents *framework-shared
   protocols* — the same set of files lives in every project that
-  installs super-claudio-research. `project_conventions/` is
+  installs research-to-policy. `project_conventions/` is
   the *project-specific* counterpart: project-scoped style and
   process rules that the framework deliberately does not
   prescribe.

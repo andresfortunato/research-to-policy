@@ -209,7 +209,7 @@ visualization, writing voice, slide design, naming, or asks
 
 ### 2. The templates (`templates/project_conventions/{INDEX.md,README.md,EXAMPLE_visualization.md}`)
 
-Seeded by `scr init` into target projects.
+Seeded by `r2p init` into target projects.
 
 - `INDEX.md` — empty quick-nav with one example row pointing at
   `EXAMPLE_visualization.md`, plus the "how to add a convention"
