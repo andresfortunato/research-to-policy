@@ -1,8 +1,17 @@
 # research-to-policy
 
-A Claude Code harness for **research projects** — applied economics, data analysis, and policy research.
+A Claude Code harness for **applied research projects** — applied development economics and policy research.
 
-The default Claude Code experience is built for software engineering. Research projects have different rhythms: long multi-session plans, evidence accumulation across phases, the need to remember what was *learned* (not just what was *built*), and a constant temptation to over-produce charts without distilling findings. This framework adds the lightweight conventions and hooks that make Claude Code work for that flow.
+The default Claude Code experience is built for software engineering. Research projects have different rhythms: long multi-session plans, evidence accumulation across phases, the need to remember what was *learned* (not just what was *built*), and a constant temptation to over-produce charts without distilling findings. This framework adds the lightweight conventions and hooks that make Claude Code work for that flow. The workflow is focused on:
+
+- Planning calibrated for the iterative reality of research — deliberated up front, not over-specified
+- Context management so that we avoid context rot and codebase re-exploration every time
+- Multi-session orchestration so that we don't worry about referencing files or summaries any more
+- Automated learning to take notes of relevant challenges or solutions
+- Verification before publishing — every artifact and deliverable gets a domain-aware sanity check, not a CI-style green-light test
+- Reproducibility — analytical artifacts trace back to the script and inputs that made them, instead of disappearing into undocumented one-off runs
+- Analytical structure that separates raw sources from analysis, and exploration from findings, so the project doesn't collapse into an undifferentiated dump of scripts and PNGs
+
 
 ## Quickstart
 
@@ -16,9 +25,7 @@ r2p init
 
 ### Adopting r2p in an existing, disorganized project
 
-If the project predates r2p — random scripts at the root, charts mixed with data, methodology buried in `README.md` and script docstrings, prior `CLAUDE.md` or `.cursorrules` content — run `/r2p-adopt` after `r2p init`. It walks the tree, classifies pre-existing files against framework slots (`raw/`, `output/`, `data/processed/`, `decisions/`, `insights/`, `project_conventions/`), reconciles any prior AI config, surfaces methodology calls hidden in unstructured locations as candidate `decisions/` records, and flags orphan analysis. Output is `ADOPTION_PROPOSAL.md` at project root. **Nothing is moved automatically** — you review the proposal section by section, execute the moves by hand, and commit after each. Run once per project, at adoption; for ongoing maintenance use `/research-cleanup`.
-
-The skill ships **dormant by default**: `r2p init` writes `"skillOverrides": {"r2p-adopt": "user-invocable-only"}` into `.claude/settings.json`, and the skill itself carries `disable-model-invocation: true` in its frontmatter. The combined effect — Claude can't auto-trigger it from natural-language prompts, and the description doesn't load into context across sessions (zero token cost when idle). You enable it on demand by typing `/r2p-adopt` in the slash menu; after adoption there is nothing to disable. Upgrading an existing project from an older r2p? `r2p init --upgrade` doesn't touch your `.claude/settings.json`, so add the `skillOverrides` block manually if you want the zero-context-cost layer. The frontmatter flag protects you against misfires either way.
+If the project predates r2p — random scripts at the root, charts mixed with data, methodology buried in `README.md` and script docstrings, prior `CLAUDE.md` or `.cursorrules` content — run `/r2p-adopt` after `r2p init`. `/r2p-adopt` walks the tree, classifies pre-existing files against framework slots (`raw/`, `output/`, `data/processed/`, `decisions/`, `insights/`, `project_conventions/`), reconciles any prior AI config, surfaces methodology calls hidden in unstructured locations as candidate `decisions/` records, and flags orphan analysis. It's dormant by default, to be used only once. Output is `ADOPTION_PROPOSAL.md` at project root. **Nothing is moved automatically** — you review the proposal section by section, execute the moves by hand, and commit after each. Run once per project, at adoption; for ongoing maintenance use `/research-cleanup`.
 
 Once installed, a typical first session:
 
@@ -37,6 +44,17 @@ Once installed, a typical first session:
 When the plan is verified end-to-end, `touch plan/plan-wage-gaps/.completed` triggers the archivist on the next Stop event.
 
 ## What the framework does
+
+### Principles
+
+- We shouldn't assign too much weight to plans, assuming almost automatic execution. Iteration makes planning better. Plans are the map, not the territory.
+- Many plans tend to micromanage implementation, which is counterproductive because in reality plans change all the time. Micromanaged plans constrain the implementation agent's problem-solving capacity.
+- Baking code snippets in plans is a waste of tokens. The implementation agent or session will re-read the codebase.
+- We want to minimize the ratio of .md lines to code execution that is required to achieve high quality results.
+- Verification belongs on the *substance* of the analysis, not on Python type signatures. The right checks are sign-of-coefficients, magnitude plausibility, missingness, and source citation — and they are stakes-graded: cheap per-artifact (`/verify`) for in-progress work, heavier multi-lens forked review (`/deliverable-review`) for last-mile drafts.
+- Reproducibility is a contract, not an aspiration. Every analytical chart, table, and number must resolve via `git log` to the script, seed, and inputs that produced it. Script headers, `Run:`/`Out:` commit lines, and `.meta.json` sidecars are how that contract is enforced.
+- Working state and settled findings live in different folders. Brainstorms and plans are gitignored exploration; decisions, insights, and the archive are the project's persistent, citable memory. Conflating them makes the project unreadable to future-you and to peer reviewers.
+
 
 ### Workflow: brainstorming → planning → implementation → archival
 
