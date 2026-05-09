@@ -12,6 +12,7 @@ Entry format:
 
 ## Entries
 
+- **Framework v1.1 — Córdoba Lessons** (2026-05-08) — shipped six convention hardening fixes, opt-in theme-parallel layout, brainstorming/learning-capture/archival skills and hooks (ported from scc), and a researcher-audience README rewrite. [Full archive](plan-cordoba-lessons.md)
 - **Install Redesign** (2026-05-07) — replaced `install.sh` with Node-based `r2p` CLI; symlink-skills + copy-conventions split; `--upgrade` with `.framework-new` sidecars. [Full archive](plan-install-redesign.md)
 - **Project Conventions** (2026-05-07) — added `project_conventions/` folder convention for project-bespoke style/process rules; no required internal sections, no freshness anchors. [Full archive](plan-project-conventions.md)
 - **Refdocs Conventions** (2026-05-06) — added `data_sources/` (API reference docs with freshness anchors) and `methods/` (project-internal methodology specs with diagnostic counts) folder conventions. [Full archive](plan-refdocs-conventions.md)
