@@ -2,8 +2,14 @@
 
 Project-development backlog for the framework itself. Researchers *using* the framework do not need this file — it tracks what could land in v1.1+ and beyond. v1 is the current scoped release, designed for the May 2026 Córdoba/Cambodia kickoff workshop and the two pilots' close-out periods (end-Aug and end-Sept 2026); see `plan/plan-v1-framework/plan.md` for the build history.
 
-## v1.1 and beyond
+## Shipped
 
+- **v1.1** — cordoba-lessons (six small wins, theme-parallel opt-in, `brainstorming` skill, `learning-capture` skill + retrieve-learnings hook, plan archival via `archivist` agent + Stop hook tripwire, README rewrite for researcher audience). See `archive/plan-cordoba-lessons.md`.
+- **v1.2** — skill-independence (vendored `planning`, `implementation`, `agent-teams` skills from super-claudio-code; added `scr plan init <slug>` CLI subcommand; rationale at `docs/skill-independence-mechanism.md`). See `archive/plan-skill-independence.md` after archival.
+
+## v1.3 and beyond
+
+- **TDD-equivalent for research pipelines** — heavier whole-pipeline regression on every change (per-artifact `/verify` covers single-artifact sanity but not full-pipeline drift). Possible skill name: `pipeline-check`.
 - **`evidence-ledger`** — a project-level table of formal claims, the chart/CSV that supports each, and whether the claim has been challenged.
 - **`chart-registry`** — `save_fig(findings={...})` pattern so every chart ships with metadata Claude can read without re-opening the PNG.
 - **`citation-discipline`** — every quantitative claim must reference a source (paper, dataset, internal doc).

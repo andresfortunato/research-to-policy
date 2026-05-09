@@ -81,8 +81,9 @@ User-invoked skills (`/<name>` in Claude Code):
 | Skill | When | What it does |
 |---|---|---|
 | `/brainstorming` | Before planning a methodology call | Three-phase exchange to settle a research-design decision; output → `brainstorms/<topic>.md` |
-| `/planning` *(scc, global)* | After brainstorm | Produces `plan/plan-<slug>/{plan.md, phases/phase-N.md}` |
-| `/implementation` *(scc, global)* | Executing a plan | Reads plan + handoff, works the phases, rewrites handoff at session end |
+| `/planning` | After brainstorm | Produces `plan/plan-<slug>/{plan.md, phases/phase-N.md}`; pairs with the `scr plan init <slug>` CLI subcommand for scaffolding |
+| `/implementation` | Executing a plan | Reads plan + handoff, works the phases, rewrites handoff at session end, drives `.completed`-driven archival |
+| `/agent-teams` | Parallelizing 2+ independent units | Orchestrates teammate scope, isolation, output collection — methodology comparisons, robustness sweeps, multi-source ingest |
 | `/learning-capture` | Captured a gotcha or insight | Files `learnings/<slug>.md` + adds a row to `learnings/index.yaml` |
 | `/verify` | Before publishing one artifact | 3–5 domain-shaped checks on a regression / chart / paragraph (≤2k tokens) |
 | `/deliverable-review` | Last-mile draft of a deliverable | Forked parallel seven-lens review (≤12k tokens total) |
@@ -141,6 +142,9 @@ The framework's own internals — useful if you're proposing a new convention, h
 │   └── archivist.md                   ← per-plan archival on .completed
 ├── skills/                            ← symlinked into ~/.claude/skills/ globally by `scr init`
 │   ├── brainstorming/                 ← decisions-pre-planning conversation
+│   ├── planning/                      ← multi-phase research plan authoring
+│   ├── implementation/                ← phase-by-phase execution + handoff lifecycle
+│   ├── agent-teams/                   ← parallel teammate orchestration
 │   ├── learning-capture/              ← gotchas + insights, retrieval-keyed
 │   ├── verify/                        ← per-artifact sanity check
 │   ├── deliverable-review/            ← seven-lens forked review
@@ -196,6 +200,14 @@ cd /path/to/your/research-project
 scr init --upgrade
 ```
 
+Scaffold a new plan directory:
+
+```bash
+scr plan init <slug>      # creates plan/plan-<slug>/{plan.md, handoff.md, log.md, phases/, context/}
+```
+
+`scr plan init` is idempotent — re-running on an existing slug skips files that already exist. The planning skill recommends running it before drafting `plan.md`.
+
 For each framework convention or template seed, `--upgrade` either copies it in (if absent), silently skips it (if byte-identical), or writes a `<file>.framework-new` sidecar (if divergent — your version stays put). Review sidecars with your preferred diff tool and merge manually. `CLAUDE.md`, `insights/INDEX.md`, `wiki/index.md`, `wiki/log.md`, `sources/registry.yaml`, `archive/index.md`, and other user-curated seeds are left alone.
 
 To copy a working set of conventions from one project repo into another (without going through the framework):
@@ -207,6 +219,8 @@ cp -R /path/to/source-project/.claude/conventions/. /path/to/dest-project/.claud
 `cp -R` overwrites — review with `git diff` in the destination repo before committing.
 
 Project-development backlog (v1.1+ items, open design questions) lives in `TODO.md` at the framework root.
+
+If you also have super-claudio-code (scc) installed, both frameworks register their skills as symlinks under `~/.claude/skills/`. Last-installer-wins: running `scr init` after `scc init` makes scr's skills (planning, implementation, agent-teams) authoritative; vice versa makes scc's authoritative. Re-run whichever framework you want active. See `docs/skill-independence-mechanism.md` for the rationale behind vendoring rather than depending on scc.
 
 ## Design philosophy
 
