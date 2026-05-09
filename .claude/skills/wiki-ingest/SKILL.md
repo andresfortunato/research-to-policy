@@ -11,7 +11,7 @@ Turn one immutable item in `raw/` into durable, schema-conforming pages in `wiki
 ## Preconditions
 
 - `wiki/SCHEMA.md` exists in the project. Read it before doing anything else — it defines page types, frontmatter, and naming.
-- `wiki/index.md` and `wiki/log.md` exist (seeded by `scr init`).
+- `wiki/index.md` and `wiki/log.md` exist (seeded by `r2p init`).
 - The target file lives under `raw/` and is readable. If absent, stop and tell the user.
 
 ## Workflow

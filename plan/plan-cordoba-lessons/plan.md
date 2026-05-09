@@ -1,8 +1,8 @@
 # Plan: cordoba-lessons (framework v1.1)
 
-Improve the super-claudio-research framework based on lessons drawn from
+Improve the research-to-policy framework based on lessons drawn from
 auditing `~/cordoba` — a real applied-research project that ran without
-super-claudio-research conventions and accumulated the failure modes
+research-to-policy conventions and accumulated the failure modes
 the framework was designed to prevent. Six phases, all framework-internal:
 six small markdown wins, opt-in theme-parallel layout for `insights/` and
 `output/`, three skills/hooks ported from `super-claudio-code` (brainstorming,
@@ -19,7 +19,7 @@ research-adapted ports from super-claudio-code that close gaps the
 audit identified — brainstorm-before-plan, tacit-learning capture
 with retrieval, and plan archival on `.completed`, and (d) a
 researcher-audience README rewrite once all components are in place.
-Out of scope: any retrofit/triage workflow for onboarding scr into
+Out of scope: any retrofit/triage workflow for onboarding r2p into
 existing disorganized projects (deferred to a separate plan after
 v1.1 ships).
 
@@ -42,7 +42,7 @@ v1.1 ships).
 - **Theme-awareness is opt-in, not declarative.** No `themes.md`
   declaration file, no upfront enumeration. Subfolder use is permitted;
   flat layout stays default. Hooks accept both shapes.
-- **Don't break existing installs.** `scr init --upgrade` users on a
+- **Don't break existing installs.** `r2p init --upgrade` users on a
   v1 project must land v1.1 cleanly: existing `insights/INDEX.md`,
   hooks, and `CLAUDE.md` must survive the upgrade with sidecars on
   divergence (see `src/lib/upgrade.js` pattern).
@@ -59,7 +59,7 @@ v1.1 ships).
   per-plan archival is the archivist's job. No duplicated cleanup
   logic; the boundary is the unit (plan vs project) and the trigger
   (hook vs user).
-- **Don't port scc's planning skill.** scr relies on scc's planning
+- **Don't port scc's planning skill.** r2p relies on scc's planning
   skill (installed globally). Brainstorming skill triggers "the
   planning skill" — agnostic about whose. A research-adapted planning
   skill is a future consideration outside this plan.
@@ -95,7 +95,7 @@ Settled in the brainstorm preceding this plan; not to be re-debated.
 - **Bundle the web-scraping skill.** `source-registry.md` already
   references "the existing web-scraping skill"; v1 ships nothing
   there. cordoba carries it as a binary in `docs/`. We ship it
-  globally via the same skills-symlink mechanism `scr init` already
+  globally via the same skills-symlink mechanism `r2p init` already
   uses. **Source: copy from `~/.claude/skills/web-scraping/` — this
   is our own skill (not vendored from an Anthropic-canonical source);
   do NOT vendor cordoba's binary blob.**
@@ -128,12 +128,12 @@ Settled in the brainstorm preceding this plan; not to be re-debated.
   components (no rewriting against a moving target).
 - **Hook implementation language: bash.** Mandated by constitution.
   Three JS hooks from scc → three bash hooks here. No JS leakage
-  outside `src/` (the `scr` CLI itself).
+  outside `src/` (the `r2p` CLI itself).
 
 ## File Manifest
 
 ```
-super-claudio-research/
+research-to-policy/
 ├── .claude/
 │   ├── agents/
 │   │   └── archivist.md                                ✚ research-adapted port of scc archivist
@@ -267,7 +267,7 @@ and `README.md` make sequential simpler.
 - **Research-adapted planning skill.** scc's planning skill works
   fine via global symlink; a research-domain rewrite is a v1.2 call
   if pilot use surfaces friction.
-- **Triage workflow for retrofitting scr onto existing disorganized
+- **Triage workflow for retrofitting r2p onto existing disorganized
   projects.** This is the second cordoba-derived plan; covered in
   TODO.md as a follow-up.
 - **Mode-registry / cross-skill advisor.** Skill count after v1.1:
@@ -284,7 +284,7 @@ shipped-pattern verification log. Phases 3–5 mirror nothing in this
 repo; the pattern lives in `~/github/super-claudio-code/` and the
 adaptation work is "research-ify the domain examples + bash-port
 the JS hooks + agnostic-ize the planning-skill handoff". Read each
-upstream `SKILL.md` or `agents/*.md` once, then write the scr
+upstream `SKILL.md` or `agents/*.md` once, then write the r2p
 version against the existing `.claude/conventions/`-shape (intent
 docs at `docs/<name>-mechanism.md`, protocol at
 `.claude/conventions/<name>.md`, seeds at `templates/<dir>/`).

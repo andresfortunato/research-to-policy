@@ -4,9 +4,9 @@ description: Guide for writing implementation plans that give the executing sess
 ---
 
 ## Project identity
-!`cat CLAUDE.md 2>/dev/null || echo "⚠ NO CLAUDE.md at project root — run scr init to seed it from the framework template, or ask the user about the project first."`
+!`cat CLAUDE.md 2>/dev/null || echo "⚠ NO CLAUDE.md at project root — run r2p init to seed it from the framework template, or ask the user about the project first."`
 
-**IMPORTANT: If the line above says "NO CLAUDE.md", stop and handle this before doing anything else.** Ask the user whether they want to seed it (`scr init` does this), or to describe the project — what it studies, the current focus, what's next — so you can write `CLAUDE.md` from scratch (3-5 lines max: project name, what it studies, current focus, what's next).
+**IMPORTANT: If the line above says "NO CLAUDE.md", stop and handle this before doing anything else.** Ask the user whether they want to seed it (`r2p init` does this), or to describe the project — what it studies, the current focus, what's next — so you can write `CLAUDE.md` from scratch (3-5 lines max: project name, what it studies, current focus, what's next).
 
 # Planning
 
@@ -118,7 +118,7 @@ Research plans naturally cross-link `decisions/<date>_<slug>.md`, `methods/<slug
 
 ## Plan Setup
 
-Before writing, scaffold the plan directory by running `scr plan init <slug>` (added in scr v1.2). If that subcommand isn't available yet, scaffold the directory manually with `mkdir -p plan/plan-<slug>/{phases,context}` and create `plan.md`, `handoff.md`, `log.md`.
+Before writing, scaffold the plan directory by running `r2p plan init <slug>` (added in r2p v1.2). If that subcommand isn't available yet, scaffold the directory manually with `mkdir -p plan/plan-<slug>/{phases,context}` and create `plan.md`, `handoff.md`, `log.md`.
 
 The scaffold creates `plan/plan-<slug>/` with `plan.md`, `handoff.md`, `log.md`, `phases/`, and `context/`.
 

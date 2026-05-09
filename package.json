@@ -1,10 +1,10 @@
 {
-  "name": "super-claudio-research",
+  "name": "research-to-policy",
   "version": "0.1.0",
-  "description": "Super Claudio Research — research-engagement framework for Claude Code (skills, conventions, planning scaffolding)",
+  "description": "Research to Policy — research-engagement framework for Claude Code (skills, conventions, planning scaffolding)",
   "type": "module",
   "bin": {
-    "scr": "./src/cli.js"
+    "r2p": "./src/cli.js"
   },
   "files": [
     "src/",

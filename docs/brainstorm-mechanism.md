@@ -36,7 +36,7 @@ a brainstorm.
 
 ### 3. The directory (`brainstorms/` — gitignored)
 
-Project-local working state. Created by `scr init`. Theme-parallel
+Project-local working state. Created by `r2p init`. Theme-parallel
 projects may use `brainstorms/<theme>/<topic>.md`; flat is the default.
 
 ## Why brainstorms are gitignored
@@ -121,14 +121,14 @@ graduation list — choices that *do* deserve a `decisions/*.md`.
   intentional — the brainstorm is gitignored, so the decision record
   has to stand alone.
 - **Planning-skill agnostic by design.** The brainstorming skill triggers
-  "the planning skill" — whichever is installed globally. scr does not
+  "the planning skill" — whichever is installed globally. r2p does not
   ship its own planning skill in v1.1; a research-domain rewrite is a
   v1.2 call if pilot use surfaces friction with the upstream version.
 
 ## Provenance
 
 This convention codifies a gap surfaced during an audit of an applied-research
-project that ran without scr conventions. A long methodology essay had
+project that ran without r2p conventions. A long methodology essay had
 been written that *felt* like a plan but never produced one — implementation
 sessions kept stalling on choices the essay had only described, never
 settled. The audit traced this back to the absence of a named "brainstorm"
@@ -141,5 +141,5 @@ The skill itself is a research-adapted port of the brainstorming skill from
 scenarios, maieutic principle) carries over; the domain examples (deflator
 choice, identification, reference categories, survey-vintage breaks) and
 the planning-skill-agnostic handoff are the adaptations. The gitignored-
-brainstorms / committed-decisions split is also adapted from scc; in scr it
+brainstorms / committed-decisions split is also adapted from scc; in r2p it
 maps cleanly to the existing `decisions/` convention.

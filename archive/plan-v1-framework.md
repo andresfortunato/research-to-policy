@@ -1,4 +1,4 @@
-# super-claudio-research v1 framework
+# research-to-policy v1 framework
 
 Completed: 2026-05-05
 

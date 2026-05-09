@@ -1,4 +1,4 @@
-# super-claudio-research v1 — Brainstorming Summary
+# research-to-policy v1 — Brainstorming Summary
 
 ## Problem
 
@@ -53,7 +53,7 @@ Bootstrap a Claude Code framework for applied economics / policy research at Har
 - **Zhang et al. 2026 (AAAI)** — AI-generated code dependency drift kills reproducibility. Justifies the manifest layer as non-negotiable.
 - **Karpathy gist (2024)** — the LLM Wiki pattern. Three layers, three operations, two special files. Verbatim spec retrieved.
 - **Sant'Anna ecosystem** — ~15 research groups have forked Pedro's template as of March 2026; the `seven-pass-review` parallel-fork is the highest-leverage import.
-- **Existing super-claudio-research** — already has `.claude/conventions/insights-logging.md` + Stop hook + design philosophy. v1 builds on this, doesn't replace it.
+- **Existing research-to-policy** — already has `.claude/conventions/insights-logging.md` + Stop hook + design philosophy. v1 builds on this, doesn't replace it.
 
 ## Open Questions for Planning
 

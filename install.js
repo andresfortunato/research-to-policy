@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-// Post-install script for Super Claudio Research.
-// Delegates to `scr init` which handles per-project scaffolding and global
+// Post-install script for Research to Policy.
+// Delegates to `r2p init` which handles per-project scaffolding and global
 // skills/agents symlinks. This script exists for npm postinstall — it resolves
 // the project root and runs init.
 
@@ -14,7 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 async function main() {
   const projectRoot = findProjectRoot();
 
-  console.log('Super Claudio Research — setting up project...\n');
+  console.log('Research to Policy — setting up project...\n');
 
   const { initCommand } = await import('./src/commands/init.js');
   const origCwd = process.cwd();
@@ -22,7 +22,7 @@ async function main() {
   await initCommand();
   process.chdir(origCwd);
 
-  console.log('\nSuper Claudio Research ready.');
+  console.log('\nResearch to Policy ready.');
 }
 
 function findProjectRoot() {
@@ -41,6 +41,6 @@ function findProjectRoot() {
 }
 
 main().catch(err => {
-  console.error('SCR install failed:', err.message);
+  console.error('R2P install failed:', err.message);
   process.exit(1);
 });

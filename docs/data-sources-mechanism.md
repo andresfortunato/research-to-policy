@@ -113,7 +113,7 @@ asks "where do I document the X data source."
 
 ### 2. The templates (`templates/data_sources/{INDEX.md,README.md,EXAMPLE_world_bank_api.md}`)
 
-Seeded by `scr init` into target projects.
+Seeded by `r2p init` into target projects.
 
 - `INDEX.md` — empty quick-nav table and the "how to add a
   source" recipe, ready for the project's first entry.

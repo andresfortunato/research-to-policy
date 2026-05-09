@@ -48,7 +48,7 @@ Read `references/escalation-reference.md` for the full trigger list with severit
 
 Budget implementation to use up to 60% of context. **Stop once you reach 60%.** LLMs produce measurably worse output in the last ~20% of context. The last 40% is your reserve for debugging or unexpected work.
 
-scr's `precompact-handoff.sh` hook fires before auto-compaction and reminds you to write the handoff while context is fresh. The hook is a safety net — the 60% rule is the primary discipline.
+r2p's `precompact-handoff.sh` hook fires before auto-compaction and reminds you to write the handoff while context is fresh. The hook is a safety net — the 60% rule is the primary discipline.
 
 ### Handoff over one more task
 

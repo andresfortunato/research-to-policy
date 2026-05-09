@@ -175,7 +175,7 @@ entry, add the entry — don't delete the file.
 ## Provenance
 
 This convention codifies a gap surfaced during an audit of an
-applied-research project that ran without scr conventions. The
+applied-research project that ran without r2p conventions. The
 project produced excellent insights and a handful of decision records
 but had no place for tacit warnings — "PONDII didn't exist in 2014
 EPH waves", "asking-vs-transaction price gap is ~10%",
@@ -188,6 +188,6 @@ closed the gap without inventing new categories.
 The skill, file format, and retrieval mechanic are research-adapted
 ports from `super-claudio-code`. The retrieval hook is a bash
 re-implementation of scc's `user-prompt-submit.js` (the v1 framework
-constitution forbids JS leakage outside the `scr` CLI).
+constitution forbids JS leakage outside the `r2p` CLI).
 
 Rationale and the three-bucket model: `docs/learning-capture-mechanism.md`.

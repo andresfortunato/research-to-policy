@@ -62,7 +62,7 @@ async function isFrameworkRepo(target) {
   if (!(await fileExists(pkgPath))) return false;
   try {
     const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
-    return pkg.name === 'super-claudio-research';
+    return pkg.name === 'research-to-policy';
   } catch {
     return false;
   }
@@ -107,12 +107,12 @@ async function compareFiles(srcPath, dstPath) {
 
 export async function upgradeProject(target) {
   if (await isFrameworkRepo(target)) {
-    console.log('Refusing to run scr init --upgrade against the framework repo itself.');
-    console.log('  scr init --upgrade is for target research projects, not super-claudio-research.');
+    console.log('Refusing to run r2p init --upgrade against the framework repo itself.');
+    console.log('  r2p init --upgrade is for target research projects, not research-to-policy.');
     return false;
   }
 
-  console.log(`Upgrading super-claudio-research framework files in: ${target}`);
+  console.log(`Upgrading research-to-policy framework files in: ${target}`);
 
   const candidates = [];
   for await (const rel of walkFiles('.claude/conventions')) candidates.push(rel);

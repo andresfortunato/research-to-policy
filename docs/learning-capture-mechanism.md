@@ -6,7 +6,7 @@ Applied research projects accumulate two kinds of valuable knowledge:
 the *formal findings* a peer reviewer reads (a chart, a regression, a
 ranked list of decompositions) and the *methodology calls* a peer
 reviewer pushes on (deflator choice, identification strategy). Both
-have homes in scr — `insights/NN_*.md` for findings,
+have homes in r2p — `insights/NN_*.md` for findings,
 `decisions/YYYY-MM-DD_<slug>.md` for choices.
 
 A third kind of knowledge has no home in v1: the *tacit warnings* — the
@@ -14,7 +14,7 @@ kind of thing a colleague would say over coffee. "PONDII didn't exist
 in 2014 EPH waves." "Asking-vs-transaction price gap is roughly 10% in
 Argentina ZonaProp listings." "If you build a panel from EPH 2003 onward
 without filtering on `agglo` you'll silently lose the rural sample." In
-projects that ran without scr conventions, these warnings either lived
+projects that ran without r2p conventions, these warnings either lived
 in researcher heads (lost on handoff) or were buried in commit messages
 and notebook scratch cells (invisible at retrieval time, when a future
 session is about to make the same mistake).
@@ -216,7 +216,7 @@ learnings need.
 ## Provenance
 
 This mechanism codifies a gap surfaced during an audit of an
-applied-research project that ran without scr conventions. The
+applied-research project that ran without r2p conventions. The
 project produced excellent insights and a handful of decision records,
 but operational warnings — survey-wave breakage, deflator-divergence
 patterns, sample-restriction side effects — lived in researcher heads
@@ -230,9 +230,9 @@ ports from `super-claudio-code`. The retrieval hook
 (`retrieve-learnings.sh`) and the pre-compact handoff hook
 (`precompact-handoff.sh`) are bash re-implementations of scc's
 `user-prompt-submit.js` and `pre-compact.js` — the v1 framework
-constitution forbids JS leakage outside the `scr` CLI itself.
+constitution forbids JS leakage outside the `r2p` CLI itself.
 
 The directory choice (`learnings/`, project root, sibling of
 `insights/` and `decisions/`) deviates from scc's `.scc/learnings/`
-nesting. scr treats learnings as project-level knowledge worth
+nesting. r2p treats learnings as project-level knowledge worth
 sharing in the repo, not as framework-internal state.

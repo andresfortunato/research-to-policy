@@ -1,4 +1,4 @@
-# Skill Independence — Why scr Vendors Three scc Skills
+# Skill Independence — Why r2p Vendors Three scc Skills
 
 ## The trigger
 
@@ -6,13 +6,13 @@ After cordoba-lessons Phase 6 rewrote the README for a researcher
 audience, a distribution gap surfaced: the workflow narrative names
 `/brainstorming` → `/planning` → `/implementation` → archival, but
 two of those four skills shipped only with super-claudio-code (scc).
-A researcher running `npm install -g super-claudio-research` got a
+A researcher running `npm install -g research-to-policy` got a
 project that referenced skills they didn't have. The Quickstart
-required two installs — scr + scc — to actually work.
+required two installs — r2p + scc — to actually work.
 
 ## What we did
 
-Vendored three scc skills into scr's `.claude/skills/`:
+Vendored three scc skills into r2p's `.claude/skills/`:
 
 - `planning/SKILL.md` (+ `references/multi-session.md`)
 - `implementation/SKILL.md` (+ `references/escalation-reference.md`)
@@ -42,9 +42,9 @@ sweep — no separate cleanup agent.
 
 ## Precedence for users with both frameworks installed
 
-Both scr and scc install their skills as symlinks under
-`~/.claude/skills/`. Last-installer-wins: `scr init` after `scc init`
-makes scr's skills authoritative; vice versa makes scc's authoritative.
+Both r2p and scc install their skills as symlinks under
+`~/.claude/skills/`. Last-installer-wins: `r2p init` after `scc init`
+makes r2p's skills authoritative; vice versa makes scc's authoritative.
 Re-run whichever framework you want active. The two frameworks don't
 detect each other; we don't implement defer-and-merge logic — the
 symlink filesystem already resolves it.

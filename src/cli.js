@@ -7,8 +7,8 @@ import { planInitCommand } from './commands/plan.js';
 const program = new Command();
 
 program
-  .name('scr')
-  .description('Super Claudio Research — research-engagement framework for Claude Code')
+  .name('r2p')
+  .description('Research to Policy — research-engagement framework for Claude Code')
   .version('0.1.0');
 
 program

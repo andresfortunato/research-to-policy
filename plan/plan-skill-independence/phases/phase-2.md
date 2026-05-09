@@ -16,12 +16,12 @@ Copy `~/github/super-claudio-code/skills/implementation/{SKILL.md, references/es
 ### Mechanical swaps
 
 - Path swaps:
-  - `.scc/learnings/` → `learnings/` (scr puts learnings at project root, per `learning-capture.md`).
-  - `.scc/status/plan-[name].md` → drop the line entirely. scr's per-plan `handoff.md` is the source of truth for session state; no sidecar status file.
+  - `.scc/learnings/` → `learnings/` (r2p puts learnings at project root, per `learning-capture.md`).
+  - `.scc/status/plan-[name].md` → drop the line entirely. r2p's per-plan `handoff.md` is the source of truth for session state; no sidecar status file.
 - Drop `tdd` skill cross-reference; replace with `/verify` (per-artifact sanity check) cross-reference.
-- Drop "framework's context-monitor hook" reference. Replace with a one-line mention of scr's `precompact-handoff.sh` as the compaction-nudge analog.
+- Drop "framework's context-monitor hook" reference. Replace with a one-line mention of r2p's `precompact-handoff.sh` as the compaction-nudge analog.
 - "Active plans" and "Latest handoff" bash blocks at the top of the skill: keep verbatim. Both already use `plan/plan-*/` glob and `handoff.md` filename — domain-neutral.
-- Plan Completion subagents: scc lists two — `archivist` and `cleanup`. Drop `cleanup`; only the archivist remains. Update the boilerplate to match scr's Phase-5 protocol:
+- Plan Completion subagents: scc lists two — `archivist` and `cleanup`. Drop `cleanup`; only the archivist remains. Update the boilerplate to match r2p's Phase-5 protocol:
   - Tripwire 1 of `check-insights.sh` is BLOCKING.
   - The hook writes a `.archival-triggered` sentinel for loop-protection.
   - The archivist synthesizes `archive/plan-<slug>.md` (60–150 lines), appends to `archive/index.md`, optionally edits `CLAUDE.md`, deletes the plan directory.
@@ -45,7 +45,7 @@ Copy `~/github/super-claudio-code/skills/implementation/{SKILL.md, references/es
 
 This is the heavy lift. Read scc's full file once. The structure (severity tiers, the escalate-vs-handle test, example format) stays; the escalation triggers themselves get researched-domain rewrites. Suggested replacements:
 
-| scc trigger (software) | scr trigger (research) |
+| scc trigger (software) | r2p trigger (research) |
 |---|---|
 | Architectural decision needed (new abstraction, new dependency layer) | Methodology call surfaces mid-flight (deflator unexpectedly relevant; identification strategy invalidated by data shape) |
 | Integration seam contradiction (new code can't connect to existing X) | Data-source seam contradiction (a regressor's vintage coverage doesn't match the analysis window; a survey break invalidates a pre-period control) |
@@ -64,7 +64,7 @@ The two research-only triggers (sample-restriction surprise, data-quality surpri
 - Frontmatter `description:` mentions research workflow and `.completed`-driven archival explicitly.
 - `grep -E "\.scc/|tdd skill|context-monitor hook|cleanup subagent|cleanup agent"` → 0 matches in SKILL.md.
 - Plan Completion section explicitly names the archivist as the **only** post-`.completed` agent (no cleanup subagent reference).
-- Symlink: fresh scratch project + `scr init` → `~/.claude/skills/implementation/` → `<scr-repo>/.claude/skills/implementation/`.
+- Symlink: fresh scratch project + `r2p init` → `~/.claude/skills/implementation/` → `<r2p-repo>/.claude/skills/implementation/`.
 - Active-plans / latest-handoff bash blocks at the top still execute unmodified (smoke-test in scratch).
 - `escalation-reference.md` examples are research-domain (no JSX, no test runners, no architectural-pattern jargon). At least 5 research-shaped triggers; sample-restriction and data-quality additions present.
 - Path-swap audit: `grep "\.scc/"` against the new SKILL.md and references file → 0 matches.

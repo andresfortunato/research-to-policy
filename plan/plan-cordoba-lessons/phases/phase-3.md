@@ -5,7 +5,7 @@ and repo context that govern all phases. This file scopes Phase 3.
 
 ## Intent
 
-Port scc's `brainstorming` skill into scr. The skill produces
+Port scc's `brainstorming` skill into r2p. The skill produces
 `brainstorms/<topic>.md` with a Decisions / Research / Open-questions
 structure and triggers "the planning skill" (whichever is installed).
 cordoba's `Spatial Equilibrium Plan in Cordoba.txt` — a methodology
@@ -53,7 +53,7 @@ cautionary tale.
 - Skill terminates cleanly when the user says "go to planning" —
   handoff is "the planning skill" agnostic, no scc-specific
   machinery.
-- `scr init --upgrade` on a v1 project lands the new skill
+- `r2p init --upgrade` on a v1 project lands the new skill
   globally; existing brainstorm files (if any) untouched.
 
 ## Dependencies
@@ -67,6 +67,6 @@ first stage of the workflow).
 ## Reference patterns
 
 Upstream skill: `~/github/super-claudio-code/skills/brainstorming/SKILL.md`.
-Read once, then write the scr version against the existing
+Read once, then write the r2p version against the existing
 `.claude/conventions/`-shape (intent doc at `docs/<name>-mechanism.md`,
 protocol at `.claude/conventions/<name>.md`, seeds at `templates/<dir>/`).

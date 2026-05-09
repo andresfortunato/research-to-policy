@@ -1,4 +1,4 @@
-# Extending super-claudio-research
+# Extending research-to-policy
 
 This framework adds research-specific discipline to Claude Code via three composable pieces per convention. To add a new convention, follow the same pattern.
 

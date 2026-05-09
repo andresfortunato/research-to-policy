@@ -73,7 +73,7 @@ housing-share-assumption-uncertainty are the cordoba-shaped examples).
   SKILL prose enforces this; the convention restates it).
 - Conventions list at `wc -l` band: ~80–150 lines for
   `learning-capture.md`.
-- `scr init --upgrade`: existing `settings.template.json` lands
+- `r2p init --upgrade`: existing `settings.template.json` lands
   as a `.framework-new` sidecar if user has diverged it (likely);
   new files land cleanly.
 

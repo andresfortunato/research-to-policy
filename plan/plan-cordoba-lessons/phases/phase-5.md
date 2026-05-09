@@ -9,7 +9,7 @@ Port scc's plan-archival mechanic: a `.completed` marker in a
 `plan/plan-<name>/` directory triggers the `archivist` agent on
 next Stop, which synthesizes a permanent archive entry to
 `archive/plan-<name>.md`, updates `archive/index.md`, and deletes
-the plan directory. cordoba had no archival concept; scr's
+the plan directory. cordoba had no archival concept; r2p's
 existing `plan/plan-*/.completed` markers (already used by the
 four shipped plans) are the half-finished version of this.
 
