@@ -8,7 +8,7 @@ The default Claude Code experience is built for software engineering. Research p
 - Context management so that we avoid context rot and codebase re-exploration every time
 - Multi-session orchestration so that we don't worry about referencing files or summaries any more
 - Automated learning to take notes of relevant challenges or solutions
-- Verification before publishing — every artifact and deliverable gets a domain-aware sanity check, not a CI-style green-light test
+- Verification during analysis and before publishing — every artifact and deliverable gets a domain-aware sanity check, not a CI-style green-light test
 - Reproducibility — analytical artifacts trace back to the script and inputs that made them, instead of disappearing into undocumented one-off runs
 - Analytical structure that separates raw sources from analysis, and exploration from findings, so the project doesn't collapse into an undifferentiated dump of scripts and PNGs
 
