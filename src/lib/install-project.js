@@ -30,6 +30,9 @@ const SCAFFOLDING_DIRS = [
   'brainstorms',
   'learnings',
   'archive',
+  'internal_docs',
+  'literature',
+  'slides',
 ];
 
 // Gitignore block emitted into target projects. Diverges from install.sh's
@@ -47,6 +50,12 @@ const GITIGNORE_BLOCK = `# research-to-policy framework — share scaffolding, h
 plan/
 brainstorms/
 .scc/
+
+# Project-management docs (concept notes, workplans, mission plans, team notes)
+internal_docs/
+
+# Reference literature (large PDFs, often copyrighted)
+literature/
 `;
 
 async function fileExists(path) {
@@ -207,6 +216,21 @@ export async function installProject(target) {
   await mirrorDir(
     join(FRAMEWORK_ROOT, 'templates/archive'),
     join(target, 'archive'),
+    target,
+  );
+  await mirrorDir(
+    join(FRAMEWORK_ROOT, 'templates/internal_docs'),
+    join(target, 'internal_docs'),
+    target,
+  );
+  await mirrorDir(
+    join(FRAMEWORK_ROOT, 'templates/literature'),
+    join(target, 'literature'),
+    target,
+  );
+  await mirrorDir(
+    join(FRAMEWORK_ROOT, 'templates/slides'),
+    join(target, 'slides'),
     target,
   );
 

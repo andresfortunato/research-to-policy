@@ -102,10 +102,13 @@ your-research-project/
 ├── wiki/                      ← Karpathy-style distilled knowledge (LLM-owned)
 ├── raw/                       ← immutable sources (incl. raw/sources/<slug>/)
 ├── sources/                   ← URL watchlist (registry.yaml + seen.jsonl)
-└── deliverables/              ← memos, briefings, papers (3 profiles)
+├── deliverables/              ← memos, briefings, papers (3 profiles)
+├── slides/                    ← presentation decks (less formal than deliverables)
+├── literature/                ← reference papers + PDFs (gitignored — copyrighted)
+└── internal_docs/             ← concept notes, workplans, mission plans, team notes (gitignored)
 ```
 
-`plan/` and `brainstorms/` are gitignored — local working state. `decisions/`, `insights/`, `methods/`, and `archive/` commit. `output/` is your call (typically committed for small artifacts; large binaries excluded).
+`plan/`, `brainstorms/`, `internal_docs/`, and `literature/` are gitignored — local working state, project-management docs, and copyrighted reference material. `decisions/`, `insights/`, `methods/`, `archive/`, and `slides/` commit. `output/` is your call (typically committed for small artifacts; large binaries excluded).
 
 Projects carrying multiple parallel lines of inquiry — each with its own audience and deliverable target — may opt into a one-level subfolder layout: `insights/<theme>/NN_*.md` and `output/<theme>/NN_*`. Flat is the default; hooks and skills accept both shapes; no `themes.md` declaration is required.
 
@@ -221,6 +224,9 @@ templates/                              ← seeds installed by `r2p init`
 ├── brainstorms/README.md              ← orientation for the gitignored brainstorms/ directory
 ├── learnings/                         ← README.md + index.yaml (empty seed)
 ├── archive/                           ← README.md + index.md (empty rollup seed)
+├── internal_docs/README.md            ← orientation for the gitignored internal_docs/ directory
+├── literature/README.md               ← orientation for the gitignored literature/ directory
+├── slides/README.md                   ← orientation for the slides/ directory
 └── deliverables/                      ← three profiles, each PROFILE.md + template.md
 ```
 
@@ -243,7 +249,7 @@ r2p plan init <slug>      # creates plan/plan-<slug>/{plan.md, handoff.md, log.m
 
 `r2p plan init` is idempotent — re-running on an existing slug skips files that already exist. The planning skill recommends running it before drafting `plan.md`.
 
-For each framework convention or template seed, `--upgrade` either copies it in (if absent), silently skips it (if byte-identical), or writes a `<file>.framework-new` sidecar (if divergent — your version stays put). Review sidecars with your preferred diff tool and merge manually. `CLAUDE.md`, `insights/INDEX.md`, `wiki/index.md`, `wiki/log.md`, `sources/registry.yaml`, `archive/index.md`, and other user-curated seeds are left alone.
+For each framework convention or template seed, `--upgrade` either copies it in (if absent), silently skips it (if byte-identical), or writes a `<file>.framework-new` sidecar (if divergent — your version stays put). Review sidecars with your preferred diff tool and merge manually. `CLAUDE.md`, `insights/INDEX.md`, `wiki/index.md`, `wiki/log.md`, `sources/registry.yaml`, `archive/index.md`, and other user-curated seeds are left alone. New gitignored slots that ship with the framework (e.g. `internal_docs/`, `literature/`) are appended to your existing `.gitignore` framework block on upgrade.
 
 To copy a working set of conventions from one project repo into another (without going through the framework):
 

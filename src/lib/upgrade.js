@@ -48,6 +48,14 @@ const EXCLUDE = new Set([
   'templates/decision-record.md',
 ]);
 
+// Gitignore lines the framework requires. Upgrade appends any missing on an
+// existing project that already has a framework block — keeps `r2p init
+// --upgrade` self-contained when new gitignored slots ship.
+const REQUIRED_GITIGNORE_LINES = [
+  'internal_docs/',
+  'literature/',
+];
+
 async function fileExists(path) {
   try {
     await access(path);
@@ -176,6 +184,30 @@ export async function upgradeProject(target) {
   } else {
     await copyFile(claudeTemplateSrc, claudePath);
     console.log('  + CLAUDE.md (from template — edit it for your project)');
+  }
+
+  // Backfill any newly-required gitignore lines so existing projects pick
+  // up new gitignored slots (e.g. internal_docs/, literature/) without a
+  // manual edit. Only acts on files that already contain a framework block.
+  const gitignorePath = join(target, '.gitignore');
+  if (await fileExists(gitignorePath)) {
+    const existing = await readFile(gitignorePath, 'utf-8');
+    if (existing.includes('research-to-policy framework')) {
+      const lines = existing.split('\n').map((l) => l.trim());
+      const missing = REQUIRED_GITIGNORE_LINES.filter(
+        (line) => !lines.includes(line),
+      );
+      if (missing.length > 0) {
+        const block =
+          '\n# r2p framework — gitignore additions (' +
+          new Date().toISOString().slice(0, 10) +
+          ')\n' +
+          missing.join('\n') +
+          '\n';
+        await writeFile(gitignorePath, existing.trimEnd() + '\n' + block);
+        console.log(`  + .gitignore (appended: ${missing.join(', ')})`);
+      }
+    }
   }
 
   // Old-shape skills layout warning. Skills now live globally in

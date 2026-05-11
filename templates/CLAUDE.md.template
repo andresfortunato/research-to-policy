@@ -45,6 +45,9 @@ project_root/
 │                          # opt-in: brainstorms/<theme>/<topic>.md for theme-parallel
 ├── learnings/             # tacit gotchas + insights, retrieval-keyed (project-wide)
 ├── archive/               # permanent record of completed plans (one .md per plan + index.md)
+├── internal_docs/         # concept notes, workplans, mission plans, team notes (gitignored)
+├── literature/            # reference papers + PDFs (gitignored — copyrighted)
+├── slides/                # presentation decks (committed, less formal than deliverables)
 ├── scripts/               # build scripts behind notebooks
 ├── .claude/
 │   ├── conventions/       # full convention protocols (read on demand)
@@ -161,6 +164,34 @@ one `<source>_<thing>.md` per source-and-purpose, plus `INDEX.md` for
 quick-nav. Each doc carries a `Status: verified <date>` line and at
 least one re-fetchable headline anchor. Full protocol:
 `.claude/conventions/data-sources.md` (read on demand).
+
+## Internal Docs
+
+Project-management documents that inform the work but should not be
+committed — concept notes, workplans, mission/stakeholder plans, and
+team-internal scoping notes — live in `internal_docs/` (gitignored by
+the framework). Distinct from `brainstorms/` (methodology
+deliberation) and `decisions/` (citable methodology calls). If
+something in here becomes citable, copy the extract to `decisions/`
+or `raw/` rather than linking the gitignored path. See
+`internal_docs/README.md` for orientation.
+
+## Literature
+
+Reference papers, articles, and book chapters in `literature/` —
+gitignored by the framework (large PDFs, often copyrighted). Pull a
+paper into the wiki with `/wiki-ingest literature/<file>.pdf`.
+Distinct from `raw/` (project-specific source materials). Bibliography
+files can be committed by exception (`!literature/refs.bib`). See
+`literature/README.md` for orientation.
+
+## Slides
+
+Presentation decks in `slides/` — kickoffs, working sessions,
+conference talks, internal updates. Committed by default. Distinct
+from `deliverables/`, which holds formal outputs with fixed profiles
+(memo, briefing, paper). Build decks with the `ppt-creator` skill.
+See `slides/README.md` for orientation.
 
 <!--
 Add one similar pointer block per additional convention you adopt. The
