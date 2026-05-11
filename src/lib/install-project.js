@@ -260,10 +260,8 @@ export function printNextSteps() {
   console.log('       bash .claude/hooks/check-insights.sh   # should print JSON');
   console.log('       rm output/06_test_chart.png');
   console.log('');
-  console.log('  Note on /r2p-adopt: one-shot skill for migrating an existing,');
-  console.log('  pre-framework project under r2p. Greenfield (starting from scratch)?');
-  console.log('  Delete it now to reclaim ~200 description tokens per session:');
-  console.log('       rm -rf .claude/skills/r2p-adopt/');
-  console.log('  Migrating a messy existing project? Run /r2p-adopt once, execute the');
-  console.log('  proposal, then delete the skill dir.');
+  console.log('  Adopting a pre-framework project? See docs/r2p-adopt.md in the');
+  console.log('  framework repo. It is a plain instruction doc, not an installed');
+  console.log('  skill — paste a prompt at Claude pointing to that path and it will');
+  console.log('  run the one-shot adoption audit. Greenfield? Skip; nothing to do.');
 }

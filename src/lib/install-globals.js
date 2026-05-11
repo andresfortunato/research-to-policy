@@ -56,11 +56,41 @@ async function installSkills() {
     }
   }
 
+  const pruned = await pruneStaleFrameworkSymlinks(skillsDir, skillsSource);
+
   if (installed > 0) {
     console.log(`  ✓ ~/.claude/skills/ (${installed} skills linked)`);
   } else {
     console.log('  · ~/.claude/skills/ (skills already installed)');
   }
+  if (pruned > 0) {
+    console.log(`  ✓ ~/.claude/skills/ (${pruned} stale framework symlink(s) removed)`);
+  }
+}
+
+// Remove symlinks under `dir` that point into `frameworkSource` but whose
+// target no longer exists. Only touches symlinks owned by the framework
+// (target path inside frameworkSource) — never deletes user-created files
+// or symlinks pointing elsewhere.
+async function pruneStaleFrameworkSymlinks(dir, frameworkSource) {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return 0;
+  }
+  let pruned = 0;
+  for (const entry of entries) {
+    if (!entry.isSymbolicLink()) continue;
+    const path = join(dir, entry.name);
+    const target = await readlink(path).catch(() => null);
+    if (target === null) continue;
+    if (!target.startsWith(frameworkSource)) continue;
+    if (await fileExists(target)) continue;
+    await unlink(path).catch(() => {});
+    pruned++;
+  }
+  return pruned;
 }
 
 async function installAgents() {

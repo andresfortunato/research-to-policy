@@ -25,13 +25,18 @@ r2p init
 
 ### Adopting r2p in an existing, disorganized project
 
-If the project predates r2p — random scripts at the root, charts mixed with data, methodology buried in `README.md` and script docstrings, prior `CLAUDE.md` or `.cursorrules` content — run `/r2p-adopt` after `r2p init`. `/r2p-adopt` walks the tree, classifies pre-existing files against framework slots (`raw/`, `output/`, `data/processed/`, `decisions/`, `insights/`, `project_conventions/`), reconciles any prior AI config, surfaces methodology calls hidden in unstructured locations as candidate `decisions/` records, and flags orphan analysis. It's dormant by default, to be used only once. Output is `ADOPTION_PROPOSAL.md` at project root. **Nothing is moved automatically** — you review the proposal section by section, execute the moves by hand, and commit after each. Run once per project, at adoption; for ongoing maintenance use `/research-cleanup`.
+If the project predates r2p — random scripts at the root, charts mixed with data, methodology buried in `README.md` and script docstrings, prior `CLAUDE.md` or `.cursorrules` content — run the adoption audit after `r2p init`. The audit walks the tree, classifies pre-existing files against framework slots (`raw/`, `output/`, `data/processed/`, `decisions/`, `insights/`, `project_conventions/`), reconciles any prior AI config, surfaces methodology calls hidden in unstructured locations as candidate `decisions/` records, and flags orphan analysis. Output is `ADOPTION_PROPOSAL.md` at project root. **Nothing is moved automatically** — you review the proposal section by section, execute the moves by hand, and commit after each. Run once per project, at adoption; for ongoing maintenance use `/research-cleanup`.
 
-> **One-shot, not recurring.** `/r2p-adopt` is designed to run *exactly once* per project. After you execute `ADOPTION_PROPOSAL.md`, delete the skill directory to reclaim the ~200 description tokens it costs every session:
-> ```
-> rm -rf .claude/skills/r2p-adopt/
-> ```
-> **Starting from a greenfield (clean) project?** `r2p init` already lays down the framework structure for you — there's nothing to adopt. Delete `.claude/skills/r2p-adopt/` immediately after `r2p init`; you won't need it.
+The audit is shipped as a plain instruction document (`docs/r2p-adopt.md` in the framework), **not as an installed skill** — it's only useful once per project, so the framework keeps it out of Claude's context until you explicitly ask for it. To run it, paste a prompt like this in a Claude Code session at the project root:
+
+```
+Read the r2p adoption instructions at $(npm root -g)/research-to-policy/docs/r2p-adopt.md
+and run the adoption audit on this project. Walk through preflight, the four audits,
+and write the proposal to ADOPTION_PROPOSAL.md. Don't move, delete, or edit any file —
+proposal only.
+```
+
+If you have a local clone of the framework, point Claude at `<your-clone>/docs/r2p-adopt.md` instead. The document is self-contained; Claude reads it, runs the audit, and writes `ADOPTION_PROPOSAL.md`. **Greenfield project?** Skip this entirely — `r2p init` lays down the framework structure clean, there's nothing to adopt.
 
 Once installed, a typical first session:
 
@@ -121,7 +126,6 @@ User-invoked skills (`/<name>` in Claude Code):
 | `/wiki-lint` | After a batch of ingests | Flags orphans, contradictions, stale pages, page-budget violations |
 | `/scan-sources` | Refreshing tracked sources | Re-scrapes `sources/registry.yaml` entries due for refetch (delegates to `web-scraping`) |
 | `/research-cleanup` | Before a milestone or handoff | Project-wide orphan + intermediate proposal at `cleanup-proposal.md` (never deletes) |
-| `/r2p-adopt` | First-time adoption on a pre-framework project | One-shot audit + `ADOPTION_PROPOSAL.md`: file classification, CLAUDE.md/.claude reconciliation, methodology archaeology, orphan flag (never moves). **Dormant by default** — user-invocable only; no auto-trigger. After you've executed the proposal (or immediately if starting greenfield) `rm -rf .claude/skills/r2p-adopt/` to reclaim the ~200 description tokens (one-shot per project) |
 
 Background hooks (silent unless their condition holds):
 
@@ -182,7 +186,6 @@ The framework's own internals — useful if you're proposing a new convention, h
 │   ├── wiki-ingest/                   ← raw/ → wiki/ distillation
 │   ├── wiki-lint/                     ← orphans, contradictions, stale, budget
 │   ├── research-cleanup/              ← orphan + intermediate proposal
-│   ├── r2p-adopt/                     ← one-shot audit for pre-framework projects
 │   ├── scan-sources/                  ← registry-driven targeted scraping
 │   └── web-scraping/                  ← Playwright/httpx/BeautifulSoup toolkit (delegated to)
 └── settings.template.json             ← copied to .claude/settings.json (project-shared)
