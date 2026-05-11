@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Guide for writing implementation plans that give the executing session the right level of detail — intent and constraints, not code snippets and step-by-step instructions. Use when designing research-design plans, methodology calls, or multi-phase analyses, or when asked to plan, architect, or think through an approach. The key trigger is whether there are decisions that benefit from deliberation before execution — trade-offs to weigh, identification choices, multiple integration points, or ambiguous scope. Don't trigger for tasks with a single obvious implementation path (rename a variable, fix a typo, add a column to an existing pipeline) where reading the script makes the implementation obvious.
+description: (r2p) Guide for writing implementation plans that give the executing session the right level of detail — intent and constraints, not code snippets and step-by-step instructions. Use when designing research-design plans, methodology calls, or multi-phase analyses, or when asked to plan, architect, or think through an approach. The key trigger is whether there are decisions that benefit from deliberation before execution — trade-offs to weigh, identification choices, multiple integration points, or ambiguous scope. Don't trigger for tasks with a single obvious implementation path (rename a variable, fix a typo, add a column to an existing pipeline) where reading the script makes the implementation obvious.
 ---
 
 ## Project identity

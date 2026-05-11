@@ -1,6 +1,6 @@
 ---
 name: wiki-lint
-description: Audit the project's wiki/ for structural integrity — orphan pages, contradictions, stale synthesis pages, and page-type budget violations. Use when the user says "lint the wiki", "/wiki-lint", "check the wiki for problems", "is the wiki healthy", or after a batch of ingests. Read-only; produces a structured report and never modifies wiki/ pages itself.
+description: (r2p) Audit the project's wiki/ for structural integrity — orphan pages, contradictions, stale synthesis pages, and page-type budget violations. Use when the user says "lint the wiki", "/wiki-lint", "check the wiki for problems", "is the wiki healthy", or after a batch of ingests. Read-only; produces a structured report and never modifies wiki/ pages itself.
 allowed-tools: Read, Bash, Glob, Grep
 ---
 

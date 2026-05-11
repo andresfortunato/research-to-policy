@@ -1,6 +1,6 @@
 ---
 name: learning-capture
-description: Capture learnings from the current session — gotchas, insights, or discoveries worth preserving for future sessions. Use when the pre-compact hook reminds you, when the user asks to save a learning, or when you notice something worth remembering.
+description: (r2p) Capture learnings from the current session — gotchas, insights, or discoveries worth preserving for future sessions. Use when the pre-compact hook reminds you, when the user asks to save a learning, or when you notice something worth remembering.
 ---
 
 # Learning Capture

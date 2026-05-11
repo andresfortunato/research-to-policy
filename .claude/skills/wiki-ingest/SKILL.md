@@ -1,6 +1,6 @@
 ---
 name: wiki-ingest
-description: Distill a file in raw/ (paper, scrape, dataset note, transcript) into one or more wiki/ pages following the project's wiki schema. Use when the user says "ingest this paper", "/wiki-ingest <path>", "add this to the wiki", or otherwise asks to turn a raw source into structured, queryable knowledge. Always explicit — never auto-fires on raw/ writes.
+description: (r2p) Distill a file in raw/ (paper, scrape, dataset note, transcript) into one or more wiki/ pages following the project's wiki schema. Use when the user says "ingest this paper", "/wiki-ingest <path>", "add this to the wiki", or otherwise asks to turn a raw source into structured, queryable knowledge. Always explicit — never auto-fires on raw/ writes.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 

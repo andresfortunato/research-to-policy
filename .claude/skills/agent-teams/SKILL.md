@@ -1,6 +1,6 @@
 ---
 name: agent-teams
-description: Orchestrate agent teams for independent work in a research project. Use when the user wants to parallelize analysis, robustness checks, methodology comparisons, multi-source ingest, or any research task that decomposes into 2+ independent units. Triggers on "run in parallel," "agent team," "parallelize," "do these simultaneously," or when you detect independent work units that would benefit from parallel execution. Also triggered by the implementation skill when it detects independent phases or tasks during plan execution. Don't trigger for sequential work with tight dependencies, or trivial tasks where coordination overhead exceeds benefit.
+description: (r2p) Orchestrate agent teams for independent work in a research project. Use when the user wants to parallelize analysis, robustness checks, methodology comparisons, multi-source ingest, or any research task that decomposes into 2+ independent units. Triggers on "run in parallel," "agent team," "parallelize," "do these simultaneously," or when you detect independent work units that would benefit from parallel execution. Also triggered by the implementation skill when it detects independent phases or tasks during plan execution. Don't trigger for sequential work with tight dependencies, or trivial tasks where coordination overhead exceeds benefit.
 ---
 
 # Agent Teams

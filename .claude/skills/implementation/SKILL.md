@@ -1,6 +1,6 @@
 ---
 name: implementation
-description: Implement an active research plan across one or more sessions in a research project. Use when a plan exists in plan/plan-[name]/ and the user wants to start or continue executing it — running scripts, producing artifacts, recording decisions, writing handoffs. Triggers on "execute," "implement," "start running," "continue," "pick up where we left off," or any indication the user wants to move from planning into running scripts and producing artifacts. Also triggers when resuming a partially-completed plan — check for handoff.md to determine where to pick up. Drives the full session lifecycle through to `.completed`-driven archival via the archivist agent.
+description: (r2p) Implement an active research plan across one or more sessions in a research project. Use when a plan exists in plan/plan-[name]/ and the user wants to start or continue executing it — running scripts, producing artifacts, recording decisions, writing handoffs. Triggers on "execute," "implement," "start running," "continue," "pick up where we left off," or any indication the user wants to move from planning into running scripts and producing artifacts. Also triggers when resuming a partially-completed plan — check for handoff.md to determine where to pick up. Drives the full session lifecycle through to `.completed`-driven archival via the archivist agent.
 ---
 
 ## Active plans

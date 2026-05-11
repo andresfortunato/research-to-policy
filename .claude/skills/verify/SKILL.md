@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Per-artifact verification of one regression result, one chart, or one paragraph against domain rules — sign-of-coefficients, magnitudes, missingness, source citation, git+header provenance. Use when the user says "/verify <path>", "verify this regression", "sanity-check this paragraph", or otherwise asks to inspect a single artifact for plausibility before publishing it. User-invoked only; never auto-fires. Budget ≤2k tokens.
+description: (r2p) Per-artifact verification of one regression result, one chart, or one paragraph against domain rules — sign-of-coefficients, magnitudes, missingness, source citation, git+header provenance. Use when the user says "/verify <path>", "verify this regression", "sanity-check this paragraph", or otherwise asks to inspect a single artifact for plausibility before publishing it. User-invoked only; never auto-fires. Budget ≤2k tokens.
 allowed-tools: Read, Bash, Glob, Grep
 ---
 

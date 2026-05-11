@@ -1,6 +1,6 @@
 ---
 name: web-scraping
-description: Build production-grade web scrapers in Python using Playwright, httpx, BeautifulSoup, and AI-powered extraction (ScrapeGraphAI, Crawl4AI). Use when the user asks to scrape websites, extract data from web pages, build crawlers, handle anti-bot detection, parse HTML/JSON, automate browser interactions, or set up data extraction pipelines. Also use when discussing scraping architecture, anti-detection strategies, proxy rotation, pagination handling, or choosing between traditional selectors and LLM-based extraction.
+description: (r2p) Build production-grade web scrapers in Python using Playwright, httpx, BeautifulSoup, and AI-powered extraction (ScrapeGraphAI, Crawl4AI). Use when the user asks to scrape websites, extract data from web pages, build crawlers, handle anti-bot detection, parse HTML/JSON, automate browser interactions, or set up data extraction pipelines. Also use when discussing scraping architecture, anti-detection strategies, proxy rotation, pagination handling, or choosing between traditional selectors and LLM-based extraction.
 ---
 
 # Web Scraping

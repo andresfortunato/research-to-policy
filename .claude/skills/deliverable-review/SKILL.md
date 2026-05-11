@@ -1,6 +1,6 @@
 ---
 name: deliverable-review
-description: Forked parallel review of an advanced deliverable draft (memo, briefing, paper) — spawns one subagent per lens (data validity, identification/reasoning, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility), each in a separate context, then synthesizes. Use when the user says "/deliverable-review <path>", "review this draft", "do a seven-pass review", "fork-review the memo before I send it", or otherwise asks for a heavy multi-lens audit on a near-final deliverable. Run only on advanced drafts. Budget ≤12k tokens total.
+description: (r2p) Forked parallel review of an advanced deliverable draft (memo, briefing, paper) — spawns one subagent per lens (data validity, identification/reasoning, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility), each in a separate context, then synthesizes. Use when the user says "/deliverable-review <path>", "review this draft", "do a seven-pass review", "fork-review the memo before I send it", or otherwise asks for a heavy multi-lens audit on a near-final deliverable. Run only on advanced drafts. Budget ≤12k tokens total.
 allowed-tools: Read, Bash, Glob, Grep, Task
 ---
 

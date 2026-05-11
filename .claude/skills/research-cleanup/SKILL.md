@@ -1,6 +1,6 @@
 ---
 name: research-cleanup
-description: Audit a research project for accumulated cruft — orphan scripts older than 30 days, intermediate CSVs older than data/raw/'s most recent change, charts not referenced by any insight or deliverable, and notebook cells marked as scratch. Use when the user says "clean up the project", "/research-cleanup", "what can I delete", "audit the repo for orphans", or before a milestone (close-out, hand-off, open-sourcing). Produces a markdown proposal at `cleanup-proposal.md`; the researcher reviews and acts manually. NEVER deletes, moves, or modifies anything itself.
+description: (r2p) Audit a research project for accumulated cruft — orphan scripts older than 30 days, intermediate CSVs older than data/raw/'s most recent change, charts not referenced by any insight or deliverable, and notebook cells marked as scratch. Use when the user says "clean up the project", "/research-cleanup", "what can I delete", "audit the repo for orphans", or before a milestone (close-out, hand-off, open-sourcing). Produces a markdown proposal at `cleanup-proposal.md`; the researcher reviews and acts manually. NEVER deletes, moves, or modifies anything itself.
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
 

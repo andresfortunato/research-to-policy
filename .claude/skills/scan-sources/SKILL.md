@@ -1,6 +1,6 @@
 ---
 name: scan-sources
-description: Read sources/registry.yaml and re-scrape any entry due for re-fetch (now > last_scraped + freq), delegating to the web-scraping skill, deduping by content hash against sources/seen.jsonl, and landing new content in raw/sources/<slug>/. Use when the user says "scan sources", "/scan-sources", "/scan-sources --slug=<slug>", "/scan-sources --category=<cat>", "/scan-sources --force", or otherwise asks to refresh the project's tracked sources. Always explicit; never auto-fires on a clock.
+description: (r2p) Read sources/registry.yaml and re-scrape any entry due for re-fetch (now > last_scraped + freq), delegating to the web-scraping skill, deduping by content hash against sources/seen.jsonl, and landing new content in raw/sources/<slug>/. Use when the user says "scan sources", "/scan-sources", "/scan-sources --slug=<slug>", "/scan-sources --category=<cat>", "/scan-sources --force", or otherwise asks to refresh the project's tracked sources. Always explicit; never auto-fires on a clock.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 ---
 
