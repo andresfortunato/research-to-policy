@@ -156,6 +156,28 @@ export async function upgradeProject(target) {
     sidecars.push(sidecarRel);
   }
 
+  // CLAUDE.md handling: never overwrite a user-curated CLAUDE.md. If one
+  // exists, (re)write CLAUDE_TEMPLATE.md alongside so the user always has the
+  // current framework template to diff against. If CLAUDE.md is absent, drop
+  // the template in directly — matches install-project.js behavior.
+  const claudePath = join(target, 'CLAUDE.md');
+  const claudeTemplateSrc = join(FRAMEWORK_ROOT, 'templates/CLAUDE.md.template');
+  if (await fileExists(claudePath)) {
+    const sidecarPath = join(target, 'CLAUDE_TEMPLATE.md');
+    const sidecarExists = await fileExists(sidecarPath);
+    if (!sidecarExists || !(await compareFiles(claudeTemplateSrc, sidecarPath))) {
+      await copyFile(claudeTemplateSrc, sidecarPath);
+      console.log(
+        sidecarExists
+          ? '  ↻ CLAUDE_TEMPLATE.md (refreshed from framework — CLAUDE.md untouched)'
+          : '  + CLAUDE_TEMPLATE.md (reference copy — CLAUDE.md untouched)',
+      );
+    }
+  } else {
+    await copyFile(claudeTemplateSrc, claudePath);
+    console.log('  + CLAUDE.md (from template — edit it for your project)');
+  }
+
   // Old-shape skills layout warning. Skills now live globally in
   // ~/.claude/skills/; a project-local .claude/skills/ is leftover from the
   // old install.sh layout and should be removed manually.

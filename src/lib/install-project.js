@@ -219,14 +219,18 @@ export async function installProject(target) {
     console.log('  ~ sources/seen.jsonl (exists, leaving as-is)');
   }
 
-  // 5. CLAUDE.md (only if absent — never overwrite)
+  // 5. CLAUDE.md (only if absent — never overwrite). If one exists, drop the
+  // framework template as CLAUDE_TEMPLATE.md so the user can diff and merge.
   const claudePath = join(target, 'CLAUDE.md');
+  const templateSrc = join(FRAMEWORK_ROOT, 'templates/CLAUDE.md.template');
   if (!(await fileExists(claudePath))) {
-    await copyFile(join(FRAMEWORK_ROOT, 'templates/CLAUDE.md.template'), claudePath);
+    await copyFile(templateSrc, claudePath);
     console.log('  + CLAUDE.md (from template — edit it for your project)');
   } else {
+    const sidecarPath = join(target, 'CLAUDE_TEMPLATE.md');
+    await copyFile(templateSrc, sidecarPath);
     console.log(
-      '  ~ CLAUDE.md (exists — add new convention pointer blocks manually if missing)',
+      '  ~ CLAUDE.md (exists — wrote CLAUDE_TEMPLATE.md alongside for reference; merge pointer blocks manually)',
     );
   }
 
