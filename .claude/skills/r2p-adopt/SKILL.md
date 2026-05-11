@@ -6,12 +6,17 @@ disable-model-invocation: true
 ---
 
 <!--
-This skill is dormant by default. It only fires when the user explicitly types
-`/r2p-adopt`. Adoption is a one-shot transition; routing on natural-language
-prompts ("clean this up", "this is messy") would mis-fire on already-adopted
-projects. The seed `.claude/settings.json` also sets
-`skillOverrides: {"r2p-adopt": "user-invocable-only"}` so the description
-doesn't load into Claude's context across sessions — defense in depth.
+This skill is dormant by default via `disable-model-invocation: true` in the
+frontmatter. It only fires when the user explicitly types `/r2p-adopt`.
+Adoption is a one-shot transition; routing on natural-language prompts ("clean
+this up", "this is messy") would mis-fire on already-adopted projects. The
+description still loads into context (~200 tokens/session) — researchers who
+want zero context cost can delete `.claude/skills/r2p-adopt/` entirely after
+executing their `ADOPTION_PROPOSAL.md` (the skill is one-shot per project).
+
+DO NOT add `skillOverrides: {"r2p-adopt": "user-invocable-only"}` to
+settings.json on top of the frontmatter flag — the combination silently breaks
+explicit `/r2p-adopt` invocation. Pick one or the other.
 -->
 
 
@@ -69,7 +74,9 @@ skill never moves, deletes, edits, or commits.
 4. **Write `ADOPTION_PROPOSAL.md`** at project root. Overwrite if it exists —
    a previous proposal is presumed acted on or discarded.
 5. **Report to the user** in one paragraph: counts per audit, where the
-   proposal lives, the reminder that nothing has been moved.
+   proposal lives, the reminder that nothing has been moved, and a one-line
+   note that `.claude/skills/r2p-adopt/` can be deleted once the proposal is
+   executed (the skill is one-shot per project).
 
 Detailed classification heuristics, trigger-phrase lists, and skip-rules live
 in `audit-checklist.md` next to this file. Read it before running the audits;
@@ -338,7 +345,8 @@ and reports:
 > reconcile against framework conventions, 7 methodology calls hidden in
 > READMEs and script docstrings (propose 7 new decisions/ records), and 14
 > orphan charts. Nothing has been moved. Review the proposal section by
-> section; commit after each.
+> section; commit after each. Once executed, you can `rm -rf
+> .claude/skills/r2p-adopt/` — this skill is one-shot per project.
 
 ## What this skill does NOT do
 
