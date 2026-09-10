@@ -220,6 +220,6 @@ export async function evidenceNew(rawSlug) {
   }
 
   console.log(`  + research/evidence/${created.name}  (id ${created.id}, .next-id now ${created.id + 1})`);
-  console.log('    Fill headline, unit, geography and period by hand — nothing infers them.');
+  console.log('    Fill the # title, unit, geography and period by hand — nothing infers them.');
   console.log(`    Add its row to research/evidence/INDEX.md when the headline is written.`);
 }

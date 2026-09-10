@@ -2,6 +2,15 @@
 
 Completed: 2026-08-04
 
+> ⚠ **Superseded in part by v3.1 (2026-09-10).** This entry is accurate about
+> its own release and is left unedited on purpose — an archive that is revised
+> to match the present is not a record. But one mechanism it describes as
+> shipped no longer exists: **`retrieve-learnings.sh` and its `UserPromptSubmit`
+> wiring were deleted**, on the measured rule that a hook may enforce but may
+> not inject. `triggers:` survives as a pull index you grep. See
+> `docs/v3-assessment-cordoba.md` and principle 1 in
+> `docs/audience-and-philosophy.md`.
+
 **Note on provenance.** Unlike every other entry in this archive, the plan that
 produced v2 (`plan-r2p-v2-consolidation`) was executed in the *pilot project's*
 repository, not here — it was an audit of a live engagement that then promoted its

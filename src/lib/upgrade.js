@@ -84,6 +84,7 @@ const EXCLUDE = new Set([
 const REMOVED_HOOKS = new Map([
   ['check-insights.sh', 'v1 — the insights Stop hook; insights/ became research/evidence/'],
   ['check-evidence.sh', 'v2 — fired unconditionally after a path refactor; its invariants moved to lint-research.sh'],
+  ['retrieve-learnings.sh', 'v3.1 — a UserPromptSubmit hook may not inject; triggers: are now grepped on demand, see conventions/methods.md'],
 ]);
 
 // Gitignore lines the framework requires. Upgrade appends any missing on an

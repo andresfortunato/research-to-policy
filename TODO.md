@@ -4,6 +4,8 @@ Project-development backlog for the framework itself. Researchers *using* the fr
 
 ## Shipped
 
+- **v3.1** — the Córdoba v3 assessment acted on (`docs/v3-assessment-cordoba.md`). Constitution first: principle 1 gains **a hook may enforce, a hook may not inject**; principle 4 gains **no gitignored file may feed session context**; new **principle 11, derive state don't store it**. Then the code: `UserPromptSubmit` + `retrieve-learnings.sh` deleted and registered in `REMOVED_HOOKS`, `triggers:` retired its 4–8 cap and became a documented grep; two linter bugs fixed (invariant 1 counted **bytes** not characters — 64 false FAILs on a corpus with zero real violations, fatal for any non-English project; invariant 3 required an **undocumented** `headline:` key — 61 false FAILs, and `headline:` is now out of the evidence template too); `lint-research.sh` 18 → **21** invariants with **19 downward reachability** (evidence nothing cites — 26% of the pilot corpus was stranded and every upward check passed) and **20 the `sources/INDEX.md` cap + one-row-per-doc contract**. The linter stays deliberately wired to nothing.
+
 - **v3** — the checkable chain (`citation-discipline.md`; the `artifacts:` evidence key; `lint-research.sh` 7 → 18 checks and 11.0s → 2.3s; `r2p evidence new <slug>` as the first reader of `.next-id`; `/cite-check` and `/pipeline-check`; principle 7's side-effect axis and the new principle 10; `03_linkcheck.py --baseline` + duplicate-path detector; `05_methods_merge.py` prints its heading tree; `migrate-source` repathed to v2; `test/upgrade-integration.sh` wired to `npm test`; the eight design docs for merged-away conventions deleted). See `docs/v2-to-v3.md`; archive entry lands at plan archival.
 - **v2** — consolidation (conventions 13 → 7 mandatory + 2 optional; layout 15 → 8 scaffolded dirs; `research/claims.md` as the curated layer above append-only evidence; `Measured`/`Reading` split + frontmatter scope keys + machine-readable status in evidence; methods merged by topic rather than genre; wiki gated behind `r2p init --with-wiki`; `lint-research.sh` with seven invariants; `docs/field-notes/` for framework bugs found in project repos; `templates/migration/` scripts). See `archive/plan-r2p-v2-consolidation.md`.
 - **v1.1** — cordoba-lessons (six small wins, theme-parallel opt-in, `brainstorming` skill, `learning-capture` skill + retrieve-learnings hook, plan archival via `archivist` agent + Stop hook tripwire, README rewrite for researcher audience). See `archive/plan-cordoba-lessons.md`.
@@ -75,7 +77,17 @@ The fourth landed in v3 Phase 7:
   Stop hook, or whether this repo should wire its own and win.
 - **`lint-research.sh` has no CI job anywhere.** It is designed to run from CI
   and does not, in this repo or in the pilot. A GitHub Actions workflow is a
-  dozen lines and would make the FAIL tier mean something.
+  dozen lines and would make the FAIL tier mean something. **Re-opened
+  deliberately in v3.1** rather than closed: the assessment proposed wiring it
+  (Stop hook or CI) and the call was to fix its accuracy first and wire nothing.
+  That was the right sequence — wiring an inaccurate linter is what poisoned it —
+  but it means the linter is now accurate *and* still unrun by default.
+
+- **`templates/migration/04_evidence_frontmatter.py` hardcodes `geography: Córdoba`.**
+  Engagement-specific content in a committed framework file, which principle 8
+  forbids. It is a one-shot v1→v2 script in the read-and-adapt directory, so the
+  blast radius is a reader who copies it, but the rule has no exception clause.
+  Noticed 2026-09-10 while dropping `headline:` from the same function.
 
 ## v4 — the plugin migration
 

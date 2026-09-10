@@ -24,11 +24,35 @@ Each had been true for months and none was visible to anyone reading the
 corpus. That is the failure this mechanism set is shaped around, and it is why
 the deliverable here is a *check* rather than a better-documented convention.
 
+
+## The chain also has to be read downward
+
+Every invariant above walks **upward**: does this reference resolve to something
+that exists? That finds broken citations, and it is structurally blind to the
+failure a large merge actually produces, where nothing is broken and new evidence
+simply never gets promoted into the curated layer.
+
+Measured on the pilot after a worktree consolidation renumbered 77 evidence docs
+and repointed eleven claims:
+
+```
+pre-consolidation  ids   1-196    n=196   orphaned= 10   ( 5%)
+renumbered/merged  ids 197-285    n= 89   orphaned= 78   (88%)
+```
+
+**Zero dangling references anywhere**, and 26% of the corpus reachable only from
+an index row — invisible to synthesis, therefore absent from the final report.
+Every upward check passed throughout. Invariant 19 asks the other question — *is
+any claim, method or deliverable citing this doc at all?* — and it is WARN
+permanently, because some orphan rate is healthy (5% over 196 docs across six
+months is good hygiene). The number is the signal, not its existence. Retired
+docs are excluded: a retired doc nothing cites is correct.
+
 ## The pieces
 
 ```
 .claude/conventions/citation-discipline.md   ← the chain, stated once
-.claude/hooks/lint-research.sh               ← invariants 8, 9, 9b, 10, 12, 13, 14, 16, 17, 18
+.claude/hooks/lint-research.sh               ← invariants 8, 9, 9b, 10, 12, 13, 14, 16, 17, 18, 19
 .claude/skills/cite-check/SKILL.md           ← the deliverable → claim walk
 .claude/skills/pipeline-check/SKILL.md       ← the evidence → script re-run
 docs/citation-chain-mechanism.md             ← this file
@@ -51,6 +75,7 @@ Each link is checked twice, at two costs:
 |---|---|---|
 | deliverable → claim | invariants 13, 14 — does the reference resolve? | `/cite-check` — did the deliverable make one at all? |
 | claim → evidence → artifact | invariants 8, 9, 9b, 12, 16, 17, 18 | *(none needed — the whole question is resolvable)* |
+| evidence → *is anything above it?* | invariant 19 — **the chain read downward** | *(none — a count, not a judgement)* |
 | evidence → script → source | invariant 10 — is the doc older than what it binds? | `/pipeline-check` — do the numbers still reproduce? |
 
 This is principle 7 applied to the chain, and the split falls where it does for

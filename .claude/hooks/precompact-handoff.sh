@@ -41,9 +41,9 @@ ${active_list}
   research/methods/_craft.md if it is cross-cutting — and check that file's
   triggers: line carries a word someone would actually type. See
   .claude/conventions/methods.md. There is no learnings/ directory and no
-  index.yaml in v2: retrieve-learnings.sh globs triggers: across
-  research/methods/*.md and research/sources/*.md, so a trap in a file with no
-  triggers: line is invisible to it.
+  index.yaml in v2: a triggers: line in the doc itself, grepped on demand
+  across research/methods/*.md and research/sources/*.md, so a trap in a file
+  with no triggers: line is hard for the next session to find.
 EOF
 
 if command -v jq >/dev/null 2>&1; then

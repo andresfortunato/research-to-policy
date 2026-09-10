@@ -8,7 +8,9 @@ across `decisions/` (why), `methods/` (the rule) and `learnings/` (the traps).
 | [`EXAMPLE_topic`](EXAMPLE_topic.md) | <what the rule governs> | — |
 | [`_craft`](_craft.md) | Cross-cutting numerical and reasoning traps | — |
 
-`triggers:` frontmatter in each file feeds the `retrieve-learnings.sh` hook.
+`triggers:` frontmatter in each file is the pull index: grep it with
+`grep -il '^triggers:.*<keyword>' research/methods/*.md` before assuming a
+topic is undocumented. Nothing pushes these docs into context.
 Source-specific gotchas live with the source in `research/sources/`, not here.
 
 **Sizing:** 20–35 topic files is normal for a multi-theme 6-month engagement.

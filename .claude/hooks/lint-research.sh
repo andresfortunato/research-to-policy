@@ -24,6 +24,12 @@
 #  16. claim resting on evidence whose `status:` is retired (or revised, WARN)
 #  17. claim with no `Rests on:` ids at all — "an assertion" (claims.md)
 #  18. id in a claim's other legs (`Contested by:`, `Supersedes`) naming nothing
+#  19. evidence doc cited by no claim, method or deliverable — STRANDED, the
+#      one direction invariant 8 is structurally blind to (26% of the pilot)
+#  20. `sources/INDEX.md` cell over 120 chars, or a source doc with no row in it
+#  21. a researcher-authored path into a directory v2 retired (`decisions/`,
+#      `learnings/`, `insights/`, `data_sources/`) — 380 pilot files, because a
+#      migration is not done when it runs; later merges reintroduce it
 #
 # Two verdict tiers, and the split is deliberate:
 #   FAIL — a broken link or a duplicate id. Exit 1. Always mechanical, never a
@@ -192,7 +198,38 @@ deliverable_artifacts() {
 # path list rather than being handed the files as arguments: an empty file
 # produces no records at all, so FNR==1 never fires for it and every index after
 # it would have shifted by one.
-EV_SCAN=$(ev_docs | awk -v need="id headline status unit period confidence" '
+# The required-key list MUST match `.claude/conventions/evidence.md` § Required
+# shape, and until v3.1 it did not. It demanded `headline:`, which that protocol
+# has never listed: the headline lives in the doc's `# ` title and in its INDEX
+# row (invariant 1 caps it there), and frontmatter was a silent third copy with
+# nothing checking the three agreed. On the pilot that invented requirement
+# produced 61 false failures against docs carrying every documented key, while
+# `r2p evidence new` satisfied it with an unedited placeholder — the check was
+# both wrong and trivially passable. v3.1 drops `headline:` here and from the
+# evidence template.
+#
+# `geography` was the mirror defect and is added: the protocol documents it,
+# "two findings only contradict each other if their unit and period overlap"
+# rests on it, and nothing checked it. Measured before adding — 240 of 240
+# frontmatter'd pilot docs carry it, so it costs no adoption backlog.
+#
+# `id`, `date` and `kind` are documented but NOT required here, and the boundary
+# is measured rather than argued. Across the pilot's 241 frontmatter'd docs:
+#
+#     status / unit / geography / period / confidence   241   100.0%
+#     id                                                230    95.4%
+#     date / kind                                       228    94.6%
+#
+# The five scope keys are at *exactly* 100%; everything else clusters at ~95%.
+# Requiring anything from the second group adds 11–13 failures against docs that
+# are otherwise fully compliant, for keys whose absence nothing downstream
+# suffers from: the id everything resolves on comes from the FILENAME (`ev_id`),
+# `date` is read from anywhere in the file by invariant 6 because 45 pilot docs
+# predate frontmatter entirely, and `kind` feeds no check. A frontmatter `id:` is
+# the same redundant-copy shape as the `headline:` this release removed, and
+# invariant 4 stays opportunistic by design — it compares the two when both
+# exist and treats absence as nothing to compare.
+EV_SCAN=$(ev_docs | awk -v need="status unit geography period confidence" '
 function decomment(line) {
   # Verbatim port of the shell strip_html_comments this replaced. Authoring
   # guidance is not a measurement, and the shipped evidence template spells out
@@ -284,10 +321,27 @@ done < <(scan_rows DATE | cut -f2-)
 echo "== r2p v3 research lint =="
 
 # --- 1. headline cap -------------------------------------------------------
+# The cap is 120 CHARACTERS, and counting bytes instead is fatal for any
+# non-English project. mawk — Ubuntu's default awk — is byte-oriented in every
+# locale: `LC_ALL=C.UTF-8` still returns 10 for a 5-character accented string.
+# On the pilot every one of 285 headlines was inside the cap (max exactly 120,
+# authors counting carefully) and 64 of them were reported FAIL, because
+# accented Spanish runs 121–131 bytes. A check that fires on a compliant corpus
+# is worse than no check, and this one had been doing it since v2.
+#
+# The fix needs no locale and no new tool. Every UTF-8 continuation byte is in
+# 0x80–0xBF and every character has exactly one lead byte, so stripping the
+# continuations leaves one byte per character. Verified against Python's len()
+# on the real 285-row index: 0 rows over 120, exact agreement.
+#
+# The insight was already in this file, one check away — the comment above the
+# verdict-word scan says mawk "is byte-oriented, so an accented letter stops
+# being a word character". It was never carried up to here.
 if [[ -f "$EV/INDEX.md" ]]; then
   over=$(awk -F'|' '/^\| *[0-9]+ *\|/ {
             h=$3; gsub(/^ +| +$/,"",h);
-            if (length(h) > 120) { gsub(/^ +| +$/,"",$2); printf "row %s: %d chars\n", $2, length(h) } }' "$EV/INDEX.md")
+            c=h; gsub(/[\200-\277]/,"",c);
+            if (length(c) > 120) { gsub(/^ +| +$/,"",$2); printf "row %s: %d chars\n", $2, length(c) } }' "$EV/INDEX.md")
   if [[ -n "$over" ]]; then
     note "FAIL headline cap (>120 chars), $(grep -c . <<< "$over") row(s):"; show "$over"; fail=1
   else
@@ -907,6 +961,234 @@ if [[ -d .claude || -d docs ]]; then
     else
       note "ok   every .claude/** and docs/** pointer outside plan/ resolves ($nptr scanned)"
     fi
+  fi
+fi
+
+# --- 19. downward reachability: evidence nothing cites --------------------
+# Invariant 8 walks the citation chain UPWARD — does every claim's `Rests on:`
+# resolve to a file? That finds broken citations. It is structurally blind to
+# the failure a large merge actually produces, which runs the other way: nothing
+# is broken, new evidence simply never gets promoted into the curated layer.
+#
+# Measured on the pilot, and this is the strongest single number in the v3
+# assessment. Reachability of each evidence doc from claims.md, any methods doc,
+# or any deliverable:
+#
+#     pre-consolidation  ids   1-196   n=196   orphaned= 10   ( 5%)
+#     renumbered/merged  ids 197-285   n= 89   orphaned= 78   (88%)
+#
+# 5% versus 88%, with **zero dangling references anywhere**. A 2026-08-21
+# worktree consolidation renumbered 77 docs, repointed eleven claims and
+# stranded the rest: 787,621 bytes — 26% of the corpus — reachable only from an
+# index row, therefore invisible to synthesis and to the final report. Nothing
+# detected it, and nothing could have: every upward check passed.
+#
+# WARN, and it stays WARN. Some orphan rate is normal and healthy — 5% over 196
+# docs across six months is good hygiene, not a defect — so there is no count at
+# which FAIL is the right answer. **The number is the signal, not its
+# existence**, which is why this prints the share on every run including a clean
+# one (principle 10).
+#
+# `status: retired` docs are excluded from the population: a retired doc that
+# nothing cites is correct, that is what retiring it meant. `revised` stays in —
+# it is still load-bearing.
+if (( ${#EV_DOCS[@]} )); then
+  ev_retired=""
+  while IFS=$'\t' read -r _i _v; do
+    [[ -n "$_i" ]] || continue
+    [[ "$_v" == retired ]] && ev_retired="${ev_retired}${EV_IDNUM[$_i]}"$'\n'
+  done < <(scan_rows STATUS | cut -f2-)
+
+  # Every id cited by the three curated layers. `#nn` in claims.md (comments
+  # blanked, as invariant 8 reads it), in any methods doc, and in any
+  # deliverable; plus the `evidence: [124, 131]` frontmatter list methods.md
+  # specifies, which is a citation that carries no `#`.
+  cited_ids=$(
+    {
+      [[ -f research/claims.md ]] && claims_live
+      for _m in research/methods/*.md; do [[ -f "$_m" ]] && cat "$_m"; done
+      deliverable_docs | xargs -0 -r cat 2>/dev/null
+    } 2>/dev/null | grep -ohE '#[0-9][0-9A-Fa-f]*' | sed 's/^#//'
+    for _m in research/methods/*.md; do
+      [[ -f "$_m" ]] || continue
+      sed -n 's/^evidence:[[:space:]]*\[\(.*\)\].*/\1/p' "$_m" | grep -oE '[0-9]+'
+    done
+  )
+  # Same two guards invariants 8 and 14 use: `#5FA1C7` is a hex colour, and no
+  # evidence corpus reaches five digits.
+  cited_ids=$(while IFS= read -r tok; do
+      [[ -n "$tok" ]] || continue
+      [[ "$tok" =~ [A-Fa-f] ]] && continue
+      (( ${#tok} > 4 )) && continue
+      printf '%s\n' "$((10#$tok))"
+    done <<< "$cited_ids" | sort -un)
+
+  orphan=""; npop=0; norph=0
+  for _i in "${!EV_DOCS[@]}"; do
+    _id=${EV_IDNUM[$_i]}
+    [[ -n "$_id" ]] || continue
+    in_list_nl() { [[ $'\n'"$2" == *$'\n'"$1"$'\n'* ]]; }
+    in_list_nl "$_id" "$ev_retired" && continue
+    npop=$((npop+1))
+    grep -qx -- "$_id" <<< "$cited_ids" && continue
+    norph=$((norph+1))
+    orphan="${orphan}#${_id} ${EV_DOCS[$_i]}"$'\n'
+  done
+
+  # The share is reported on EVERY run and the line is never suppressed — a
+  # suppressed finding is indistinguishable from a check that did not run
+  # (principle 10). What the threshold changes is the *tier*, not whether the
+  # number appears: below it the count is context, above it the count is a
+  # finding. 5% over 196 docs was healthy hygiene on the pilot and 88% was a
+  # broken consolidation, so a check that reads both the same way is not
+  # reporting anything. LINT_ORPHAN_PCT is overridable because a threshold taken
+  # from one project ages out of correctness the moment a project is unlike it —
+  # extending.md's rule about absolute counts, applied to this one.
+  LINT_ORPHAN_PCT=${LINT_ORPHAN_PCT:-25}
+  if (( npop == 0 )); then
+    note "--   no live evidence docs to check for reachability"
+  elif (( norph == 0 )); then
+    note "ok   every live evidence doc is cited by a claim, method or deliverable ($npop checked)"
+  else
+    pct=$(( norph * 100 / npop ))
+    if (( pct >= LINT_ORPHAN_PCT )); then
+      warn "$norph of $npop live evidence doc(s) (${pct}%) are cited by no claim, no method and no deliverable — stranded, so invisible to synthesis. Over the ${LINT_ORPHAN_PCT}% threshold; a jump this size is what a bulk renumber or a merge looks like:"
+      show "$orphan"
+      note "     (see claims.md on promoting evidence into the curated layer. LINT_ORPHAN_PCT overrides the threshold.)"
+    else
+      note "--   $norph of $npop live evidence doc(s) (${pct}%) cited by no claim, method or deliverable — under the ${LINT_ORPHAN_PCT}% threshold, which is the normal range (the pilot's healthy state was 5%). LINT_ORPHAN_PCT=0 to list them."
+      (( LINT_ORPHAN_PCT == 0 )) && show "$orphan"
+    fi
+  fi
+fi
+
+# --- 20. sources/INDEX.md: capped, and complete ---------------------------
+# `evidence/INDEX.md` has a 120-char cap (invariant 1) and held it perfectly at
+# 285 rows: mean headline 102, max exactly 120, zero violations. `sources/INDEX.md`
+# had the same job, the same growth curve and NO cap, and the pilot's grew to
+# 96,791 bytes / ~26,000 tokens — larger than the evidence index over half the
+# documents. 40% of its navigation cells ran past 120 characters, the longest at
+# 1,759, and its "Quick navigation" table alone reached 48 KB.
+#
+# It also carried six overlapping listings of the same 130 sources, three of them
+# named after the migrations that created them, with 62 of 142 entries appearing
+# in more than one section. The check for that is NOT duplication — the shipped
+# template deliberately has a short curated "Quick navigation" table above the
+# full listing, so one duplication is by design. What is never by design is a
+# source doc that appears in NO row: that doc is undiscoverable from the index
+# whose whole job is discovery, and it is the pathology the pilot's "Source docs
+# that had no index row" section was invented to paper over.
+#
+# WARN on both halves. The cap is FAIL for evidence because it shipped with the
+# index; introducing one onto an existing sources index would make green
+# unreachable on every adopting project at once, which is the tier rule's own
+# stated failure mode. Character-counted, not byte-counted — see invariant 1.
+SRC=research/sources
+if [[ -f "$SRC/INDEX.md" ]]; then
+  over=$(awk -F'|' 'NF>2 && /^\|/ {
+            for (i = 2; i < NF; i++) {
+              c=$i; gsub(/^ +| +$/,"",c);
+              if (c ~ /^-+$/ || c == "") continue
+              gsub(/[\200-\277]/,"",c)
+              if (length(c) > 120) printf "line %d, cell %d: %d chars\n", NR, i-1, length(c)
+            } }' "$SRC/INDEX.md")
+  if [[ -n "$over" ]]; then
+    warn "$(grep -c . <<< "$over") cell(s) in $SRC/INDEX.md exceed 120 characters — the index is for navigation; detail belongs in the doc:"
+    show "$over"
+  else
+    note "ok   $SRC/INDEX.md cells within 120 chars"
+  fi
+
+  missing=""; nsrc=0
+  for f in "$SRC"/*.md; do
+    [[ -f "$f" ]] || continue
+    b=${f##*/}
+    case "$b" in INDEX.md|README.md) continue ;; esac
+    nsrc=$((nsrc+1))
+    grep -qF "$b" "$SRC/INDEX.md" || grep -qF "${b%.md}" "$SRC/INDEX.md" \
+      || missing="${missing}$b — no row in $SRC/INDEX.md"$'\n'
+  done
+  if [[ -n "$missing" ]]; then
+    warn "$(grep -c . <<< "$missing") of $nsrc source doc(s) appear nowhere in $SRC/INDEX.md — undiscoverable from the index:"
+    show "$missing"
+  elif (( nsrc )); then
+    note "ok   every source doc has a row in $SRC/INDEX.md ($nsrc docs)"
+  else
+    note "--   no source docs yet"
+  fi
+
+  # Listed three or more times. TWO is the shipped template's own shape — a
+  # short curated "Quick navigation" table above the full listing — so flagging
+  # a second mention would fire on a correct `r2p init`, which is the failure
+  # extending.md step 2a exists to prevent. Three is never by design: it means a
+  # section was appended rather than merged, which is how the pilot reached six
+  # overlapping listings of the same 130 sources with 62 of 142 entries
+  # duplicated, three of the sections named after the migrations that made them.
+  if (( nsrc )); then
+    dupes=""
+    for f in "$SRC"/*.md; do
+      [[ -f "$f" ]] || continue
+      b=${f##*/}
+      case "$b" in INDEX.md|README.md) continue ;; esac
+      n=$(grep -cF "$b" "$SRC/INDEX.md" 2>/dev/null || echo 0)
+      (( n < 3 )) && continue
+      dupes="${dupes}$b — listed $n times"$'
+'
+    done
+    if [[ -n "$dupes" ]]; then
+      warn "$(grep -c . <<< "$dupes") source doc(s) appear 3+ times in $SRC/INDEX.md — merge the rows into one family group and delete the extra section:"
+      show "$dupes"
+    else
+      note "ok   no source doc listed 3+ times in $SRC/INDEX.md"
+    fi
+  fi
+fi
+
+# --- 21. a path into a directory the framework retired --------------------
+# The mirror image of invariant 15, and deliberately so. Invariant 15 reads
+# FRAMEWORK-owned files and asks whether their pointers resolve; its scope was
+# set by measurement, because a first pass over everything reported 22 findings
+# on the pilot that were mostly the researcher's own prose. This one reads
+# RESEARCHER-authored files and asks a narrower question that does not have that
+# problem: does this path name a directory v2 retired?
+#
+# Measured on the pilot 13 months after its v1->v2 migration:
+#
+#     decisions/  223 files      learnings/  157 files      insights/  32 files
+#
+# None of the three has existed since v2 merged them into research/methods/, and
+# `02_repath.py` ran and was verified green at the time. Branches open before the
+# migration merged after it and carried the old paths back in. Nothing errors: a
+# dead directory reference has no symptom, so the session simply fails to find
+# what it was told to read and reports the topic as undocumented. That is the
+# same invisible-by-construction class invariant 15 exists for.
+#
+# **A path, not a word.** The pattern requires `<dir>/<file>.<ext>`, so prose
+# that discusses the old layout — "v1's learnings/index.yaml reached 7 of 71" —
+# is only matched when it names a real file path, and framework-owned files are
+# out of scope entirely. Measured while calibrating: the bare-name version
+# matches 305 pilot files to this one's 179, and 6 files in the framework repo
+# that are all correct history.
+#
+# WARN, permanently. The population is researcher-authored and arrives at
+# adoption volume; a repath is a bulk operation the researcher schedules, and
+# failing the build would leave green unreachable for the duration of exactly
+# the migration this is telling them to run.
+LINT_V1PATH_DIRS=${LINT_V1PATH_DIRS:-'decisions|learnings|insights|data_sources'}
+if [[ -d research || -d deliverables ]]; then
+  v1p=""; nv1=0
+  while IFS= read -r hit; do
+    [[ -n "$hit" ]] || continue
+    nv1=$((nv1+1))
+    v1p="${v1p}${hit}"$'\n'
+  done < <(grep -rEno "(^|[^A-Za-z0-9_/.-])($LINT_V1PATH_DIRS)/[A-Za-z0-9_*.-]+\.(md|ya?ml|csv|py|R|json)" \
+             research deliverables reference CLAUDE.md 2>/dev/null \
+           | sed 's|^\./||' | sed 's|:[^:]*\([a-z_]*/[A-Za-z0-9_*.-]*\.[a-zA-Z]*\)$|-> \1|')
+  if (( nv1 )); then
+    warn "$nv1 reference(s) in researcher-authored files name a directory the framework retired (decisions/, learnings/, insights/, data_sources/ became research/methods/ and research/sources/ in v2) — re-run templates/migration/02_repath.py after your last pre-migration branch merges:"
+    show "$v1p"
+  else
+    note "ok   no researcher-authored path names a retired v1 directory"
   fi
 fi
 

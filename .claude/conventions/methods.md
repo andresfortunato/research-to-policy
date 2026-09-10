@@ -107,18 +107,56 @@ and a referee may ask what it was before, snapshot the topic file into the
 deliverable's folder at submission time. Don't reintroduce a frozen-record
 directory for the general case.
 
-## Retrieval
+## Retrieval — pull, never push
 
-`triggers:` is a whitespace-separated keyword string, lowercased for matching.
-The `retrieve-learnings.sh` hook globs `triggers:` across
-`research/methods/*.md` and `research/sources/*.md` on every prompt and
-surfaces the top matches at ≥2 keyword hits.
+`triggers:` is a whitespace-separated keyword string: **the words someone would
+search for to find this doc**, including acronyms, synonyms and dataset codes the
+filename does not carry. It is a *pull* index, read by a session that is looking
+for something. **Nothing pushes it into context.**
 
-Pick 4–8 **concrete** keywords — variable names, dataset acronyms, codes, year
-ranges. Avoid generic words (`data`, `fix`, `error`) that produce false
-positives. The v1 two-file-write requirement is gone: the trigger lives in the
-same file as the content, so a method can no longer be invisible to retrieval
-because someone forgot an index row.
+Grep it before assuming a topic is undocumented, and fall back to a body grep,
+which is wider but never misses:
+
+```bash
+grep -il '^triggers:.*<keyword>' research/methods/*.md research/sources/*.md
+grep -ril '<keyword>' research/methods research/sources
+```
+
+**Be generous with keywords.** Under grep an extra keyword costs nothing until
+someone searches it, and then it returns one extra filename they discard for
+free. A *missing* keyword is the only real failure: it makes the doc hard to
+find. Ten or fifteen is fine.
+
+**This reverses the v2 rule, and the reversal is the point.** v2 capped keywords
+at 4–8 and banned generic words because a `UserPromptSubmit` hook matched them
+against every prompt, so each extra keyword was a false-positive risk paid by a
+later session. That hook is gone — v3.1 deleted it on the rule that a hook may
+enforce but may not inject.
+(Measured in `docs/v3-assessment-cordoba.md`, in the framework repo.)
+The reason for the cap went with it. The v2 cap was also never
+checked and drifted 63% past itself — mean 12.5 keywords against guidance of
+4–8. Under pull that drift stops being a defect, which retires the problem
+instead of requiring a check to manage it.
+
+**Why the trigger line still earns its keep once no hook reads it** — measured,
+not assumed. Six realistic lookups against 194 method and source docs on the
+pilot: filenames alone found 4 of 6; `triggers:` found 5 of 6 with tight result
+sets of 2–6 candidates; filename plus triggers found 6 of 6. The two the
+filenames missed are the whole argument — `monotributo` is documented in a
+`setr_*` file, and `deflator ipc` lives in `price-normalization.md`. That is what
+a trigger line carries that a filename cannot: **the mapping between how you
+would ask and how the file is named.** A body grep also finds 6 of 6 but returns
+up to 22 candidates over a 2.4 MB corpus.
+
+A `triggers:` line is not automation. It is static metadata in the file it
+describes: it cannot error, cannot inject, cannot break a run, and stale at worst
+means one grep misses and you search again. `lint-research.sh` invariant 7 still
+WARNs on a doc that has *no* trigger line — that doc is genuinely hard to find.
+Nothing checks how many keywords it has, deliberately.
+
+The v1 two-file-write requirement is gone and stays gone: the trigger lives in
+the same file as the content, so a method can no longer be invisible because
+someone forgot an index row.
 
 ## Sizing
 

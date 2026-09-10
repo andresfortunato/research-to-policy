@@ -360,7 +360,8 @@ def main() -> int:
         idx.append(f"| [`{slug}`]({slug}.md) | {topics[slug]['title']} | {n} |")
     idx += ["| [`_craft`](_craft.md) | Cross-cutting numerical and reasoning traps "
             f"| {len(craft)} |", "",
-            "`triggers:` frontmatter in each file feeds the retrieve-learnings hook.",
+            "`triggers:` frontmatter in each file is the pull index — grep it with",
+            "`grep -il '^triggers:.*<keyword>' research/methods/*.md`.",
             "Source-specific gotchas live with the source in `research/sources/`."]
     (METH / "INDEX.md").write_text("\n".join(idx) + "\n", encoding="utf-8")
 

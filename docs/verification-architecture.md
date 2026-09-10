@@ -125,7 +125,7 @@ flags missing headers when it can't trace an artifact.
 
 **See `.claude/hooks/lint-research.sh`.**
 
-Eighteen invariants over the research record, in pure bash. Every one of
+Twenty-one invariants over the research record, in pure bash. Every one of
 them is a defect that actually happened on the Córdoba pilot — that is the
 admission test, not a designer's guess at what could go wrong. Run it by
 hand before a commit, or from CI. It reads the evidence corpus once into an

@@ -94,6 +94,20 @@ proposal wanting to write *source* files does not inherit that amendment.
 
 #### 2c. A Stop hook — read this before you write one
 
+**First, the absolute rule: a hook may CHECK, a hook may not INJECT.** A hook
+that looks at the filesystem and reports is admissible (that is what
+`check-archival.sh` does). A hook that pushes document text into the session's
+context is not, at any threshold, and this is a constitutional bar rather than a
+preference — see principle 1's 2026-09-10 revision. Six months of measurement on
+the pilot: **every enforced constraint survived, every injection channel
+degraded, every unchecked prose rule drifted.** v3.1 deleted r2p's only injection
+hook on that finding; it had been firing on the words `no` and `a`, costing
+~3.2k tokens per fire, ~41k tokens per session. If your idea is "surface the
+relevant doc automatically", the answer is a documented grep and a generous
+`triggers:` line, because under pull the person adding keywords is the person who
+pays for them. `docs/v3-assessment-cordoba.md` has the numbers.
+
+
 **A new hook is mirrored but not wired.** `r2p init --upgrade` never rewrites a
 project's `.claude/settings.json` — correctly, since that file is the project's
 own. So a hook you add lands on disk in every upgraded project and runs in none
@@ -217,9 +231,12 @@ Keep it under 5 lines.
 
 ## Anti-patterns to avoid
 
+- **A hook that injects document text into context.** Not a matter of tuning the threshold: the matcher cannot know the session's task, the payload is bodies rather than names, the cost multiplies by turn count, and a high threshold produces *silent* misses the operator never learns about. Retrieval is a grep the session runs, not a push it receives.
 - **Always-fire Stop hooks** (`pattern: .*` or unconditional script). They produce noise and pressure trivial compliance.
 - **A silent-by-default hook whose silence depends on a path.** It is one refactor away from firing every turn, in every installed project, with no way for the project to know why. This is not hypothetical — it is how `check-evidence.sh` died.
 - **A shipped file pointing into `docs/`.** `r2p init` does not install `docs/`, so a convention, skill, hook or template citing `docs/<name>.md` resolves perfectly here and dangles in every project. The defect is invisible where it is authored. Point at a convention, which is installed, or name the framework repo explicitly.
+- **A check that requires a key its own convention does not document.** The linter demanded `headline:` in evidence frontmatter, which `evidence.md` had never listed — 61 false failures on a fully compliant corpus, while `r2p evidence new` satisfied it with an unedited placeholder. Before adding a required key, read the protocol and make them agree in the same commit.
+- **Counting bytes where the rule says characters.** `mawk` is byte-oriented in every locale, so `length()` on accented text over-counts and a 120-character Spanish headline fails a cap it met. Strip UTF-8 continuation bytes (`gsub(/[\200-\277]/,"",s)`) before measuring anything a human counted.
 - **Inferring a field whose wrongness is worse than its absence.** A heuristic that fills `artifacts:` would be right most of the time, and the residue would be a confident wrong binding that satisfies the check and points at the wrong finding. Hand-authored or absent.
 - **Conventions encoded in CLAUDE.md.** They load every session and can't be selectively applied.
 - **Hooks that depend on Python, Node, or other runtimes** beyond bash + standard Unix. Portability suffers.

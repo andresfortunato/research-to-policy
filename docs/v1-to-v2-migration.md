@@ -108,6 +108,32 @@ bash    .claude/hooks/lint-research.sh
    before mirroring made the mirror skip it as "exists" and shipped an empty
    tree.
 
+### After the run — a migration is not done when it exits zero
+
+**A repath pass is point-in-time, and its "done" condition is *no open branch
+predates it*, not *the script exited zero*.** Measured on the pilot thirteen
+months after its migration: **380 markdown files still reference `decisions/`
+(223), `learnings/` (157) and `insights/` (32)**, none of which has existed since
+v2 merged them into `research/methods/`. `02_repath.py` ran and was verified
+green at the time. Branches open before the migration merged after it, carrying
+the old paths back in, and nothing errored — a dead directory reference produces
+no symptom at all, so a session simply fails to find what it was told to read and
+concludes the topic is undocumented.
+
+So:
+
+1. **Re-run `02_repath.py` after the last pre-migration branch merges**, not
+   after the first. If branches are still open when you migrate, schedule a
+   second pass and say so in the plan.
+2. **Run `03_linkcheck.py --baseline HEAD` on merges, not only on migrations.**
+   The `--baseline` flag exists so it can run repeatedly and report only *new*
+   breaks; that makes it a standing job, and treating it as a one-shot wastes the
+   design.
+3. **Repath the instruction, not just the reference** — see "The half-repathed
+   pointer is worse than the stale one" in `docs/v2-to-v3.md`.
+
+Full write-up: `docs/field-notes/a-migration-is-not-done-when-it-runs.md`.
+
 ## Adopting v2 on a new project
 
 `r2p init` scaffolds it. Nothing else to do. Add `--with-wiki` only if the

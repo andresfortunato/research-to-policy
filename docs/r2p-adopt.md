@@ -372,7 +372,7 @@ ongoing audits.
 Adoption produces a research record for the first time; the framework can
 check it from that point on. Two things to run once the moves are committed:
 
-- **`bash .claude/hooks/lint-research.sh`.** Eighteen invariants over the
+- **`bash .claude/hooks/lint-research.sh`.** Twenty-one invariants over the
   record you just created — duplicate evidence ids, frontmatter gaps, a claim
   resting on an id with no file, an artifact no evidence doc mentions, a doc
   pointer that resolves to nothing. It is manual or CI, never a hook, and it

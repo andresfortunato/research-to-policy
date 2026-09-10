@@ -250,7 +250,7 @@ On explicit user approval:
      A pre-convention donor doc may have no frontmatter at all; add
      the five keys (`source`, `status`, `triggers`, `wrapper`, `env`)
      rather than lifting a bare body. `triggers:` is load-bearing —
-     `retrieve-learnings.sh` globs it, so a doc without one is
+     a future session greps it, so a doc without one is
      invisible to retrieval at the target.
    - If the target path *does* exist: write a git-style merge file
      (`<<<<<<<` HEAD section / `=======` / `>>>>>>>` migrated
@@ -564,8 +564,10 @@ The migration created a frontmatter-only stub at
 - `## Coverage limits` (what the source does not have)
 
 Then set `status: verified <today>` in the frontmatter and give
-`triggers:` four to eight concrete keywords — without them the doc is
-invisible to `retrieve-learnings.sh`. The wrapper's docstring
+`triggers:` a generous list of the words someone would search to find
+this source — acronyms and synonyms included. Nothing reads them
+automatically; a future session greps them, so a doc without a
+`triggers:` line is hard to find. The wrapper's docstring
 `Full guide: research/sources/<slug>.md` back-link will resolve once
 the file is real.
 

@@ -15,15 +15,32 @@ each source, what's in it, what to watch out for.**
 
 Sort rows by likely access frequency, not alphabetically. Three to
 ten rows is the right size; if it grows past ten, the engagement is
-probably touching too many sources.
+probably touching too many sources. This table is a **curated
+shortcut** — the full listing below is the canonical one, and it is
+the only place every doc must appear.
 
 ---
 
 ## Files in this folder
 
+**The canonical listing: one row per source doc, no exceptions.**
 Group files by source family (all IMF docs together, then World
 Bank, then OECD, etc.). Drop the `EXAMPLE_*.md` row once a real
 source is documented.
+
+**Every cell in this file is capped at 120 characters.** The index
+answers *which file*, not *what does it say* — if a cell needs more
+room, that content belongs in the doc's `## What it gives you`. The
+evidence index has held the same cap across 285 rows with zero
+violations; this one had no cap and the pilot's grew to 26,000
+tokens. `lint-research.sh` invariant 20 WARNs on both halves: an
+overlong cell, and a source doc with no row here.
+
+**Never add a section named after an operation** — "folded in from
+the old index", "docs that had no row yet". A migration is an event;
+an index is a map. Merge those rows into the family group they
+belong to and delete the section, or you get the pilot's six
+overlapping listings of the same 130 sources.
 
 | File | Purpose |
 |---|---|
@@ -43,8 +60,9 @@ form:
    `## Headline anchor` / `## Gotchas` / `## Coverage limits`. Naming
    is lowercase snake_case; the first token names the source, the rest
    narrows the scope (`imf_sdmx_api.md`, `world_bank_wbgapi.md`).
-   `triggers:` is what `retrieve-learnings.sh` globs — a doc without
-   one is invisible to retrieval.
+   `triggers:` is what a future session greps to find this doc — a
+   doc without one is hard to find. Be generous: an extra keyword
+   costs nothing until someone searches it.
 2. **Run the headline-anchor query at least once** and paste the
    returned value into the doc; set `status: verified <today>` in the
    frontmatter.

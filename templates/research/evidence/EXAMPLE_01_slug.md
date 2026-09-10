@@ -1,6 +1,5 @@
 ---
 id: 1
-headline: <the measurement in <=120 chars, no verdict>
 status: live                 # live | revised | retired
 supersedes: []
 superseded_by: []
@@ -22,7 +21,13 @@ methods: []                  # research/methods/ slugs this rests on
 #   - output/<theme>/<table>.csv
 ---
 
-# <Headline measurement — the same text as the frontmatter headline>
+# <Headline measurement — <=120 characters, no verdict>
+
+<!-- THIS title is the doc's headline, and the same text goes in the
+     research/evidence/INDEX.md row where invariant 1 caps it at 120
+     characters. It is deliberately NOT a frontmatter key: a third copy that
+     nothing reconciles is drift waiting to happen. See
+     .claude/conventions/evidence.md § Required shape. -->
 
 ## Measured
 

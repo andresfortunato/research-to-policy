@@ -68,15 +68,30 @@ Three layers, and the order matters:
    deletable.** Start here when synthesizing or writing. Deliverables cite
    claims; claims cite evidence. Mandatory once evidence passes 40 docs.
 2. **`research/evidence/NN_<slug>.md`** — **append-only**. Frontmatter carries
-   `status / unit / geography / period / confidence`. `## Measured` holds
-   numbers only; `## Reading` is the only place a verdict may appear.
-   `INDEX.md` headlines are capped at 120 chars.
+   `id / status / unit / geography / period / confidence`. `## Measured` holds
+   numbers only; `## Reading` is the only place a verdict may appear. The
+   headline lives in the doc's `# ` title and in its `INDEX.md` row, where it is
+   capped at 120 **characters** — not in frontmatter.
 3. **`research/methods/<topic>.md`** — one file per methodological object: the
    rule, why-not-the-alternatives, the traps, the diagnostic counts.
 
 **Two findings only contradict each other if their `unit` and `period`
 overlap.** Check frontmatter before reconciling anything. Never silently
 reconcile a real conflict — put it in the claim's `Contested by:` field.
+
+**Finding a method or source doc.** Every doc in `research/methods/` and
+`research/sources/` carries a `triggers:` frontmatter line listing the words
+someone would search to find it — including acronyms and synonyms the filename
+does not carry. Grep it before assuming a topic is undocumented, and fall back to
+a body grep, which is wider but never misses:
+
+```bash
+grep -il '^triggers:.*<keyword>' research/methods/*.md research/sources/*.md
+grep -ril '<keyword>' research/methods research/sources
+```
+
+Nothing pushes these docs into context; retrieval is something you do, not
+something that happens to you.
 
 Protocols: `.claude/conventions/{claims,evidence,methods}.md`.
 Lint: `bash .claude/hooks/lint-research.sh`.
@@ -110,6 +125,13 @@ appended. Phase verification is domain-shaped (sign, magnitude, breakpoint
 alignment, citation present, reproducibility), not code-shaped. Before a
 parallel fan-out, patch the phase files — a correction stored only in the handoff
 cannot reach a worker whose phase file is self-contained.
+
+**Which plan is live is derived, not stored** — `git log -1 --format='%as %f' --
+plan/plan-*/`. Do not keep a file that names the current focus: a maintained one
+froze for 41 days on the pilot while the work moved elsewhere, and it froze
+silently. Handoffs carry what git cannot answer — decisions, surprises, what not
+to re-litigate.
+
 Protocol: `.claude/conventions/plan-lifecycle.md`.
 
 ## Where Things Go

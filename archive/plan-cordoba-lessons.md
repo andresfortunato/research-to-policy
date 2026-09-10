@@ -2,6 +2,15 @@
 
 Completed: 2026-05-08
 
+> ⚠ **Superseded in part by v3.1 (2026-09-10).** This entry is accurate about
+> its own release and is left unedited on purpose — an archive that is revised
+> to match the present is not a record. But one mechanism it describes as
+> shipped no longer exists: **`retrieve-learnings.sh` and its `UserPromptSubmit`
+> wiring were deleted**, on the measured rule that a hook may enforce but may
+> not inject. `triggers:` survives as a pull index you grep. See
+> `docs/v3-assessment-cordoba.md` and principle 1 in
+> `docs/audience-and-philosophy.md`.
+
 ## What was built
 
 A six-phase framework upgrade (v1.1) motivated by auditing `~/cordoba`, an

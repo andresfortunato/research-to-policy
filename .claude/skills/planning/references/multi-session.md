@@ -56,7 +56,7 @@ When a session ends, write/overwrite `plan/plan-<slug>/handoff.md`. The framewor
 
 The "Surprises" section is the most valuable part — it captures knowledge that the plan didn't anticipate and the code doesn't make obvious. Without it, the next session re-discovers each surprise independently.
 
-Significant learnings that apply beyond this plan go to `research/methods/` (see `learning-capture.md`). The framework's UserPromptSubmit hook (`retrieve-learnings.sh`) automatically injects relevant learnings when future prompts match their trigger keywords.
+Significant learnings that apply beyond this plan go to `research/methods/` (see `learning-capture.md`). Give each one a generous `triggers:` line — a future session finds it by grepping that line, not by anything injecting it automatically.
 
 ## Start-of-Session Protocol
 

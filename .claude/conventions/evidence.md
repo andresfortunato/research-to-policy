@@ -89,6 +89,24 @@ differently-scoped number elsewhere is not a contradiction.>
 <Script · inputs · chart paths · seed.>
 ```
 
+**Required keys are exactly the ten above**, and `lint-research.sh` invariant 3
+checks the five scope keys (`status unit geography period confidence`) — the
+only five that a real corpus carries at 100%. `id`, `date` and `kind` are still
+required by this protocol and still belong in every new doc; they are simply not
+*failed* on, because the id everything resolves on comes from the filename,
+`date` is read from anywhere in the file by invariant 6, and neither absence
+breaks anything downstream. `scope_authored`, `data`, `methods` and `artifacts`
+are optional.
+
+**The headline is deliberately not a frontmatter key.** It lives in exactly two
+places: the doc's `# ` title, and the doc's row in `research/evidence/INDEX.md`
+where invariant 1 caps it at 120 **characters**. Frontmatter used to carry a
+third copy and nothing reconciled the three — the linter demanded a key this
+protocol never listed, which produced 61 false failures against fully compliant
+docs on the pilot while `r2p evidence new` satisfied it with an unedited
+placeholder. v3.1 removed it. If your docs still carry `headline:`, nothing
+flags it and nothing reads it; leave it or delete it.
+
 ### The `Measured` / `Reading` split is the load-bearing rule
 
 - **`## Measured` holds numbers and nothing else.** No "confirms", "refutes",

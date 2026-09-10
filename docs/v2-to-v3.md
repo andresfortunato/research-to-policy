@@ -208,8 +208,9 @@ framework: **a framework cannot check itself against itself.**
 
 In three of four cases v3 examined, a dangling pointer was not the defect — it
 was a thread attached to a live v1 *instruction* underneath.
-`precompact-handoff.sh` routed learnings to a directory `retrieve-learnings.sh`
-does not read. A skill demanded an `index.yaml` its own heading said no longer
+`precompact-handoff.sh` routed learnings to a directory the retrieval hook did
+not read (that hook is itself gone as of v3.1 — see
+`docs/v3-assessment-cordoba.md`). A skill demanded an `index.yaml` its own heading said no longer
 exists. Fixing the pointer alone leaves an instruction that now succeeds at
 producing the wrong layout, which fails silently where a dangling reference
 fails visibly. When you repath a reference, read what it was pointing *at*.

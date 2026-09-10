@@ -135,6 +135,30 @@ happily commit the other agent's staged files.
   land on current truth without filtering. History is in git; direction changes
   go in `log.md`.
 
+### Which plan is live is derived, never stored
+
+**Do not maintain a file that says which plan is active.** Ask git:
+
+```bash
+git log -1 --format='%as %f' -- plan/plan-*/   # newest touch, per plan
+```
+
+This is principle 11 (`docs/audience-and-philosophy.md`, in the framework repo)
+at its most concrete, and both halves of it were measured on the pilot. A
+maintained status document **froze for 41 days** while the work moved to four
+other themes, so every session opened by asserting a focus that was five phases
+and 1,555 commits out of date. And **all 36 plan handoffs carried the same
+mtime**, because one worktree consolidation rewrote every one of them and
+destroyed the only signal saying which plan was live.
+
+A stored answer is a cache, and a research repo has no build or test run that
+would ever invalidate it. The derivation cannot freeze, because there is nothing
+to forget to update.
+
+**What the handoff is still for is the part git cannot answer**: what was
+decided, what surprised you, what the next session must not re-litigate. Write
+that. Do not write "this is the current plan" — the filesystem already knows.
+
 ```markdown
 # Handoff: <plan-name>
 

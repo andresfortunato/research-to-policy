@@ -125,10 +125,13 @@ def main() -> int:
             overlong.append(f"{p.name}: {len(hl)}")
 
         date = re.search(r"\*\*Date\*\*:?\s*([0-9]{4}-[0-9]{2}(?:-[0-9]{2})?)", body)
+        # No `headline:` key. It lives in the doc's `# ` title and in the
+        # INDEX row this script rebuilds below; v3.1 removed the frontmatter
+        # third copy because nothing reconciled the three. `hl` is still read
+        # and still capped — it just lands in one place instead of two.
         fm = [
             "---",
             f"id: {eid}",
-            f"headline: {hl}",
             f"status: {sc['status']}",
             "supersedes: []",
             "superseded_by: []",

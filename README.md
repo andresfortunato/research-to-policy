@@ -80,7 +80,7 @@ Research is not a march from spec to ship. It's iteration with branches: a metho
 
 4. **Archival.** When every phase verifies and the researcher confirms the plan is done, `touch plan/plan-<slug>/.completed`. The Stop hook's archival tripwire emits a blocking instruction; Claude launches the **archivist** subagent, which synthesizes `plan/archive/plan-<slug>.md` (What was built / Key decisions / Methods landed / Files modified / Learnings / Metrics), appends a one-liner to `plan/archive/index.md`, optionally updates `CLAUDE.md` if architecture changed, and deletes the plan directory. Per-plan; project-wide cleanup is the user-invoked `/research-cleanup`.
 
-Two cross-cutting affordances run alongside the workflow. **Learnings** — gotchas and tacit findings worth remembering across plans — get filed at `research/methods/<slug>.md` with trigger keywords; the `retrieve-learnings.sh` hook surfaces matches when the user's prompt contains ≥2 keywords from a given learning. **Pre-compaction handoff** — the `precompact-handoff.sh` hook fires before auto-compaction and nudges a handoff refresh plus a sweep for session surprises worth preserving as learnings.
+Two cross-cutting affordances run alongside the workflow. **Learnings** — gotchas and tacit findings worth remembering across plans — get filed at `research/methods/<slug>.md` with a generous `triggers:` line naming the words someone would search to find them; a later session finds them by grepping that line (`grep -il '^triggers:.*<keyword>' research/methods/*.md`). **Nothing pushes them into context.** v3.1 deleted the `UserPromptSubmit` hook that used to: a hook may check and report, but a hook that injects text degrades — measured, in `docs/v3-assessment-cordoba.md`. **Pre-compaction handoff** — the `precompact-handoff.sh` hook fires before auto-compaction and nudges a handoff refresh plus a sweep for session surprises worth preserving as learnings.
 
 ### Scaffolding and project structure
 
@@ -162,8 +162,7 @@ Background hooks (silent unless their condition holds):
 | Hook | Event | What it does |
 |---|---|---|
 | `check-archival.sh` | Stop | BLOCKING nudge to launch the archivist when `plan/plan-<slug>/.completed` exists and the plan is not yet archived |
-| `lint-research.sh` | *(not wired, by design)* | **Eighteen** invariants on the research record — duplicate evidence ids, frontmatter completeness, verdicts in `## Measured`, retrieval triggers, and the citation chain: a claim resting on an id with no file, an artifact no evidence doc binds, a `[C12]` matching no claim, a doc pointer resolving to nothing. Every one is a defect that happened on a real project. 2.3s over 285 docs. Run manually or from CI — never as a hook; see `docs/verification-architecture.md` |
-| `retrieve-learnings.sh` | UserPromptSubmit | Surfaces ≤3 matched learnings as `additionalContext` when ≥2 trigger keywords appear in the prompt |
+| `lint-research.sh` | *(not wired, by design)* | **Twenty-one** invariants on the research record — duplicate evidence ids, frontmatter completeness, verdicts in `## Measured`, retrieval triggers, and the citation chain: a claim resting on an id with no file, an artifact no evidence doc binds, a `[C12]` matching no claim, a doc pointer resolving to nothing, an evidence doc no claim or deliverable cites, a source doc missing from its own index, a path into a directory the framework retired. Every one is a defect that happened on a real project. 2.3s over 285 docs. Run manually or from CI — never as a hook; see `docs/verification-architecture.md` |
 | `precompact-handoff.sh` | PreCompact | Nudges handoff refresh and prompts for session surprises worth saving as learnings |
 
 Subagent (auto-launched):
@@ -206,7 +205,6 @@ The framework's own internals — useful if you're proposing a new convention, h
 ├── hooks/
 │   ├── check-archival.sh              ← Stop hook: archival tripwire
 │   ├── lint-research.sh               ← research-record invariants; manual / CI, not wired
-│   ├── retrieve-learnings.sh          ← UserPromptSubmit: trigger-keyword learning retrieval
 │   └── precompact-handoff.sh          ← PreCompact: handoff refresh nudge
 ├── agents/                            ← symlinked into ~/.claude/agents/ globally by `r2p init`
 │   └── archivist.md                   ← per-plan archival on .completed

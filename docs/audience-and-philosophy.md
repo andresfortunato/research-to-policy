@@ -20,7 +20,7 @@ It assumes:
 
 It does *not* target: software engineering teams (Claude Code's defaults already serve them well), one-off data exercises (overkill), or fully-academic research with a LaTeX-Beamer pipeline (deferred to v1.1+).
 
-## The ten design principles
+## The eleven design principles
 
 ### 1. Silent-by-default hooks
 
@@ -31,6 +31,56 @@ Concretely: `check-archival.sh` returns nothing unless a plan is marked `.comple
 v2 removed a second hook for failing this test in the worst way. `check-evidence.sh` nudged when analysis artifacts were uncommitted without an evidence doc — but its "did you already write one?" check globbed the v1 path, so once v2 moved evidence under `research/`, the condition could never be satisfied and the nudge fired *unconditionally*. **A silent-by-default hook whose silence depends on a path is one refactor away from firing every turn.** Its invariants now live in `lint-research.sh`, run manually or from CI.
 
 If you can't make a hook silent-by-default, it probably belongs as a user-invoked skill (`/verify`, `/wiki-lint`, `/scan-sources`, `/research-cleanup`) instead.
+
+**A hook may enforce. A hook may not inject (2026-09-10 revision).** Silence is
+the *symptom* this principle was written against; the v3 assessment found the
+cause underneath it. Sort every mechanism the framework has ever shipped by
+whether it **checks** something and reports, or **pushes text into the session's
+context**, and the split is total:
+
+| Mechanism | Kind | After six months on the pilot |
+|---|---|---|
+| `evidence/INDEX.md` 120-char headline cap | check | 285/285 compliant, max exactly 120 |
+| `lint-type-scale.sh`, `lint-chart-titles.sh` (project-local) | check | holding |
+| `check-archival.sh` Stop tripwire | check | holding |
+| `sources/INDEX.md` cap — prose only, no check | none | 40% of cells over 120, longest 1,759 |
+| `triggers:` "4–8 keywords" — prose only, no check | none | mean 12.5, 63% over guidance |
+| `retrieve-learnings.sh` (`UserPromptSubmit`) | **inject** | fired on the words `no` and `a` |
+| a status document read at `SessionStart` | **inject** | froze for 41 days, 3 dead pointers |
+
+**Every enforced constraint survived. Every injection channel degraded. Every
+unchecked prose rule drifted.** The two injection failures were independent
+mechanisms written months apart, which is what makes this a property of the
+shape rather than of either implementation.
+
+Four reasons an injection hook cannot be tuned into correctness, only the first
+of which is a threshold:
+
+1. **It cannot know the session's task.** It sees one message as a bag of words.
+   Asked to *evaluate the framework*, the retrieval hook matched on `1` and
+   `general`; on the next message, on `no` and `a`.
+2. **The payload is bodies, not names.** Even a *correct* match costs ~3.2k
+   tokens whether or not the session would have opened the doc. A pull mechanism
+   returns a filename, and reading it is a second, deliberate decision.
+3. **Cost multiplies by turn count.** Per-prompt injection at a ~33% fire rate
+   over a 40-turn session is ~41,000 tokens — roughly eight times the framework's
+   entire always-on context floor.
+4. **The threshold is lose-lose.** Low produces noise; high produces *silent*
+   misses, so the operator never learns what was withheld and cannot calibrate.
+
+There is also an incentive reason push retrieval had to drift rather than
+drifting by bad luck. Under push, the author of a doc wants it found, so they add
+keywords; breadth is rewarded at write time and the token cost lands on a
+different session weeks later. The author captures the benefit, a stranger pays,
+and the guidance has no defender. Under pull the author *is* the searcher, so
+broad triggers pollute their own results. **The fix is not more discipline; it is
+putting the cost back on whoever creates it.**
+
+So: retrieval metadata stays (`triggers:` is static text in the doc it
+describes — it cannot error, cannot inject, cannot break a run), and the channel
+that pushed it becomes a documented grep. `UserPromptSubmit` and
+`retrieve-learnings.sh` were deleted in v3.1 on this revision. Measured in
+`docs/v3-assessment-cordoba.md`.
 
 ### 2. Conditional, not always-fire
 
@@ -51,6 +101,20 @@ When proposing a new convention, ask: can this be one file in `.claude/conventio
 Everything in `.claude/conventions/`, `.claude/hooks/`, `.claude/skills/`, `.claude/agents/`, and `.claude/settings.json` is committed to the research repo so every collaborator (human or AI, on any machine) gets the same scaffolding. User-personal customization stays in `.claude/settings.local.json` (gitignored).
 
 This is the inverse of the Claude Code default, where most config lives in `~/.claude/`. The research repo is the unit of collaboration, so the harness moves with the repo. Same argument as for the provenance convention: future-you, your handoff partner, and the auditor years later all need to see the same thing.
+
+**No gitignored file may feed session context (2026-09-10 revision).** The
+principle above is about *collaboration*; this corollary is about *decay*, and it
+was earned. A status document read at the top of every session on the pilot sat
+frozen for 41 days, asserting a current focus five phases and 1,555 commits out
+of date — and it froze *invisibly* precisely because it was gitignored. No diff
+ever showed it going stale, no review could catch it, no collaborator saw it, and
+nothing on disk reconciled it against the 36 plan handoffs that contradicted it.
+
+A file that only a human reads can rot quietly and be noticed when someone reads
+it. A file that shapes what a session *believes* is read first and questioned
+never. So: **if a file feeds context, it is committed.** Gitignored state may be
+a cache, a lock, a credential or a local artifact; it may not be an input to what
+Claude thinks is true.
 
 ### 5. Short CLAUDE.md, with pointers
 
@@ -88,7 +152,7 @@ LaTeX/Beamer add-ons are deferred to v1.1+ (Pedro / Hugo Sant'Anna patterns), an
 Verification is tiered by cost and by who triggers it:
 
 - **Provenance substrate (zero install cost, researcher discipline).** The `provenance.md` convention turns `git log` into the audit trail. No hook, no separate log; `git log -- output/<file>` resolves to a commit, the message names the script, the script's header documents the run.
-- **`lint-research.sh` (zero tokens, manual or CI).** Eighteen mechanical invariants over the research record — duplicate ids, missing frontmatter, a claim resting on an id with no file, a doc pointer resolving to nothing. Pure bash, no model in the loop, 2.3s over a 285-document corpus. Every check in it is a defect that actually happened on the pilot.
+- **`lint-research.sh` (zero tokens, manual or CI).** Twenty-one mechanical invariants over the research record — duplicate ids, missing frontmatter, a claim resting on an id with no file, a doc pointer resolving to nothing, an evidence doc no claim or deliverable cites, a source index cell past its cap, a path into a directory the framework retired. Pure bash, no model in the loop, 2.3s over a 285-document corpus. Every check in it is a defect that actually happened on the pilot. **Deliberately wired to nothing** — it runs when a person or a CI job types it, which is what keeps it a check rather than an ambient nag.
 - **`/verify` (≤2k tokens, user-invoked).** Per-artifact: one regression, one chart, one paragraph. Sign-of-coefficients, magnitudes, missingness, source citation, provenance. Run when you're about to publish or hand off.
 - **`/cite-check` (≤2k tokens, user-invoked).** ✚ **Added 2026-09-09.** Walks one finished deliverable's citation chain end to end: every number traced to a claim, every claim to live evidence. Mechanical and exhaustive where `/verify` is selective and judgement-shaped.
 - **`/deliverable-review` (≤12k tokens, user-invoked, forked parallel).** Seven lenses (data validity, identification/reasoning, robustness, framing, audience-fit, political-economy realism, peer-Lab plausibility), each in a separate sub-context. Run only on advanced deliverable drafts — last-mile, not exploratory.
@@ -175,22 +239,56 @@ over three documents in a subdirectory it never opened — a PASS that was
 literally true about the files it read and false about the corpus. Printing the
 count it checked would have shown 174 where the project had 177.
 
+### 11. Derive state; don't store it
+
+**✚ Added 2026-09-10.** Anything computable from git or the filesystem is
+computed at read time, not written down and re-read. **Stored state is a cache
+with no invalidation**, and a research repo has no moment at which something
+would invalidate it — no build, no deploy, no test run that fails when the cache
+is wrong. It simply stays wrong.
+
+Two independent confirmations, both on the pilot, both silent:
+
+- **A maintained status document froze for 41 days** while the work moved to
+  four other themes. What it was trying to answer — *which plan is live* — is a
+  one-line derivation: `git log -1 --format='%as %f' -- plan/plan-*/`. The
+  derivation cannot freeze, because there is nothing to forget to update.
+- **36 plan handoffs all carry mtime 2026-08-21.** A worktree consolidation
+  rewrote every one of them, and in doing so destroyed the only signal that said
+  which plan was live. The stored field was staleness itself, and a bulk
+  operation flattened it.
+
+**The boundary is computability, not importance.** A handoff's *narrative* — what
+was decided, what surprised us, what the next session must not re-litigate — is
+not derivable from anything and must be written down; that is what
+`plan-lifecycle.md` is for, and this principle does not touch it. What must not
+be written down is the part a command already answers: which plan is active, when
+a phase last moved, how many evidence docs exist, what the next id is.
+`research/evidence/.next-id` is the deliberate exception and shows the test —
+it is stored because parallel allocation needs an atomic counter that `ls` cannot
+provide, and v2 shipped it only after `ls`-derived ids collided five times.
+
+The practical form for a contributor: before adding a field, ask what would
+notice if it went stale. If the answer is "a reader, eventually", derive it
+instead. If the answer is "nothing", you are proposing the status document again.
+
 ## How the principles bind future additions
 
 Before proposing a new convention, hook, skill, or template, run it past the constitution:
 
 | Principle | Question to ask |
 |---|---|
-| Silent-by-default | If this is a hook, does it fire only on real evidence? Or does it nag? |
+| Silent-by-default | If this is a hook, does it fire only on real evidence? Or does it nag? **And does it check, or does it inject?** A hook may enforce; a hook may not push text into context. |
 | Conditional | Is the trigger an actual filesystem / git / tool-call check, or just a clock? |
 | Composable | Can it be one file (or one dir) without touching others? |
-| Project-shared | Is anything in here user-personal that should be in `settings.local.json`? |
+| Project-shared | Is anything in here user-personal that should be in `settings.local.json`? **And if it feeds session context, is it committed?** A gitignored context input rots invisibly. |
 | Short CLAUDE.md | Does the rule itself live in `.claude/conventions/<name>.md`, with only a pointer block in CLAUDE.md? (No line budgets — see the 2026-08-05 revision.) |
 | Markdown-first | Does it work without a specific language toolchain? |
 | Stakes-graded | Does it fit the cost tier (zero / ≤2k / ≤12k tokens)? Or invent a new one with reason? **And what does it change if it is wrong** — read-only, derived files, or source? Anything past read-only needs the bounds in principle 7. |
 | Open-source | Is anything here engagement-specific? |
 | Verifiable freshness | If this convention adds a doc whose claims age out — a ref doc, a methods rule, an evidence `## Measured` block — does it carry a `Status` date paired with a re-runnable headline anchor? |
 | Silence reads as a pass | When this finds nothing, does it *say* it found nothing and name what it examined? If it is a hook, principle 1 wins instead — ambient mechanisms stay quiet. |
+| Derive state | Is any field here computable from git or the filesystem? If so, compute it at read time — a stored copy is a cache nothing invalidates. |
 
 If a proposal fails one of these and the failure is intentional, the constitution gets revised first — explicitly, in this document — before the addition lands. That's the only way the framework stays small over time.
 
@@ -210,5 +308,5 @@ A few things deliberately omitted in v1, with the reasoning:
 - The design-rationale docs: `docs/citation-chain-mechanism.md`, `docs/verification-architecture.md`, `docs/wiki-architecture.md`
 - The extension guide (concrete steps to add a convention): `docs/extending.md`
 - The release change tables: `docs/v1-to-v2-migration.md`, `docs/v2-to-v3.md`
-- The audit these principles were pressure-tested against: `docs/v2-case-study-cordoba.md`
+- The audits these principles were pressure-tested against: `docs/v2-case-study-cordoba.md` (drove v2 and v3), `docs/v3-assessment-cordoba.md` (drove v3.1 — principles 1, 4 and 11)
 - The build plans that produced each release: `archive/` in the framework repo (not installed into target projects)

@@ -29,6 +29,27 @@ return HTTP 200*. Those belong with the source, not in a separate directory.
   v1's "flat listing of 5–15 scans in seconds" was wrong by 4×: a real 6-month
   engagement runs **40–70** source docs. Flat *storage* still scales; a flat
   *index* does not.
+
+  **Every cell is capped at 120 characters, and every source doc has exactly one
+  row in the file listing.** This is the same contract `evidence/INDEX.md` has
+  had since v2, and it is the framework's best-evidenced mechanism: 285 rows,
+  mean 102 characters, max exactly 120, **zero** violations after six months.
+  The sources index had the identical job and no cap, and the pilot's reached
+  **96,791 bytes / ~26,000 tokens** — bigger than the evidence index over half
+  the documents — with 40% of cells past 120 characters and the longest at
+  1,759. Checked by `lint-research.sh` invariant 20 (WARN).
+
+  Two shapes to keep out, both of which the pilot grew:
+
+  - **A section named after the operation that created it.** "Folded in from the
+    v1 `data_sources/INDEX.md`", "Source docs that had no index row". A migration
+    is an event; an index is a map. Merge the rows into the domain group they
+    belong to and delete the section — otherwise every future migration adds
+    another one, and the pilot ended with **six overlapping listings of the same
+    130 sources**, 62 of 142 entries appearing in more than one.
+  - **A row that explains instead of pointing.** If a cell needs more than 120
+    characters, the content belongs in the source doc's `## What it gives you`.
+    The index answers "which file", not "what does it say".
 - Files stay flat even at 70. Renaming into subdirectories breaks the `data:`
   frontmatter in every evidence doc that cites them, for no navigational gain
   the INDEX can't provide.

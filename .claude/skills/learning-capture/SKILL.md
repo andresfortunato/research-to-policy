@@ -120,7 +120,7 @@ pilot's 70 learnings never reached a future session:
 triggers: "keyword1 keyword2 keyword3 keyword4"
 ```
 
-Triggers are words that would appear in a user's prompt when this learning is relevant. The retrieval hook (`.claude/hooks/retrieve-learnings.sh`) matches prompts against these keywords and surfaces a learning only when **at least 2 trigger words** appear in the prompt. Choose 4–8 specific, concrete keywords — variable names, dataset acronyms, country codes, year ranges — not generic words like "data" or "fix."
+Triggers are the words someone would **search for** to find this learning — including acronyms and synonyms its filename does not carry. Nothing reads them automatically; a future session greps them (`grep -il '^triggers:.*<keyword>' research/methods/*.md`). **Be generous:** an extra keyword costs nothing until someone searches it, and then it returns one filename they discard for free. A missing keyword is the only real failure. Ten or fifteen is fine. (v2 capped this at 4–8 because a per-prompt hook made every extra keyword a false-positive risk; that hook was deleted in v3.1 and the cap went with it — see `.claude/conventions/methods.md` § Retrieval.)
 
 Good: `"PONDII EPH 2014 panel attrition vintage"` — concrete; will only fire when the user mentions a relevant context.
 
