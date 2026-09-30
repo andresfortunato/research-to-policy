@@ -20,38 +20,59 @@ Reference deck that gets this right: `~/research/city_diagnostics/deliverables/d
 
 ## Slide grammar — the non-negotiables
 
-Every content slide has exactly three parts:
+Every content slide has exactly these parts, top to bottom:
 
-1. **Title** — the slide headline. One sentence. It may state what the slide shows ("Brasil importa
-   USD 12.780 M al año de la lista"), because the deck is an argument, but it is the *only* place a
-   reading may appear on the slide.
+1. **Title** — the slide headline. One sentence, **up to two lines**. It may state what the slide shows
+   ("Brasil importa USD 12.780 M al año de la lista"), because the deck is an argument, but it is the
+   *only* place a reading may appear on the slide.
 2. **Content** — exactly **one kind**: a chart, a table, a list, an image, or text. Never mix kinds:
    no chart plus bullets, no table plus a reading paragraph, no chart plus a callout box.
-3. **Source** — one footnote line: `Fuente: …`, then the definitions a reader needs (units, what a code
-   means). Black, small (≥ 11 pt), upright.
+3. **Notas** (only when needed) — the line that says **what a category IS** ("OPEX 312B: …",
+   "Servicios compartidos: …", "DIE: derecho de importación extrazona …"), right above the source.
+4. **Source** — `Fuente: …`, then the units a reader needs. Black, upright.
+
+### Format — fixed for every deck (AF, 30/09/2026)
+
+| Element | Rule |
+|---|---|
+| Font | **Arial, all text** (the builder also sets the theme's fonts to Arial) |
+| Slide title | **24 pt**, navy, left, up to 2 lines |
+| Chart title (the line naming the variables) | **14 pt bold**, **centred over the chart**, centred paragraph, up to 2 lines |
+| Chart / image | **centred on the slide**: horizontally on the slide's centre, vertically in the band between the title and the Notas/Fuente block. Chart title and chart move as one group |
+| Notas | **12 pt**, starts with «Notas:», **above the Fuente** |
+| Fuente | **12 pt**, black, at the foot, above the footer band |
+| References | **no internal evidence references** («Evidencia #288») on slides or in the speaker notes. The builder strips them and keeps them in `REFS`, so a deck can write a slide → evidence traceability file |
+| Floor | nothing under 11 pt; never shrink text to fit — split the slide, cut rows, or move detail to notes |
+
+The builder measures text with real Arial metrics (Liberation Sans is metric-compatible) and stacks the
+blocks, so nothing overlaps and nothing reaches the footer. A title, chart title or table that does not
+fit **raises an error** instead of spilling: shorten it, split the slide, or move detail to the notes.
 
 Rules on the content:
 
 - **Charts: one per slide, ideally.** At most **four**, and only of the **same type** (four line charts
-  of the same variable across groups, not a line + a bar). Several panels means one shared chart title
-  and one source.
+  of the same variable across groups, not a line + a bar). Several panels means one shared chart title,
+  one scale, one source.
 - **Every chart has a chart title in live text** right above it that **only names the variables and the
   period** — a journal-caption line: `Importaciones de Brasil (USD M) por partida HS6 y país de origen,
   promedio 2021-2023`. Never the finding.
-- **If the chart shows a category, industry or group the audience may not know** ("OPEX 312B",
-  "servicios compartidos", "CRO", "principios activos"), put a **side text** next to the chart that says
-  **what the category is** — a definition, ≤ 45 words. It never says what the chart shows, why, or what
-  follows.
+- **If the slide shows a category, industry, group or code the audience may not know** ("OPEX 312B",
+  "servicios compartidos", "CRO", "principios activos", "DIE"), say **what it is** in the **Notas** line
+  (`note=`) — a definition, ≤ 45 words. It never says what the chart shows, why, or what follows. (The
+  v2 side-text column is gone: `chart_side_slide` still exists and routes its text to Notas.)
 - **Delete all other text inside the slide**: reading lines, "the point is…", callouts, bold takeaways,
   hypotheses, "what we still need to know" columns. Move them to the **speaker notes**.
 - **Bare charts, live text.** The PNG on a slide carries no title, subtitle or caption; those are slide
   text. In R projects `gl_save()` writes the bare PNG and a `_text.md` sidecar (Título / Subtítulo /
   Fuente / Notas). Map them: sidecar **Título → chart title line**, **Fuente → source**, **Notas →
-  speaker notes**; the Subtítulo joins the chart title line only if it names units or definitions,
-  otherwise it goes to the notes. The slide headline is written for the deck, not taken from the chart.
+  speaker notes**; the Subtítulo goes to the Notas line if it defines a category, to the chart title
+  line if it only adds units, otherwise to the speaker notes. The slide headline is written for the
+  deck, not taken from the chart.
 - **Section dividers** between parts: a row of the deck's sections with the current one lit
-  (`section_slide`). A reader always knows which part of the argument they are in.
-- **Type floor 11 pt.** Never shrink text to fit — split the slide, cut rows, or move detail to notes.
+  (`section_slide`). A reader always knows which part of the argument they are in. When a section has
+  sub-topics, pass `subgroups=[...]`: arrows from the lit icon to one box per sub-topic.
+- **Guiding questions** (the deck's parts as questions): `questions_slide(questions, current=i)` puts
+  them side by side, the current one dark and the rest faded.
 - **On-slide language** follows the project (Spanish for Córdoba and other LATAM decks).
 
 A **list** or **text** slide is fine when the content really is a list (the firms, the steps of a value
@@ -65,12 +86,12 @@ Everything is in this skill's folder (`~/.claude/skills/ppt-creator/`, versioned
 | File | What |
 |---|---|
 | `assets/GL_presentation_template.potx` | The official Growth Lab template. Decks are built **on its layouts**, never on blank slides. |
-| `scripts/gl_deck.py` | Builder: `new_deck()`, `title_slide`, `section_slide`, `chart_slide`, `charts_slide` (2–4), `chart_side_slide`, `table_slide`, `list_slide`, `image_slide`, `statement_slide`, `closing_slide`. Every shape it writes carries a role name (`gl:title`, `gl:chart`, …). |
-| `scripts/check_deck.py` | Linter for the grammar. Runs on any .pptx (role-less decks are classified by position). Exit 1 on errors. |
+| `scripts/gl_deck.py` | Builder: `new_deck()`, `title_slide`, `section_slide` (with `subgroups=`), `questions_slide`, `chart_slide`, `charts_slide` (2–4), `table_slide` (rows auto-fit), `list_slide`, `icon_list_slide`, `image_slide`, `statement_slide`, `closing_slide`; content slides take `note=` for the Notas line. `chart_side_slide` is kept for old decks. Every shape it writes carries a role name (`gl:title`, `gl:chart`, `gl:note`, …). |
+| `scripts/check_deck.py` | Linter for the grammar and the fixed format (font, sizes, centring, references), plus measured overflow, overlap and footer checks. Runs on any .pptx (role-less decks are classified by position; the format checks apply to builder-made slides). Exit 1 on errors. |
 
-Template layouts used: *Title Slide*, *Single Visual* (title · visual · source — chart, table, list,
-image), *1_Two Visuals* (chart + side text), *Title + Blank* (section divider), *Statement Text*,
-*Closing Slide*.
+Template layouts used: *Title Slide*, *Single Visual* (every content slide: the builder places title,
+content, Notas and Fuente itself), *Title + Blank* (section divider), *Statement Text* (statements and
+guiding questions), *Closing Slide*.
 
 ```python
 import sys; sys.path.insert(0, str(Path.home() / ".claude/skills/ppt-creator/scripts"))
@@ -78,7 +99,8 @@ import gl_deck as D
 prs = D.new_deck()
 D.chart_slide(prs, "Brasil importa USD 12.780 M al año de la lista",
               "Importaciones de Brasil (USD M) por partida HS6 y país de origen, promedio 2021-2023",
-              "output/x/deck_assets/l07_bare.png", "Fuente: UN Comtrade, 2021-2023. Evidencia #288.",
+              "output/x/deck_assets/l07_bare.png", "Fuente: UN Comtrade, 2021-2023.",
+              note="Lista: las 46 moléculas de volumen comercial relevante del reporte final.",
               notes="Lectura: China e India proveen el 68% del glifosato ...")
 prs.save("deck.pptx")
 ```
@@ -113,3 +135,6 @@ Run with `uv run --with python-pptx --with pillow python build_deck.py`.
 - A table of 25 rows at 9 pt → two slides, or the top rows + the rest in an appendix.
 - A card column "Lo que falta saber" → the team's to-do list, not the audience's; delete.
 - Blank-layout slides with hand-drawn footers → build on the template layouts.
+- "Evidencia #288" at the end of a source line → internal bookkeeping, not for the audience; keep it
+  in the deck's traceability file (the builder collects it in `REFS`).
+- A definition column beside the chart → the Notas line above the Fuente, and the chart centred.

@@ -7,7 +7,11 @@
 #
 # Lints a deck against the slide grammar in ../SKILL.md:
 #   title + ONE kind of content + source; <= 4 charts; no free text that reads
-#   the chart; side text only next to a chart, and short; nothing under 11 pt.
+#   the chart; nothing under 11 pt. On gl_deck-built slides it also checks the
+#   fixed format: Arial everywhere, title 24 pt, chart title 14 pt bold centred,
+#   Notas / Fuente 12 pt, charts centred on the slide, no internal evidence
+#   references, and — measured with Arial metrics — no text overflowing its box,
+#   no blocks overlapping, nothing inside the footer band.
 #
 # Shapes written by gl_deck.py carry a role name ("gl:title", "gl:chart", ...).
 # Shapes from any other builder are classified by placeholder type and shape
@@ -24,7 +28,10 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE, PP_PLACEHOLDER
-from pptx.util import Pt
+from pptx.util import Emu, Pt
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import gl_deck as G  # noqa: E402  (format constants and Arial text measurement)
 
 PT_MIN = 11
 SIDE_MAX_WORDS = 45
@@ -38,8 +45,12 @@ SUBTITLE_ZONE_IN = 2.0  # ...and the next one above this, the chart title
 
 CONTENT_ROLES = {"gl:chart": "chart", "gl:table": "table", "gl:list": "list",
                  "gl:image": "image", "gl:statement": "text"}
-TEXT_ROLES = {"gl:title", "gl:subtitle", "gl:source", "gl:side", "gl:meta",
-              "gl:list-head", "gl:section-label", "gl:section-icon"}
+TEXT_ROLES = {"gl:title", "gl:subtitle", "gl:source", "gl:note", "gl:side", "gl:meta",
+              "gl:list-head", "gl:section-label", "gl:section-icon", "gl:section-sub",
+              "gl:section-arrow", "gl:list-icon"}
+BLOCK_ROLES = ("gl:title", "gl:subtitle", "gl:chart", "gl:image", "gl:table", "gl:note",
+               "gl:source")
+TOL_IN = 0.06
 FOOTER_PH = {PP_PLACEHOLDER.FOOTER, PP_PLACEHOLDER.SLIDE_NUMBER, PP_PLACEHOLDER.DATE}
 
 
@@ -92,6 +103,102 @@ def small_runs(shape):
     return out
 
 
+def _box(sh):
+    return tuple(Emu(v).inches for v in (sh.left, sh.top, sh.width, sh.height))
+
+
+def _runs(sh):
+    frames = []
+    if sh.has_text_frame:
+        frames.append(sh.text_frame)
+    if getattr(sh, "has_table", False) and sh.has_table:
+        frames += [c.text_frame for row in sh.table.rows for c in row.cells]
+    for tf in frames:
+        for p in tf.paragraphs:
+            for r in p.runs:
+                if r.text.strip():
+                    yield p, r
+
+
+def _sizes(sh):
+    return {(r.font.size or p.font.size).pt for p, r in _runs(sh)
+            if (r.font.size or p.font.size) is not None}
+
+
+def check_format(slide, roles):
+    """The fixed GL format, for slides whose shapes carry gl: roles. Title, statement
+    and closing layouts keep the template's own sizes: only font and references apply."""
+    errors = []
+    free = slide.slide_layout.name.strip() in FREE_LAYOUTS
+    blob = []
+    for r, sh in roles:
+        for p, run in _runs(sh):
+            blob.append(run.text)
+            if run.font.name not in (None, G.FONT):
+                errors.append(f"font {run.font.name!r} (not {G.FONT}): “{run.text.strip()[:40]}”")
+                break
+    if slide.has_notes_slide:
+        blob.append(slide.notes_slide.notes_text_frame.text)
+    m = G.EVIDENCE_RE.search("\n".join(blob))
+    if m:
+        errors.append(f"internal evidence reference: “{m.group(0).strip()}”")
+    want = {"gl:title": G.PT_TITLE, "gl:subtitle": G.PT_CHART_TITLE,
+            "gl:source": G.PT_SOURCE, "gl:note": G.PT_NOTE}
+    if free:
+        return errors
+    for r, sh in roles:
+        if r in want and sh.has_text_frame and sh.text_frame.text.strip():
+            bad = {x for x in _sizes(sh) if abs(x - want[r]) > 0.1}
+            if bad or not _sizes(sh):
+                errors.append(f"{r} at {sorted(bad) or 'inherited'} pt, not {want[r]} pt")
+        if r == "gl:subtitle":
+            if any(not run.font.bold for _, run in _runs(sh)):
+                errors.append("chart title not bold")
+            if any(p.alignment is not None and p.alignment != 2 for p in sh.text_frame.paragraphs):
+                errors.append("chart title not centred")
+        if r == "gl:side":
+            errors.append("side text: the category definition goes in the Notas line "
+                          "above the Fuente (note=...)")
+        # text that does not fit its box, measured with Arial metrics
+        if r in ("gl:title", "gl:subtitle", "gl:note", "gl:source") and sh.has_text_frame:
+            txt = sh.text_frame.text
+            if txt.strip():
+                size = max(_sizes(sh) or {want.get(r, 12)})
+                bold = any(run.font.bold for _, run in _runs(sh))
+                l, t, w, h = _box(sh)
+                need = G.block_h(txt, size, w, bold)
+                if need > h + TOL_IN:
+                    errors.append(f"{r} overflows its box ({need:.2f} in needed, {h:.2f} in): "
+                                  f"“{txt.strip()[:50]}”")
+                if r == "gl:title" and G.n_lines(txt, size, w, bold) > G.TITLE_MAX_LINES:
+                    errors.append(f"title longer than {G.TITLE_MAX_LINES} lines")
+                if r == "gl:subtitle" and G.n_lines(txt, size, w, bold) > G.CHART_TITLE_MAX_LINES:
+                    errors.append(f"chart title longer than {G.CHART_TITLE_MAX_LINES} lines")
+    # the chart (or grid of same-type charts) is centred horizontally on the slide
+    vis = [_box(sh) for r, sh in roles if r in ("gl:chart", "gl:image")]
+    if vis:
+        left = min(b[0] for b in vis)
+        right = max(b[0] + b[2] for b in vis)
+        off = (left + right) / 2 - G.SLIDE_W / 2
+        if abs(off) > TOL_IN:
+            errors.append(f"chart off-centre horizontally by {off:+.2f} in")
+    # blocks overlapping each other or entering the footer band
+    blocks = [(r, _box(sh)) for r, sh in roles if r in BLOCK_ROLES and sh.width]
+    for r, (l, t, w, h) in blocks:
+        if t + h > G.FOOTER_TOP + 0.01:
+            errors.append(f"{r} reaches into the footer band (bottom at {t + h:.2f} in)")
+    for i in range(len(blocks)):
+        for j in range(i + 1, len(blocks)):
+            (ra, a), (rb, b) = blocks[i], blocks[j]
+            if ra == rb and ra in ("gl:chart", "gl:image"):
+                continue
+            ox = min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0])
+            oy = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1])
+            if ox > TOL_IN and oy > TOL_IN:
+                errors.append(f"{ra} overlaps {rb} by {oy:.2f} in")
+    return errors
+
+
 def check_slide(slide):
     errors, warns = [], []
     layout = slide.slide_layout.name.strip()
@@ -110,6 +217,9 @@ def check_slide(slide):
     for r, sh in roles:
         for pt, txt in small_runs(sh):
             errors.append(f"text at {pt:g} pt < {PT_MIN} pt: “{txt}”")
+
+    if any(r.startswith("gl:") and sh.name.startswith("gl:") for r, sh in roles):
+        errors += check_format(slide, roles)
 
     if layout in FREE_LAYOUTS:
         return errors, warns
@@ -143,6 +253,9 @@ def check_slide(slide):
         if r == "free-text":
             errors.append(f"free text box (reads or explains the content?): "
                           f"“{sh.text_frame.text.strip()[:70]}”")
+        if r == "gl:note" and len(sh.text_frame.text.split()) > SIDE_MAX_WORDS + 15:
+            warns.append(f"Notas has {len(sh.text_frame.text.split())} words: define the "
+                         "category, do not read the chart")
         if r == "gl:side":
             if "chart" not in kinds:
                 errors.append("side text without a chart")
