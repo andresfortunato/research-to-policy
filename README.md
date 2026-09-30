@@ -1,4 +1,4 @@
-# Research to Policy
+# Research to Policy (r2p)
 
 A Claude Code harness for **applied research projects** — applied development economics and policy research.
 
@@ -14,6 +14,8 @@ The default Claude Code experience is built for software engineering. Research p
 
 
 ## Quickstart
+
+Just copy this link and tell your AI to install r2p, or:
 
 ```bash
 npm install -g github:andresfortunato/research-to-policy
@@ -163,7 +165,6 @@ Background hooks (silent unless their condition holds):
 |---|---|---|
 | `check-archival.sh` | Stop | BLOCKING nudge to launch the archivist when `plan/plan-<slug>/.completed` exists and the plan is not yet archived |
 | `lint-research.sh` | *(not wired, by design)* | **Twenty-one** invariants on the research record — duplicate evidence ids, frontmatter completeness, verdicts in `## Measured`, retrieval triggers, and the citation chain: a claim resting on an id with no file, an artifact no evidence doc binds, a `[C12]` matching no claim, a doc pointer resolving to nothing, an evidence doc no claim or deliverable cites, a source doc missing from its own index, a path into a directory the framework retired. Every one is a defect that happened on a real project. 2.3s over 285 docs. Run manually or from CI — never as a hook; see `docs/verification-architecture.md` |
-| `precompact-handoff.sh` | PreCompact | Nudges handoff refresh and prompts for session surprises worth saving as learnings |
 
 Subagent (auto-launched):
 
